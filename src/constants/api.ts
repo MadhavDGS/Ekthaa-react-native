@@ -1,9 +1,9 @@
 /**
  * API Configuration
- * Backend deployed at: https://ekthaa-react-business.onrender.com
+ * Backend deployed at: https://kathape-react-business.onrender.com
  */
 
-export const API_BASE_URL = 'https://ekthaa-react-business.onrender.com';
+export const API_BASE_URL = 'https://kathape-react-business.onrender.com';
 
 export const API_ENDPOINTS = {
   // Authentication
