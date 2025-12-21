@@ -18,8 +18,8 @@ class ApiService {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      // Enable credentials and proper error handling
-      validateStatus: (status) => status < 500,
+      // Only treat 2xx as success
+      validateStatus: (status) => status >= 200 && status < 300,
     });
 
     // Request interceptor to add auth token
@@ -65,17 +65,30 @@ class ApiService {
       });
       console.log('📡 API: Login response status:', response.status);
       console.log('📡 API: Login response data:', response.data);
-      if (response.data.token) {
-        await AsyncStorage.setItem('authToken', response.data.token);
-        await AsyncStorage.setItem('userData', JSON.stringify(response.data.user));
-        console.log('📡 API: Token saved to AsyncStorage');
+      
+      // Check if login was successful
+      if (!response.data.token) {
+        throw new Error('Login failed: No token received');
       }
+      
+      await AsyncStorage.setItem('authToken', response.data.token);
+      await AsyncStorage.setItem('userData', JSON.stringify(response.data.user));
+      console.log('📡 API: Token saved to AsyncStorage');
       return response.data;
     } catch (error: any) {
       console.error('📡 API: Login request failed');
       console.error('📡 API: Error:', error.message);
       console.error('📡 API: Error response:', error.response?.data);
       console.error('📡 API: Error status:', error.response?.status);
+      
+      // Throw a user-friendly error message
+      if (error.response?.status === 404) {
+        throw new Error('Invalid phone number or password');
+      } else if (error.response?.status === 401) {
+        throw new Error('Invalid credentials');
+      } else if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
       throw error;
     }
   }

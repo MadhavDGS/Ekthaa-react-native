@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Platform, ActivityIndicator, View } from 'react-native';
+import { Platform, ActivityIndicator, View, AppState } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -149,6 +149,21 @@ function AppContent() {
 
   useEffect(() => {
     checkAuth();
+    
+    // Listen for app state changes to re-check auth
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'active') {
+        checkAuth();
+      }
+    });
+    
+    // Set up interval to periodically check auth
+    const interval = setInterval(checkAuth, 2000);
+
+    return () => {
+      subscription.remove();
+      clearInterval(interval);
+    };
   }, []);
 
   const checkAuth = async () => {

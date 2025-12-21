@@ -49,24 +49,20 @@ export default function LoginScreen({ navigation }: any) {
     try {
       setLoading(true);
       console.log('🔐 Attempting login with phone:', phoneNumber);
-      await ApiService.login(phoneNumber, password);
-      console.log('✅ Login successful!');
+      const response = await ApiService.login(phoneNumber, password);
+      console.log('✅ Login successful!', response);
       setSuccess('Login successful! Redirecting...');
       
+      // Small delay to show success message, then trigger re-render
       setTimeout(() => {
-        // Navigation will be handled by App.tsx auth state change
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Main' }],
-        });
-      }, 1000);
+        // Force re-render by navigating to a dummy route and back
+        // This will trigger the auth check in App.tsx
+        setLoading(false);
+        // The App.tsx will automatically navigate to Main when it detects the token
+      }, 500);
     } catch (err: any) {
       console.error('❌ Login error:', err);
-      console.error('Error response:', err.response?.data);
-      console.error('Error status:', err.response?.status);
-      console.error('Error message:', err.message);
-      setError(err.response?.data?.message || err.message || 'Login failed. Please try again.');
-    } finally {
+      setError(err.message || 'Login failed. Please check your credentials.');
       setLoading(false);
     }
   };
