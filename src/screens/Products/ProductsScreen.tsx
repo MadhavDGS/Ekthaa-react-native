@@ -129,7 +129,7 @@ export default function ProductsScreen({ navigation }: any) {
         <View style={styles.productContent}>
           <View style={styles.contentHeader}>
             <View style={[styles.productIconSmall, { backgroundColor: getCategoryColor(item.category) + '15' }]}>
-              <Ionicons name={getCategoryIcon(item.category)} size={24} color={getCategoryColor(item.category)} />
+              <Ionicons name={getCategoryIcon(item.category)} size={23} color={getCategoryColor(item.category)} />
             </View>
             <View style={styles.headerTexts}>
               <Text style={[styles.productName, { color: Colors.textPrimary }]}>{item.name}</Text>
@@ -146,31 +146,31 @@ export default function ProductsScreen({ navigation }: any) {
           <Text style={[styles.productPrice, { color: Colors.primary }]}>{formatCurrency(item.price)}</Text>
           
           <View style={styles.stockRow}>
-            <Text style={[styles.stockText, { color: isLowStock ? Colors.creditRed : '#16a34a' }]}>
+            <Text style={[styles.stockText, { color: isLowStock ? Colors.creditRed : Colors.creditGreen }]}>
               {item.stock_quantity} in stock
             </Text>
-            {isLowStock && <Ionicons name="warning" size={16} color={Colors.creditRed} style={{ marginLeft: 6 }} />}
+            {isLowStock && <Ionicons name="warning" size={15} color={Colors.creditRed} style={{ marginLeft: 6 }} />}
           </View>
           
           <View style={[styles.quantityControls, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
             <TouchableOpacity 
-              style={styles.quantityButton}
+              style={[styles.quantityButton, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
               onPress={(e) => {
                 e.stopPropagation();
                 handleQuantityChange(item, -1);
               }}
             >
-              <Ionicons name="remove" size={20} color="#6b7280" />
+              <Ionicons name="remove" size={19} color={Colors.textSecondary} />
             </TouchableOpacity>
             <Text style={[styles.quantityText, { color: Colors.textPrimary }]}>{item.stock_quantity}</Text>
             <TouchableOpacity 
-              style={styles.quantityButton}
+              style={[styles.quantityButton, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
               onPress={(e) => {
                 e.stopPropagation();
                 handleQuantityChange(item, 1);
               }}
             >
-              <Ionicons name="add" size={20} color="#6b7280" />
+              <Ionicons name="add" size={19} color={Colors.textSecondary} />
             </TouchableOpacity>
           </View>
         </View>
@@ -323,7 +323,7 @@ export default function ProductsScreen({ navigation }: any) {
         onPress={() => navigation.navigate('AddProduct')}
         activeOpacity={0.8}
       >
-        <Ionicons name="add" size={28} color="#fff" />
+        <Ionicons name="add" size={27} color="#fff" />
       </TouchableOpacity>
     </View>
   );
@@ -334,23 +334,23 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statsHeader: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
     flexDirection: 'row',
-    gap: 12,
+    gap: Spacing.sm,
     borderBottomWidth: 1,
   },
   statBox: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    borderRadius: 16,
+    padding: Spacing.lg,
+    borderRadius: Spacing.lg,
     borderWidth: 1,
   },
   statInfo: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: Spacing.sm,
   },
   statLabel: {
     fontSize: Typography.fontXs,
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
   },
   productCard: {
     borderRadius: BorderRadius.xl,
-    padding: 18,
+    padding: Spacing.lg,
     marginBottom: Spacing.md,
     flexDirection: 'row',
     borderWidth: 1,
@@ -442,8 +442,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   productIconSmall: {
-    width: 43,
-    height: 43,
+    width: 41,
+    height: 41,
     borderRadius: BorderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
@@ -466,8 +466,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   productImage: {
-    width: 90,
-    height: 126,
+    width: 86,
+    height: 120,
     borderRadius: BorderRadius.sm,
   },
   categoryBadge: {
@@ -513,8 +513,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   quantityButton: {
-    width: 40,
-    height: 40,
+    width: 38,
+    height: 38,
     borderRadius: BorderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
@@ -527,14 +527,14 @@ const styles = StyleSheet.create({
   quantityText: {
     fontSize: Typography.fontLg,
     fontWeight: '700',
-    minWidth: 45,
+    minWidth: 43,
     textAlign: 'center',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 54,
+    paddingVertical: 51,
   },
   emptyTitle: {
     fontSize: Typography.fontLg,
@@ -562,11 +562,11 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    right: 18,
-    bottom: Platform.OS === 'ios' ? 90 : 72,
-    width: 54,
-    height: 54,
-    borderRadius: 27,
+    right: 17,
+    bottom: Platform.OS === 'ios' ? 86 : 68,
+    width: 51,
+    height: 51,
+    borderRadius: 26,
     justifyContent: 'center',
     alignItems: 'center',
     ...Platform.select({
