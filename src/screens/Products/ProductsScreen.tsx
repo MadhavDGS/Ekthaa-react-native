@@ -149,7 +149,7 @@ export default function ProductsScreen({ navigation }: any) {
             <Text style={[styles.stockText, { color: isLowStock ? Colors.creditRed : Colors.creditGreen }]}>
               {item.stock_quantity} in stock
             </Text>
-            {isLowStock && <Ionicons name="warning" size={15} color={Colors.creditRed} style={{ marginLeft: 6 }} />}
+            {isLowStock && <Ionicons name="warning" size={15} color={Colors.creditRed} style={{ marginLeft: Spacing.xs }} />}
           </View>
           
           <View style={[styles.quantityControls, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
-    height: 47,
+    height: 45,
     borderWidth: 1.5,
   },
   searchInput: {
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
   },
   categoryChip: {
-    paddingHorizontal: 18,
+    paddingHorizontal: 17,
     paddingVertical: 9,
     borderRadius: BorderRadius.lg,
     marginRight: Spacing.xs,
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: Spacing.md,
-    paddingBottom: 108,
+    paddingBottom: 103,
   },
   productCard: {
     borderRadius: BorderRadius.xl,
@@ -442,8 +442,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   productIconSmall: {
-    width: 41,
-    height: 41,
+    width: 39,
+    height: 39,
     borderRadius: BorderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: Typography.fontLg,
     fontWeight: '700',
-    marginBottom: 2,
+    marginBottom: Spacing.xs,
   },
   categoryText: {
     fontSize: Typography.fontSm,
@@ -466,16 +466,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   productImage: {
-    width: 86,
-    height: 120,
+    width: 82,
+    height: 114,
     borderRadius: BorderRadius.sm,
   },
   categoryBadge: {
     alignSelf: 'flex-start',
     paddingHorizontal: Spacing.sm,
-    paddingVertical: 6,
+    paddingVertical: Spacing.xs,
     borderRadius: BorderRadius.sm,
-    marginBottom: 9,
+    marginBottom: Spacing.xs,
     marginTop: Spacing.xs,
   },
   categoryBadgeText: {
@@ -485,7 +485,7 @@ const styles = StyleSheet.create({
   },
   unitText: {
     fontSize: Typography.fontSm,
-    marginBottom: 5,
+    marginBottom: Spacing.xs,
     fontWeight: '500',
   },
   productPrice: {
@@ -513,8 +513,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   quantityButton: {
-    width: 38,
-    height: 38,
+    width: 36,
+    height: 36,
     borderRadius: BorderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
@@ -527,14 +527,14 @@ const styles = StyleSheet.create({
   quantityText: {
     fontSize: Typography.fontLg,
     fontWeight: '700',
-    minWidth: 43,
+    minWidth: 41,
     textAlign: 'center',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 51,
+    paddingVertical: 48,
   },
   emptyTitle: {
     fontSize: Typography.fontLg,
@@ -562,11 +562,11 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    right: 17,
-    bottom: Platform.OS === 'ios' ? 86 : 68,
-    width: 51,
-    height: 51,
-    borderRadius: 26,
+    right: 16,
+    bottom: Platform.OS === 'ios' ? 82 : 65,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
     ...Platform.select({
