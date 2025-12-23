@@ -584,44 +584,44 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: Spacing.space6,
-    paddingVertical: Spacing.lg,
+    marginBottom: Spacing.lg,
+    paddingVertical: Spacing.md,
   },
   headerTitle: {
-    fontSize: Typography.fontXl,
+    fontSize: Typography.fontBase,
     fontWeight: Typography.bold,
-    marginTop: Spacing.md,
+    marginTop: Spacing.sm,
     marginBottom: Spacing.xs,
   },
   headerSubtitle: {
-    fontSize: Typography.fontBase,
+    fontSize: Typography.fontXs,
   },
   form: {
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.xl,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
     ...Platform.select({
       ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8 },
       android: { elevation: 2 },
     }),
   },
   inputGroup: {
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.md,
   },
   row: {
     flexDirection: 'row',
   },
   label: {
-    fontSize: Typography.fontBase,
+    fontSize: Typography.fontXs,
     fontWeight: Typography.semiBold,
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.xs,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
   },
   iconWrapper: {
     width: 30,
@@ -633,16 +633,16 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: Typography.fontSm,
+    fontSize: Typography.font3xs,
     paddingVertical: 0,
   },
   submitButton: {
     borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.lg,
+    paddingVertical: Spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: Spacing.sm,
-    marginHorizontal: Spacing.lg,
+    marginHorizontal: Spacing.md,
     flexDirection: 'row',
     gap: Spacing.xs,
     ...Platform.select({
@@ -654,7 +654,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   submitButtonText: {
-    fontSize: Typography.fontMd,
+    fontSize: Typography.fontSm,
     fontWeight: Typography.bold,
     color: '#fff',
   },
@@ -674,18 +674,18 @@ const styles = StyleSheet.create({
     maxHeight: 160,
   },
   pickerItem: {
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
     borderBottomWidth: 1,
   },
   pickerItemText: {
-    fontSize: Typography.fontSm,
+    fontSize: Typography.fontXs,
   },
   imageUploadCard: {
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.xl,
-    marginHorizontal: Spacing.lg,
-    marginBottom: Spacing.lg,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    marginHorizontal: Spacing.md,
+    marginBottom: Spacing.md,
     alignItems: 'center',
     ...Platform.select({
       ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8 },
@@ -716,13 +716,13 @@ const styles = StyleSheet.create({
   },
   overlayText: {
     color: '#fff',
-    fontSize: Typography.fontBase,
+    fontSize: Typography.fontXs,
     fontWeight: Typography.semiBold,
-    marginTop: Spacing.sm,
+    marginTop: Spacing.xs,
   },
   imagePlaceholder: {
     alignItems: 'center',
-    paddingVertical: Spacing.xl,
+    paddingVertical: Spacing.md,
   },
   cameraIconCircle: {
     width: 50,
@@ -733,12 +733,12 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   uploadText: {
-    fontSize: Typography.fontMd,
+    fontSize: Typography.fontSm,
     fontWeight: Typography.semiBold,
     marginBottom: Spacing.xs,
   },
   uploadSubtext: {
-    fontSize: Typography.fontBase,
+    fontSize: Typography.fontXs,
   },
   textArea: {
     minHeight: 50,
