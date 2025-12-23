@@ -291,9 +291,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
   },
   appTitle: {
-    fontSize: 20,
-    fontFamily: Typography.fonts.bold,
+    fontSize: 18,
+    fontWeight: '800',
     color: '#ffffff',
+    letterSpacing: 0.5,
     fontFamily: Platform.select({
       ios: 'System',
       android: 'sans-serif-medium',
