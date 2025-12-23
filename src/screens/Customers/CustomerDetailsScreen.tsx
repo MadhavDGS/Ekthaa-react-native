@@ -203,8 +203,11 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
       <ScrollView
         ref={scrollViewRef}
         style={styles.content}
-        contentContainerStyle={[styles.scrollContent, { flexDirection: 'column-reverse' }]}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        onContentSizeChange={() => {
+          scrollViewRef.current?.scrollToEnd({ animated: false });
+        }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} tintColor={Colors.primary} />
         }
