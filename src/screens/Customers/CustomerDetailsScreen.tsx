@@ -21,6 +21,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { getThemedColors, Typography, Spacing, BorderRadius } from '../../constants/theme';
 import { AvatarSizes, IconSizes } from '../../constants/scales';
 import { useTheme } from '../../context/ThemeContext';
+import { SkeletonHeader, SkeletonTransaction } from '../../components/Skeletons';
 import ApiService from '../../services/api';
 import { Customer, Transaction } from '../../types';
 
@@ -157,9 +158,12 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
   if (loading) {
     return (
       <View style={[styles.container, { backgroundColor: Colors.background }]}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.primary} />
-        </View>
+        <SkeletonHeader isDark={isDark} />
+        <SkeletonTransaction isDark={isDark} />
+        <SkeletonTransaction isDark={isDark} />
+        <SkeletonTransaction isDark={isDark} />
+        <SkeletonTransaction isDark={isDark} />
+        <SkeletonTransaction isDark={isDark} />
       </View>
     );
   }
