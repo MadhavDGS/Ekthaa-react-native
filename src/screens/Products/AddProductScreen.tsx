@@ -241,11 +241,11 @@ export default function AddProductScreen({ navigation }: any) {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.header}>
+          {/* <View style={styles.header}>
             <Ionicons name="cube" size={43} color={Colors.primary} />
             <Text style={[styles.headerTitle, { color: Colors.textPrimary }]}>New Product</Text>
             <Text style={[styles.headerSubtitle, { color: Colors.textSecondary }]}>Add product to your inventory</Text>
-          </View>
+          </View> */}
 
           {/* Image Upload Section */}
           <TouchableOpacity style={[styles.imageUploadCard, { backgroundColor: Colors.card }]} onPress={showImageOptions} activeOpacity={0.8}>

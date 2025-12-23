@@ -124,33 +124,31 @@ export default function ProductsScreen({ navigation }: any) {
       <TouchableOpacity 
         style={[styles.productCard, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
         onPress={() => handleProductEdit(item)}
-        activeOpacity={0.95}
+        activeOpacity={0.7}
       >
         <View style={styles.cardMain}>
           <View style={styles.productContent}>
             <View style={styles.contentHeader}>
               <View style={[styles.productIconSmall, { backgroundColor: getCategoryColor(item.category) + '15' }]}>
-                <Ionicons name={getCategoryIcon(item.category)} size={20} color={getCategoryColor(item.category)} />
+                <Ionicons name={getCategoryIcon(item.category)} size={18} color={getCategoryColor(item.category)} />
               </View>
               <View style={styles.headerTexts}>
-                <Text style={[styles.productName, { color: Colors.textPrimary }]}>{item.name}</Text>
-                <Text style={[styles.categoryText, { color: Colors.textSecondary }]}>{item.category}</Text>
+                <Text style={[styles.productName, { color: Colors.textPrimary }]} numberOfLines={1}>{item.name}</Text>
+                <Text style={[styles.categoryText, { color: Colors.textSecondary }]} numberOfLines={1}>{item.category}</Text>
               </View>
             </View>
             
-            <View style={[styles.categoryBadge, { backgroundColor: Colors.primary }]}>
-              <Text style={[styles.categoryBadgeText, { color: '#fff' }]}>{item.category.toUpperCase()}</Text>
+            <View style={styles.priceRow}>
+              <Text style={[styles.productPrice, { color: Colors.primary }]}>{formatCurrency(item.price)}</Text>
+              <Text style={[styles.unitText, { color: Colors.textTertiary }]}>/{item.unit}</Text>
             </View>
             
-            <Text style={[styles.unitText, { color: Colors.textTertiary }]}>per {item.unit}</Text>
-            
-            <Text style={[styles.productPrice, { color: Colors.primary }]}>{formatCurrency(item.price)}</Text>
-            
             <View style={styles.stockRow}>
+              <Ionicons name="cube-outline" size={14} color={isLowStock ? Colors.creditRed : Colors.creditGreen} />
               <Text style={[styles.stockText, { color: isLowStock ? Colors.creditRed : Colors.creditGreen }]}>
                 {item.stock_quantity} in stock
               </Text>
-              {isLowStock && <Ionicons name="warning" size={12} color={Colors.creditRed} style={{ marginLeft: Spacing.xs }} />}
+              {isLowStock && <Ionicons name="alert-circle" size={14} color={Colors.creditRed} style={{ marginLeft: Spacing.xs }} />}
             </View>
           </View>
 
@@ -158,7 +156,7 @@ export default function ProductsScreen({ navigation }: any) {
             <View style={styles.productRight}>
               <Image 
                 source={{ uri: item.product_image_url }}
-                style={styles.productImage}
+                style={[styles.productImage, { borderColor: Colors.borderLight }]}
                 resizeMode="cover"
               />
             </View>
@@ -166,25 +164,31 @@ export default function ProductsScreen({ navigation }: any) {
         </View>
 
         <View style={[styles.quantityControls, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-          <TouchableOpacity 
-            style={[styles.quantityButton, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
-            onPress={(e) => {
-              e.stopPropagation();
-              handleQuantityChange(item, -1);
-            }}
-          >
-            <Ionicons name="remove" size={16} color={Colors.textSecondary} />
-          </TouchableOpacity>
-          <Text style={[styles.quantityText, { color: Colors.textPrimary }]}>{item.stock_quantity}</Text>
-          <TouchableOpacity 
-            style={[styles.quantityButton, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
-            onPress={(e) => {
-              e.stopPropagation();
-              handleQuantityChange(item, 1);
-            }}
-          >
-            <Ionicons name="add" size={16} color={Colors.textSecondary} />
-          </TouchableOpacity>
+          <View style={styles.quantityLabel}>
+            <Ionicons name="layers-outline" size={14} color={Colors.textSecondary} />
+            <Text style={[styles.quantityLabelText, { color: Colors.textSecondary }]}>Adjust Stock</Text>
+          </View>
+          <View style={styles.quantityButtons}>
+            <TouchableOpacity 
+              style={[styles.quantityButton, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
+              onPress={(e) => {
+                e.stopPropagation();
+                handleQuantityChange(item, -1);
+              }}
+            >
+              <Ionicons name="remove" size={16} color={Colors.textSecondary} />
+            </TouchableOpacity>
+            <Text style={[styles.quantityText, { color: Colors.textPrimary }]}>{item.stock_quantity}</Text>
+            <TouchableOpacity 
+              style={[styles.quantityButton, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
+              onPress={(e) => {
+                e.stopPropagation();
+                handleQuantityChange(item, 1);
+              }}
+            >
+              <Ionicons name="add" size={16} color={Colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
         </View>
       </TouchableOpacity>
     );
@@ -419,17 +423,17 @@ const styles = StyleSheet.create({
   productCard: {
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.md,
     borderWidth: 1,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
       },
       android: {
-        elevation: 4,
+        elevation: 3,
       },
     }),
   },
@@ -473,6 +477,13 @@ const styles = StyleSheet.create({
     width: 80,
     height: 100,
     borderRadius: BorderRadius.md,
+    borderWidth: 1,
+  },
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.xs,
   },
   categoryBadge: {
     alignSelf: 'flex-start',
@@ -501,7 +512,7 @@ const styles = StyleSheet.create({
   stockRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: Spacing.sm,
+    gap: Spacing.xs,
   },
   stockText: {
     fontSize: Typography.fontXs,
@@ -512,13 +523,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderRadius: BorderRadius.sm,
-    paddingVertical: Spacing.xs,
-    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
     borderWidth: 1,
+    marginTop: Spacing.sm,
+    borderTopWidth: 1,
+  },
+  quantityLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  quantityLabelText: {
+    fontSize: Typography.font3xs,
+    fontWeight: '600',
+  },
+  quantityButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
   },
   quantityButton: {
-    width: 30,
-    height: 30,
+    width: 28,
+    height: 28,
     borderRadius: BorderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
@@ -531,7 +558,7 @@ const styles = StyleSheet.create({
   quantityText: {
     fontSize: Typography.fontSm,
     fontWeight: '700',
-    minWidth: 36,
+    minWidth: 32,
     textAlign: 'center',
   },
   emptyContainer: {
