@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   statValue: {
-    fontSize: Typography.fontLg,
+    fontSize: Typography.fontBase,
     fontWeight: '800',
   },
   searchContainer: {
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: Typography.fontBase,
+    fontSize: Typography.fontXs,
     marginLeft: Spacing.sm,
     fontWeight: '500',
   },
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     }),
   },
   categoryChipText: {
-    fontSize: Typography.fontBase,
+    fontSize: Typography.fontXs,
     fontWeight: '600',
   },
   categoryChipTextActive: {
@@ -453,12 +453,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   productName: {
-    fontSize: Typography.fontLg,
+    fontSize: Typography.fontBase,
     fontWeight: '700',
     marginBottom: Spacing.xs,
   },
   categoryText: {
-    fontSize: Typography.fontSm,
+    fontSize: Typography.fontXs,
     fontWeight: '400',
   },
   productRight: {
@@ -479,17 +479,17 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xs,
   },
   categoryBadgeText: {
-    fontSize: Typography.fontXs,
+    fontSize: Typography.font3xs,
     fontWeight: '800',
     letterSpacing: 0.8,
   },
   unitText: {
-    fontSize: Typography.fontSm,
+    fontSize: Typography.fontXs,
     marginBottom: Spacing.xs,
     fontWeight: '500',
   },
   productPrice: {
-    fontSize: Typography.font2xl,
+    fontSize: Typography.fontLg,
     fontWeight: '900',
     marginBottom: Spacing.xs,
     letterSpacing: -0.5,
@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   stockText: {
-    fontSize: Typography.fontBase,
+    fontSize: Typography.fontXs,
     fontWeight: '600',
   },
   quantityControls: {
@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
     }),
   },
   quantityText: {
-    fontSize: Typography.fontLg,
+    fontSize: Typography.fontSm,
     fontWeight: '700',
     minWidth: 44,
     textAlign: 'center',
@@ -537,13 +537,13 @@ const styles = StyleSheet.create({
     paddingVertical: 50,
   },
   emptyTitle: {
-    fontSize: Typography.fontLg,
+    fontSize: Typography.fontXs,
     fontWeight: '600',
     marginTop: Spacing.lg,
     marginBottom: Spacing.sm,
   },
   emptyText: {
-    fontSize: Typography.fontBase,
+    fontSize: Typography.font3xs,
     textAlign: 'center',
     marginBottom: Spacing.xl,
     paddingHorizontal: Spacing.xl,
@@ -557,7 +557,7 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
   },
   addButtonText: {
-    fontSize: Typography.fontMd,
+    fontSize: Typography.fontSm,
     fontWeight: '600',
   },
   fab: {
