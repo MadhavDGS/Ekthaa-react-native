@@ -44,9 +44,10 @@ const useShimmer = () => {
 export const SkeletonCard: React.FC<SkeletonProps> = ({ isDark }) => {
     const opacity = useShimmer();
     const bgColor = isDark ? '#2a2a2a' : '#e5e7eb';
+    const cardBg = isDark ? '#1a1a1a' : '#fff';
 
     return (
-        <Animated.View style={[styles.card, { opacity }]}>
+        <Animated.View style={[styles.card, { opacity, backgroundColor: cardBg }]}>
             <View style={[styles.avatar, { backgroundColor: bgColor }]} />
             <View style={styles.cardContent}>
                 <View style={[styles.titleBar, { backgroundColor: bgColor }]} />
@@ -109,9 +110,10 @@ export const SkeletonHeader: React.FC<SkeletonProps> = ({ isDark }) => {
 export const SkeletonOfferCard: React.FC<SkeletonProps> = ({ isDark }) => {
     const opacity = useShimmer();
     const bgColor = isDark ? '#2a2a2a' : '#e5e7eb';
+    const cardBg = isDark ? '#1a1a1a' : '#fff';
 
     return (
-        <Animated.View style={[styles.offerCard, { opacity }]}>
+        <Animated.View style={[styles.offerCard, { opacity, backgroundColor: cardBg }]}>
             <View style={[styles.offerBadge, { backgroundColor: bgColor }]} />
             <View style={[styles.offerTitle, { backgroundColor: bgColor }]} />
             <View style={[styles.offerDescription, { backgroundColor: bgColor }]} />
@@ -132,7 +134,6 @@ const styles = StyleSheet.create({
         marginHorizontal: Spacing.md,
         marginBottom: Spacing.sm,
         borderRadius: BorderRadius.md,
-        backgroundColor: '#fff',
         ...Platform.select({
             ios: {
                 shadowColor: '#000',
@@ -260,7 +261,6 @@ const styles = StyleSheet.create({
         marginHorizontal: Spacing.md,
         marginBottom: Spacing.md,
         borderRadius: BorderRadius.md,
-        backgroundColor: '#fff',
         ...Platform.select({
             ios: {
                 shadowColor: '#000',
