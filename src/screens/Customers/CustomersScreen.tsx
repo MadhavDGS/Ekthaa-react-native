@@ -23,6 +23,7 @@ import { getThemedColors, AvatarColors, Typography, Spacing, BorderRadius, Shado
 import { AvatarSizes, IconSizes, TextScale, SpacingScale } from '../../constants/scales';
 import { listStyles, avatarStyles, searchBarStyles } from '../../styles/commonStyles';
 import { useTheme } from '../../context/ThemeContext';
+import { SkeletonCard } from '../../components/Skeletons';
 
 const { width } = Dimensions.get('window');
 
@@ -103,10 +104,10 @@ export default function CustomersScreen({ navigation }: any) {
       </View>
       <View style={styles.balanceBox}>
         <Text style={[styles.balance, { color: item.balance > 0 ? Colors.creditRed : item.balance < 0 ? Colors.creditGreen : Colors.textSecondary }]}>
-          {item.balance > 0 ? '+' : ''}{formatCurrency(item.balance)}
+          {formatCurrency(item.balance)}
         </Text>
         <Text style={[styles.balanceLabel, { color: Colors.textTertiary }]}>
-          {item.balance > 0 ? 'Receive' : item.balance < 0 ? 'Advance' : 'Settled'}
+          {item.balance > 0 ? "You'll receive" : item.balance < 0 ? 'Advance paid' : 'Settled'}
         </Text>
       </View>
       <Ionicons name="chevron-forward" size={12} color={Colors.textTertiary} />
@@ -115,8 +116,19 @@ export default function CustomersScreen({ navigation }: any) {
 
   if (loading && !refreshing) {
     return (
-      <View style={[styles.loading, { backgroundColor: Colors.backgroundSecondary }]}>
-        <ActivityIndicator size="large" color={Colors.primary} />
+      <View style={[styles.container, { backgroundColor: Colors.backgroundSecondary }]}>
+        <View style={[styles.search, { backgroundColor: Colors.card, borderBottomColor: Colors.borderLight }]}>
+          <View style={[styles.searchBar, { backgroundColor: isDark ? '#2a2a2a' : '#f3f4f6' }]}>
+            <Ionicons name="search" size={14} color={Colors.textTertiary} />
+            <View style={[styles.input, { height: 20, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4 }]} />
+          </View>
+        </View>
+        <SkeletonCard isDark={isDark} />
+        <SkeletonCard isDark={isDark} />
+        <SkeletonCard isDark={isDark} />
+        <SkeletonCard isDark={isDark} />
+        <SkeletonCard isDark={isDark} />
+        <SkeletonCard isDark={isDark} />
       </View>
     );
   }
@@ -147,8 +159,8 @@ export default function CustomersScreen({ navigation }: any) {
         keyExtractor={item => item.id}
         contentContainerStyle={styles.list}
         refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
+          <RefreshControl
+            refreshing={refreshing}
             onRefresh={() => { setRefreshing(true); loadCustomers(); }}
             colors={[Colors.primary]}
             tintColor={Colors.primary}
@@ -165,7 +177,7 @@ export default function CustomersScreen({ navigation }: any) {
         }
       />
 
-      <TouchableOpacity 
+      <TouchableOpacity
         style={[styles.fab, { backgroundColor: Colors.primary }]}
         onPress={() => navigation.navigate('AddCustomer')}
         activeOpacity={0.8}

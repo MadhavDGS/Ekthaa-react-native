@@ -56,11 +56,11 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
   }, [customerId]);
 
   useEffect(() => {
-    // Auto-scroll to bottom when transactions load
-    if (transactions.length > 0 && scrollViewRef.current) {
+    // Scroll to bottom instantly when transactions load to show latest
+    if (transactions.length > 0 && scrollViewRef.current && !refreshing) {
       setTimeout(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: true });
-      }, 300);
+        scrollViewRef.current?.scrollToEnd({ animated: false });
+      }, 100);
     }
   }, [transactions]);
 
@@ -72,7 +72,7 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
       ]);
       setCustomer(customerData.customer);
       const txns = transactionsData.transactions || [];
-      console.log('🔍 First transaction sample:', JSON.stringify(txns[0], null, 2));
+      // Keep original order (oldest first, latest at bottom)
       setTransactions(txns);
     } catch (error) {
       console.error('Error loading customer details:', error);
