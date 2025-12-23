@@ -98,17 +98,17 @@ export const getThemedColors = (isDark: boolean) => isDark ? DarkColors : LightC
 export const Colors = LightColors;
 
 export const Typography = {
-  // Font Sizes (reduced by 5% for mobile)
-  font3xl: 46,  // was 48
-  font2xl: 34,  // was 36
-  fontXl: 27,   // was 28
-  fontLg: 23,   // was 24
-  fontMd: 17,   // was 18
-  fontBase: 15, // was 16
-  fontSm: 13,   // was 14
-  fontXs: 12,   // was 13
-  font2xs: 11,  // was 12
-  font3xs: 10,  // was 11
+  // Font Sizes (100% - original values)
+  font3xl: 48,
+  font2xl: 36,
+  fontXl: 28,
+  fontLg: 24,
+  fontMd: 18,
+  fontBase: 16,
+  fontSm: 14,
+  fontXs: 13,
+  font2xs: 12,
+  font3xs: 11,
 
   // Font Weights
   extraBold: '800' as const,
@@ -119,30 +119,30 @@ export const Typography = {
 };
 
 export const Spacing = {
-  xs: 4,      // was 4
-  sm: 8,      // was 8
-  md: 11,     // was 12
-  lg: 15,     // was 16
-  xl: 19,     // was 20
-  space2: 8,  // was 8
-  space3: 11, // was 12
-  space4: 15, // was 16
-  space5: 19, // was 20
-  space6: 23, // was 24
-  space8: 30, // was 32
-  space12: 46, // was 48
-  space16: 61, // was 64
-  space20: 76, // was 80
-  space24: 91, // was 96
-  space28: 106, // was 112
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  space2: 8,
+  space3: 12,
+  space4: 16,
+  space5: 20,
+  space6: 24,
+  space8: 32,
+  space12: 48,
+  space16: 64,
+  space20: 80,
+  space24: 96,
+  space28: 112,
 };
 
 export const BorderRadius = {
-  sm: 8,   // was 8
-  md: 11,  // was 12
-  lg: 15,  // was 16
-  xl: 19,  // was 20
-  xxl: 23, // was 24
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  xxl: 24,
   full: 9999,
 };
 
