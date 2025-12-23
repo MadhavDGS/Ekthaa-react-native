@@ -257,8 +257,8 @@ export default function ProductsScreen({ navigation }: any) {
 
       {/* Search Bar */}
       <View style={[styles.searchContainer, { backgroundColor: Colors.card, borderBottomColor: Colors.borderLight }]}>
-        <View style={[styles.searchBar, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-          <Ionicons name="search" size={20} color={Colors.textTertiary} />
+        <View style={[styles.searchBar, { backgroundColor: isDark ? '#2a2a2a' : '#f3f4f6' }]}>
+          <Ionicons name="search" size={14} color={Colors.textTertiary} />
           <TextInput
             style={[styles.searchInput, { color: Colors.textPrimary }]}
             placeholder="Search products..."
@@ -268,7 +268,7 @@ export default function ProductsScreen({ navigation }: any) {
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={20} color={Colors.textTertiary} />
+              <Ionicons name="close-circle" size={14} color={Colors.textTertiary} />
             </TouchableOpacity>
           )}
         </View>
@@ -365,22 +365,23 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   searchContainer: {
-    padding: Spacing.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
     borderBottomWidth: 1,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.md,
-    height: 40,
-    borderWidth: 1,
+    borderRadius: Spacing.sm,
+    paddingHorizontal: Spacing.sm,
+    height: 32,
   },
   searchInput: {
     flex: 1,
     fontSize: Typography.fontXs,
-    marginLeft: Spacing.sm,
+    marginLeft: Spacing.xs,
     fontWeight: '500',
+    height: 32,
   },
   categoriesWrapper: {
     borderBottomWidth: 1,
