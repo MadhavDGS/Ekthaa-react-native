@@ -334,8 +334,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statsHeader: {
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
     flexDirection: 'row',
     gap: Spacing.sm,
     borderBottomWidth: 1,
@@ -344,8 +344,8 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: Spacing.lg,
-    borderRadius: Spacing.lg,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
     borderWidth: 1,
   },
   statInfo: {
@@ -372,8 +372,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
-    height: 48,
-    borderWidth: 1.5,
+    height: 40,
+    borderWidth: 1,
   },
   searchInput: {
     flex: 1,
@@ -390,16 +390,16 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
   },
   categoryChip: {
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: BorderRadius.lg,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.md,
     marginRight: Spacing.xs,
-    borderWidth: 1.5,
+    borderWidth: 1,
   },
   categoryChipActive: {
-    borderWidth: 1.5,
+    borderWidth: 1,
     ...Platform.select({
-      ios: { shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 },
+      ios: { shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 3 },
       android: { elevation: 3 },
     }),
   },
@@ -411,13 +411,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   listContent: {
-    padding: Spacing.md,
-    paddingBottom: 110,
+    padding: Spacing.sm,
+    paddingBottom: 95,
   },
   productCard: {
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.lg,
-    marginBottom: Spacing.md,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
     flexDirection: 'row',
     borderWidth: 1,
     ...Platform.select({
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
-        shadowRadius: 12,
+        shadowRadius: 6,
       },
       android: {
         elevation: 4,
@@ -442,8 +442,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   productIconSmall: {
-    width: 40,
-    height: 40,
+    width: 30,
+    height: 30,
     borderRadius: BorderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
@@ -466,8 +466,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   productImage: {
-    width: 86,
-    height: 120,
+    width: 60,
+    height: 80,
     borderRadius: BorderRadius.sm,
   },
   categoryBadge: {
@@ -513,8 +513,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   quantityButton: {
-    width: 38,
-    height: 38,
+    width: 30,
+    height: 30,
     borderRadius: BorderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
   quantityText: {
     fontSize: Typography.fontSm,
     fontWeight: '700',
-    minWidth: 44,
+    minWidth: 36,
     textAlign: 'center',
   },
   emptyContainer: {
@@ -564,9 +564,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 16,
     bottom: Platform.OS === 'ios' ? 86 : 70,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
     ...Platform.select({
