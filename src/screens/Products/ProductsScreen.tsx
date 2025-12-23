@@ -126,64 +126,66 @@ export default function ProductsScreen({ navigation }: any) {
         onPress={() => handleProductEdit(item)}
         activeOpacity={0.95}
       >
-        <View style={styles.productContent}>
-          <View style={styles.contentHeader}>
-            <View style={[styles.productIconSmall, { backgroundColor: getCategoryColor(item.category) + '15' }]}>
-              <Ionicons name={getCategoryIcon(item.category)} size={23} color={getCategoryColor(item.category)} />
+        <View style={styles.cardMain}>
+          <View style={styles.productContent}>
+            <View style={styles.contentHeader}>
+              <View style={[styles.productIconSmall, { backgroundColor: getCategoryColor(item.category) + '15' }]}>
+                <Ionicons name={getCategoryIcon(item.category)} size={20} color={getCategoryColor(item.category)} />
+              </View>
+              <View style={styles.headerTexts}>
+                <Text style={[styles.productName, { color: Colors.textPrimary }]}>{item.name}</Text>
+                <Text style={[styles.categoryText, { color: Colors.textSecondary }]}>{item.category}</Text>
+              </View>
             </View>
-            <View style={styles.headerTexts}>
-              <Text style={[styles.productName, { color: Colors.textPrimary }]}>{item.name}</Text>
-              <Text style={[styles.categoryText, { color: Colors.textSecondary }]}>{item.category}</Text>
+            
+            <View style={[styles.categoryBadge, { backgroundColor: Colors.primary }]}>
+              <Text style={[styles.categoryBadgeText, { color: '#fff' }]}>{item.category.toUpperCase()}</Text>
+            </View>
+            
+            <Text style={[styles.unitText, { color: Colors.textTertiary }]}>per {item.unit}</Text>
+            
+            <Text style={[styles.productPrice, { color: Colors.primary }]}>{formatCurrency(item.price)}</Text>
+            
+            <View style={styles.stockRow}>
+              <Text style={[styles.stockText, { color: isLowStock ? Colors.creditRed : Colors.creditGreen }]}>
+                {item.stock_quantity} in stock
+              </Text>
+              {isLowStock && <Ionicons name="warning" size={12} color={Colors.creditRed} style={{ marginLeft: Spacing.xs }} />}
             </View>
           </View>
-          
-          <View style={[styles.categoryBadge, { backgroundColor: Colors.primary }]}>
-            <Text style={[styles.categoryBadgeText, { color: '#fff' }]}>{item.category.toUpperCase()}</Text>
-          </View>
-          
-          <Text style={[styles.unitText, { color: Colors.textTertiary }]}>per {item.unit}</Text>
-          
-          <Text style={[styles.productPrice, { color: Colors.primary }]}>{formatCurrency(item.price)}</Text>
-          
-          <View style={styles.stockRow}>
-            <Text style={[styles.stockText, { color: isLowStock ? Colors.creditRed : Colors.creditGreen }]}>
-              {item.stock_quantity} in stock
-            </Text>
-            {isLowStock && <Ionicons name="warning" size={15} color={Colors.creditRed} style={{ marginLeft: Spacing.xs }} />}
-          </View>
-          
-          <View style={[styles.quantityControls, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-            <TouchableOpacity 
-              style={[styles.quantityButton, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
-              onPress={(e) => {
-                e.stopPropagation();
-                handleQuantityChange(item, -1);
-              }}
-            >
-              <Ionicons name="remove" size={19} color={Colors.textSecondary} />
-            </TouchableOpacity>
-            <Text style={[styles.quantityText, { color: Colors.textPrimary }]}>{item.stock_quantity}</Text>
-            <TouchableOpacity 
-              style={[styles.quantityButton, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
-              onPress={(e) => {
-                e.stopPropagation();
-                handleQuantityChange(item, 1);
-              }}
-            >
-              <Ionicons name="add" size={19} color={Colors.textSecondary} />
-            </TouchableOpacity>
-          </View>
+
+          {item.product_image_url && (
+            <View style={styles.productRight}>
+              <Image 
+                source={{ uri: item.product_image_url }}
+                style={styles.productImage}
+                resizeMode="cover"
+              />
+            </View>
+          )}
         </View>
 
-        {item.product_image_url && (
-          <View style={styles.productRight}>
-            <Image 
-              source={{ uri: item.product_image_url }}
-              style={styles.productImage}
-              resizeMode="cover"
-            />
-          </View>
-        )}
+        <View style={[styles.quantityControls, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
+          <TouchableOpacity 
+            style={[styles.quantityButton, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
+            onPress={(e) => {
+              e.stopPropagation();
+              handleQuantityChange(item, -1);
+            }}
+          >
+            <Ionicons name="remove" size={16} color={Colors.textSecondary} />
+          </TouchableOpacity>
+          <Text style={[styles.quantityText, { color: Colors.textPrimary }]}>{item.stock_quantity}</Text>
+          <TouchableOpacity 
+            style={[styles.quantityButton, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
+            onPress={(e) => {
+              e.stopPropagation();
+              handleQuantityChange(item, 1);
+            }}
+          >
+            <Ionicons name="add" size={16} color={Colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
       </TouchableOpacity>
     );
   };
@@ -418,7 +420,6 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
     marginBottom: Spacing.sm,
-    flexDirection: 'row',
     borderWidth: 1,
     ...Platform.select({
       ios: {
@@ -431,6 +432,10 @@ const styles = StyleSheet.create({
         elevation: 4,
       },
     }),
+  },
+  cardMain: {
+    flexDirection: 'row',
+    marginBottom: Spacing.sm,
   },
   productContent: {
     flex: 1,
@@ -462,13 +467,12 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   productRight: {
-    justifyContent: 'flex-start',
-    alignItems: 'center',
+    marginLeft: Spacing.sm,
   },
   productImage: {
-    width: 60,
-    height: 80,
-    borderRadius: BorderRadius.sm,
+    width: 80,
+    height: 100,
+    borderRadius: BorderRadius.md,
   },
   categoryBadge: {
     alignSelf: 'flex-start',
@@ -507,9 +511,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: Spacing.sm,
     borderRadius: BorderRadius.sm,
-    padding: Spacing.xs,
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.sm,
     borderWidth: 1,
   },
   quantityButton: {
