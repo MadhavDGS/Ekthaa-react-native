@@ -114,12 +114,51 @@ export default function ProfileScreen({ navigation }: any) {
 
   if (loading) {
     return (
-      <View style={[styles.container, { backgroundColor: Colors.background }]}>
-        <SkeletonHeader isDark={isDark} />
-        <SkeletonCard isDark={isDark} />
-        <SkeletonCard isDark={isDark} />
-        <SkeletonCard isDark={isDark} />
-      </View>
+      <SafeAreaView style={[styles.container, { backgroundColor: Colors.backgroundSecondary }]}>
+        <ScrollView style={styles.content}>
+          {/* Profile Header Skeleton */}
+          <View style={[styles.profileSection, { backgroundColor: Colors.card }]}>
+            <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', marginBottom: 12 }} />
+            <View style={{ width: 140, height: 20, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4, marginBottom: 8 }} />
+            <View style={{ width: 100, height: 14, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4 }} />
+          </View>
+
+          {/* Stats Skeleton */}
+          <View style={[styles.statsContainer, { backgroundColor: Colors.card }]}>
+            {[1, 2, 3].map((i) => (
+              <View key={i} style={styles.statBox}>
+                <View style={{ width: 40, height: 24, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4, marginBottom: 6 }} />
+                <View style={{ width: 60, height: 12, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4 }} />
+              </View>
+            ))}
+          </View>
+
+          {/* Menu Sections Skeleton */}
+          <View style={styles.section}>
+            <View style={{ width: 80, height: 16, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4, marginBottom: 12 }} />
+            {[1, 2].map((i) => (
+              <View key={i} style={[styles.menuItem, { backgroundColor: Colors.card, marginBottom: 8 }]}>
+                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', marginRight: 12 }} />
+                <View style={{ flex: 1 }}>
+                  <View style={{ width: 100, height: 14, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4 }} />
+                </View>
+              </View>
+            ))}
+          </View>
+
+          <View style={styles.section}>
+            <View style={{ width: 80, height: 16, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4, marginBottom: 12 }} />
+            {[1, 2, 3].map((i) => (
+              <View key={i} style={[styles.menuItem, { backgroundColor: Colors.card, marginBottom: 8 }]}>
+                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', marginRight: 12 }} />
+                <View style={{ flex: 1 }}>
+                  <View style={{ width: 120, height: 14, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4 }} />
+                </View>
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
     );
   }
 
