@@ -55,15 +55,6 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
     loadCustomerDetails();
   }, [customerId]);
 
-  useEffect(() => {
-    // Scroll to bottom instantly when transactions load to show latest
-    if (transactions.length > 0 && scrollViewRef.current && !refreshing) {
-      setTimeout(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: false });
-      }, 100);
-    }
-  }, [transactions]);
-
   const loadCustomerDetails = async () => {
     try {
       const [customerData, transactionsData] = await Promise.all([
@@ -212,7 +203,7 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
       <ScrollView
         ref={scrollViewRef}
         style={styles.content}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { flexDirection: 'column-reverse' }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} tintColor={Colors.primary} />
