@@ -21,6 +21,7 @@ import ApiService from '../../services/api';
 import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
 import { AvatarSizes, IconSizes, TextScale, SpacingScale } from '../../constants/scales';
 import { useTheme } from '../../context/ThemeContext';
+import { SkeletonTransaction } from '../../components/Skeletons';
 
 const { width } = Dimensions.get('window');
 
@@ -58,7 +59,7 @@ export default function TransactionsScreen({ navigation }: any) {
       console.log('📋 Transactions loaded:', txnList.length);
       setTransactions(txnList);
       setLastFetch(Date.now());
-      
+
       const totalDebit = txnList.filter((t: any) => t.transaction_type === 'payment').reduce((sum: number, t: any) => sum + t.amount, 0);
       const totalCredit = txnList.filter((t: any) => t.transaction_type === 'credit').reduce((sum: number, t: any) => sum + t.amount, 0);
       setStats({ totalDebit, totalCredit, balance: totalCredit - totalDebit });
@@ -91,10 +92,10 @@ export default function TransactionsScreen({ navigation }: any) {
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    
+
     if (date.toDateString() === today.toDateString()) return 'Today';
     if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
-    
+
     return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined });
   };
 
@@ -109,7 +110,7 @@ export default function TransactionsScreen({ navigation }: any) {
       if (!groups[dateKey]) groups[dateKey] = [];
       groups[dateKey].push(txn);
     });
-    
+
     return Object.entries(groups)
       .map(([date, items]: any) => ({
         date,
@@ -121,18 +122,18 @@ export default function TransactionsScreen({ navigation }: any) {
 
   const renderTransaction = ({ item }: any) => {
     const isCredit = item.transaction_type === 'credit';
-    
+
     return (
-      <TouchableOpacity 
+      <TouchableOpacity
         style={[styles.txnCard, { backgroundColor: Colors.card }]}
         activeOpacity={0.6}
       >
         <View style={styles.txnHeader}>
           <View style={[styles.iconCircle, { backgroundColor: isCredit ? (isDark ? '#7f1d1d' : '#fee2e2') : (isDark ? '#064e3b' : '#d1fae5') }]}>
-            <Ionicons 
-              name={isCredit ? 'arrow-down-circle' : 'arrow-up-circle'} 
-              size={18} 
-              color={isCredit ? (isDark ? '#fca5a5' : '#dc2626') : (isDark ? '#6ee7b7' : '#059669')} 
+            <Ionicons
+              name={isCredit ? 'arrow-down-circle' : 'arrow-up-circle'}
+              size={18}
+              color={isCredit ? (isDark ? '#fca5a5' : '#dc2626') : (isDark ? '#6ee7b7' : '#059669')}
             />
           </View>
           <View style={styles.txnInfo}>
@@ -190,7 +191,7 @@ export default function TransactionsScreen({ navigation }: any) {
             {stats.balance >= 0 ? 'You will receive' : 'You will give'}
           </Text>
         </View>
-        
+
         <View style={styles.statsChips}>
           <View style={[styles.statChip, { backgroundColor: isDark ? '#064e3b' : '#d1fae5' }]}>
             <Ionicons name="arrow-down-circle" size={14} color={isDark ? '#6ee7b7' : '#059669'} style={{ marginRight: Spacing.xs }} />
@@ -236,7 +237,7 @@ export default function TransactionsScreen({ navigation }: any) {
             style={[
               styles.filterChip,
               { backgroundColor: isDark ? '#1f2937' : '#f3f4f6' },
-              filterType === type && { 
+              filterType === type && {
                 backgroundColor: Colors.primary,
                 ...Platform.select({
                   ios: { shadowColor: Colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 },
@@ -274,8 +275,8 @@ export default function TransactionsScreen({ navigation }: any) {
         keyExtractor={(item, idx) => item.date + idx}
         contentContainerStyle={styles.listContent}
         refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
+          <RefreshControl
+            refreshing={refreshing}
             onRefresh={() => { setRefreshing(true); loadTransactions(); }}
             colors={[Colors.primary]}
             tintColor={Colors.primary}
@@ -295,7 +296,7 @@ export default function TransactionsScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { 
+  container: {
     flex: 1,
   },
   statsCard: {

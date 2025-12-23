@@ -20,6 +20,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { getThemedColors, Typography, Spacing, BorderRadius } from '../../constants/theme';
 import { useTheme } from '../../context/ThemeContext';
+import { SkeletonOfferCard } from '../../components/Skeletons';
 import ApiService from '../../services/api';
 
 export default function OffersScreen({ navigation }: any) {

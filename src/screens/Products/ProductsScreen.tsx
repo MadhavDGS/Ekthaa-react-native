@@ -23,6 +23,7 @@ import { Spacing, Typography, BorderRadius } from '../../constants/theme';
 import { AvatarSizes, IconSizes, TextScale, SpacingScale } from '../../constants/scales';
 import { getThemedColors } from '../../constants/theme';
 import { useTheme } from '../../context/ThemeContext';
+import { SkeletonCard } from '../../components/Skeletons';
 
 export default function ProductsScreen({ navigation }: any) {
   const { isDark } = useTheme();
@@ -243,6 +244,22 @@ export default function ProductsScreen({ navigation }: any) {
       )}
     </View>
   );
+
+  if (loading && !refreshing) {
+    return (
+      <View style={[styles.container, { backgroundColor: Colors.backgroundSecondary }]}>
+        <View style={[styles.statsHeader, { backgroundColor: Colors.card, borderBottomColor: Colors.borderLight }]}>
+          <View style={[styles.statBox, { backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', height: 60, borderRadius: 8 }]} />
+          <View style={[styles.statBox, { backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', height: 60, borderRadius: 8 }]} />
+        </View>
+        <SkeletonCard isDark={isDark} />
+        <SkeletonCard isDark={isDark} />
+        <SkeletonCard isDark={isDark} />
+        <SkeletonCard isDark={isDark} />
+        <SkeletonCard isDark={isDark} />
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: Colors.backgroundSecondary }]}>
