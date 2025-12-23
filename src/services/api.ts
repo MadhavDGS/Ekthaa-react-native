@@ -202,12 +202,12 @@ class ApiService {
   }
 
   async updateProduct(productId: string, data: any) {
-    const response = await this.api.put(`/product/${productId}`, data);
+    const response = await this.api.put(`/api/product/${productId}`, data);
     return response.data;
   }
 
   async deleteProduct(productId: string) {
-    const response = await this.api.delete(`/product/${productId}`);
+    const response = await this.api.delete(`/api/product/${productId}`);
     return response.data;
   }
 
