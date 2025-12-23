@@ -155,7 +155,7 @@ const getColor = (i: number, isDark: boolean) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  content: { paddingBottom: 90 },
+  content: { paddingBottom: 95 },
   loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   hero: {
     margin: Spacing.md,
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
     ...Platform.select({
-      ios: { shadowColor: '#7c3aed', shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.3, shadowRadius: 9 },
+      ios: { shadowColor: '#7c3aed', shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.3, shadowRadius: 10 },
       android: { elevation: 8 },
     }),
   },
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     }),
   },
   item: { flexDirection: 'row', alignItems: 'center', padding: BorderRadius.md, borderBottomWidth: 1 },
-  avatar: { width: 29, height: 29, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginRight: Spacing.sm },
+  avatar: { width: 30, height: 30, borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginRight: Spacing.sm },
   avatarText: { fontSize: Typography.fontSm, fontWeight: Typography.bold, color: '#fff' },
   itemInfo: { flex: 1 },
   itemName: { fontSize: Typography.fontXs, fontWeight: Typography.semiBold, marginBottom: 2 },
