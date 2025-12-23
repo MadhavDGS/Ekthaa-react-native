@@ -30,8 +30,12 @@ import AddTransactionScreen from './src/screens/Transactions/AddTransactionScree
 import InvoiceGeneratorScreen from './src/screens/Invoice/InvoiceGeneratorScreen';
 import InvoicePreviewScreen from './src/screens/Invoice/InvoicePreviewScreen';
 import QRCodeScreen from './src/screens/Business/QRCodeScreen';
+import OffersScreen from './src/screens/Business/OffersScreen';
+import AddOfferScreen from './src/screens/Business/AddOfferScreen';
+import AnalyticsScreen from './src/screens/Business/AnalyticsScreen';
 import ProfileScreen from './src/screens/profile/ProfileScreen';
 import EditProfileScreen from './src/screens/profile/EditProfileScreen';
+import PrivacySecurityScreen from './src/screens/profile/PrivacySecurityScreen';
 import { TouchableOpacity, Text } from 'react-native';
 
 // Theme
@@ -293,6 +297,38 @@ function AppContent() {
               component={EditProfileScreen}
               options={{
                 headerTitle: 'Edit Profile',
+                animation: 'slide_from_right',
+              }}
+            />
+            <Stack.Screen
+              name="Offers"
+              component={OffersScreen}
+              options={{
+                headerTitle: 'Offers & Promotions',
+                animation: 'slide_from_right',
+              }}
+            />
+            <Stack.Screen
+              name="AddOffer"
+              component={AddOfferScreen}
+              options={{
+                headerTitle: 'Add Offer',
+                animation: 'slide_from_right',
+              }}
+            />
+            <Stack.Screen
+              name="Analytics"
+              component={AnalyticsScreen}
+              options={{
+                headerTitle: 'Business Analytics',
+                animation: 'slide_from_right',
+              }}
+            />
+            <Stack.Screen
+              name="PrivacySecurity"
+              component={PrivacySecurityScreen}
+              options={{
+                headerTitle: 'Privacy & Security',
                 animation: 'slide_from_right',
               }}
             />

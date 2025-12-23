@@ -26,7 +26,7 @@ class ApiService {
     // Request interceptor to add auth token
     this.api.interceptors.request.use(
       async (config) => {
-        console.log('📡 Request URL:', config.baseURL + config.url);
+        console.log('📡 Request URL:', (config.baseURL || '') + (config.url || ''));
         console.log('📡 Request Method:', config.method);
         console.log('📡 Request Data:', config.data);
         const token = await AsyncStorage.getItem('authToken');
@@ -111,6 +111,14 @@ class ApiService {
     await this.api.post(API_ENDPOINTS.LOGOUT);
     await AsyncStorage.removeItem('authToken');
     await AsyncStorage.removeItem('userData');
+  }
+
+  async changePassword(currentPassword: string, newPassword: string) {
+    const response = await this.api.post('/api/auth/change-password', {
+      current_password: currentPassword,
+      new_password: newPassword,
+    });
+    return response.data;
   }
 
   // Helper method to get auth token
@@ -351,6 +359,40 @@ class ApiService {
   // Stats
   async getStats() {
     const response = await this.api.get(API_ENDPOINTS.STATS);
+    return response.data;
+  }
+
+  // Offers management methods
+
+  async createOffer(data: any) {
+    const response = await this.api.post('/api/offer', data);
+    return response.data;
+  }
+
+  async toggleOffer(offerId: string) {
+    const response = await this.api.put(`/api/offer/${offerId}/toggle`);
+    return response.data;
+  }
+
+  async deleteOffer(offerId: string) {
+    const response = await this.api.delete(`/api/offer/${offerId}`);
+    return response.data;
+  }
+
+
+
+  async createVoucher(data: any) {
+    const response = await this.api.post('/api/voucher', data);
+    return response.data;
+  }
+
+  async toggleVoucher(voucherId: string) {
+    const response = await this.api.put(`/api/voucher/${voucherId}/toggle`);
+    return response.data;
+  }
+
+  async deleteVoucher(voucherId: string) {
+    const response = await this.api.delete(`/api/voucher/${voucherId}`);
     return response.data;
   }
 

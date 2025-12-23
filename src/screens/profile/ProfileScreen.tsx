@@ -14,6 +14,7 @@ import {
   RefreshControl,
   Alert,
   Switch,
+  Share,
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -85,6 +86,31 @@ export default function ProfileScreen({ navigation }: any) {
     ]);
   };
 
+  const handleShareApp = async () => {
+    try {
+      const result = await Share.share({
+        message: 'Check out Ekthaa - Your Digital Business Ledger! 📊\n\nManage customers, transactions, and inventory with ease.\n\nDownload now: https://ekthaa.com/download',
+        title: 'Share Ekthaa App',
+      });
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // Shared via activity type
+          console.log('Shared via:', result.activityType);
+        } else {
+          // Shared successfully
+          console.log('App shared successfully');
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // User dismissed the share dialog
+        console.log('Share dismissed');
+      }
+    } catch (error) {
+      console.error('Error sharing app:', error);
+      Alert.alert('Error', 'Unable to share the app. Please try again.');
+    }
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: Colors.backgroundSecondary }]}>
@@ -117,13 +143,6 @@ export default function ProfileScreen({ navigation }: any) {
             <Ionicons name="call" size={12} color={Colors.textSecondary} />
             <Text style={[styles.phoneNumber, { color: Colors.textSecondary }]}>{user?.phone_number || 'N/A'}</Text>
           </View>
-          <TouchableOpacity
-            style={[styles.editButton, { backgroundColor: Colors.card, borderWidth: 1, borderColor: Colors.borderLight }]}
-            onPress={() => navigation.navigate('EditProfile', { user })}
-          >
-            <Ionicons name="create-outline" size={14} color={Colors.textPrimary} />
-            <Text style={[styles.editText, { color: Colors.textPrimary }]}>Edit Profile</Text>
-          </TouchableOpacity>
         </View>
 
         {/* Stats Cards */}
@@ -161,7 +180,7 @@ export default function ProfileScreen({ navigation }: any) {
             <Ionicons name="chevron-forward" size={14} color={Colors.textTertiary} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]} onPress={() => Alert.alert('Coming Soon', 'Reports feature coming soon!')}>
+          <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]} onPress={() => navigation.navigate('Analytics')}>
             <View style={[styles.settingIcon, { backgroundColor: isDark ? '#1e3a8a' : Colors.bgLightBlue }]}>
               <Ionicons name="document-text" size={17} color={Colors.blue} />
             </View>
@@ -172,7 +191,7 @@ export default function ProfileScreen({ navigation }: any) {
             <Ionicons name="chevron-forward" size={16} color={Colors.textTertiary} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]} onPress={() => Alert.alert('Coming Soon', 'Offers feature coming soon!')}>
+          <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]} onPress={() => navigation.navigate('Offers')}>
             <View style={[styles.settingIcon, { backgroundColor: isDark ? '#064e3b' : Colors.bgLightGreen }]}>
               <Ionicons name="pricetag" size={17} color={Colors.paymentGreen} />
             </View>
@@ -208,7 +227,7 @@ export default function ProfileScreen({ navigation }: any) {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Settings</Text>
 
-          <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]}>
+          <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]} onPress={() => navigation.navigate('EditProfile', { user })}>
             <View style={[styles.settingIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.2)' : 'rgba(90, 154, 142, 0.1)' }]}>
               <Ionicons name="person" size={17} color={Colors.primary} />
             </View>
@@ -255,7 +274,7 @@ export default function ProfileScreen({ navigation }: any) {
             <Ionicons name="chevron-forward" size={16} color={Colors.textTertiary} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]}>
+          <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]} onPress={() => navigation.navigate('PrivacySecurity')}>
             <View style={[styles.settingIcon, { backgroundColor: isDark ? '#7c2d12' : Colors.bgLightOrange }]}>
               <Ionicons name="shield-checkmark" size={17} color={Colors.orange} />
             </View>
@@ -270,7 +289,7 @@ export default function ProfileScreen({ navigation }: any) {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Help & Support</Text>
 
-          <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]} onPress={() => Alert.alert('Share', 'Share Ekthaa with friends!')}>
+          <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]} onPress={handleShareApp}>
             <View style={[styles.settingIcon, { backgroundColor: isDark ? '#831843' : 'rgba(236, 72, 153, 0.15)' }]}>
               <Ionicons name="share-social" size={17} color={isDark ? '#f9a8d4' : '#ec4899'} />
             </View>
