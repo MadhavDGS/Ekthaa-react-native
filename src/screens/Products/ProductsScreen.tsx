@@ -59,11 +59,11 @@ export default function ProductsScreen({ navigation }: any) {
       console.log('📋 Products loaded:', data.products?.length || 0);
       setProducts(data.products || []);
       setLastFetch(Date.now());
-      
+
       // Extract unique categories
       const uniqueCategories = ['All', ...new Set(data.products?.map((p: any) => p.category) || [])];
       setCategories(uniqueCategories as string[]);
-      
+
       // Calculate stats
       const totalValue = data.products?.reduce((sum: number, p: any) => sum + (p.price * p.stock_quantity), 0) || 0;
       const lowStock = data.products?.filter((p: any) => p.stock_quantity <= (p.low_stock_threshold || 5)).length || 0;
@@ -79,17 +79,17 @@ export default function ProductsScreen({ navigation }: any) {
 
   const filterProducts = () => {
     let filtered = products;
-    
+
     if (selectedCategory !== 'All') {
       filtered = filtered.filter(p => p.category === selectedCategory);
     }
-    
+
     if (searchQuery.trim()) {
       filtered = filtered.filter(p =>
         p.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-    
+
     setFilteredProducts(filtered);
   };
 
@@ -99,7 +99,7 @@ export default function ProductsScreen({ navigation }: any) {
 
   const handleQuantityChange = async (product: any, change: number) => {
     const newQuantity = product.stock_quantity + change;
-    
+
     // Don't allow negative quantities
     if (newQuantity < 0) {
       return;
@@ -111,7 +111,7 @@ export default function ProductsScreen({ navigation }: any) {
         ...product,
         stock_quantity: newQuantity
       });
-      
+
       // Reload products to reflect changes
       loadProducts();
     } catch (error) {
@@ -128,9 +128,9 @@ export default function ProductsScreen({ navigation }: any) {
 
   const renderProduct = ({ item }: any) => {
     const isLowStock = item.stock_quantity <= (item.low_stock_threshold || 5);
-    
+
     return (
-      <TouchableOpacity 
+      <TouchableOpacity
         style={[styles.productCard, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
         onPress={() => handleProductEdit(item)}
         activeOpacity={0.7}
@@ -146,12 +146,12 @@ export default function ProductsScreen({ navigation }: any) {
                 <Text style={[styles.categoryText, { color: Colors.textSecondary }]} numberOfLines={1}>{item.category}</Text>
               </View>
             </View>
-            
+
             <View style={styles.priceRow}>
               <Text style={[styles.productPrice, { color: Colors.primary }]}>{formatCurrency(item.price)}</Text>
               <Text style={[styles.unitText, { color: Colors.textTertiary }]}>/{item.unit}</Text>
             </View>
-            
+
             <View style={styles.stockRow}>
               <Ionicons name="cube-outline" size={14} color={isLowStock ? Colors.creditRed : Colors.creditGreen} />
               <Text style={[styles.stockText, { color: isLowStock ? Colors.creditRed : Colors.creditGreen }]}>
@@ -163,7 +163,7 @@ export default function ProductsScreen({ navigation }: any) {
 
           {item.product_image_url && (
             <View style={styles.productRight}>
-              <Image 
+              <Image
                 source={{ uri: item.product_image_url }}
                 style={[styles.productImage, { borderColor: Colors.borderLight }]}
                 resizeMode="cover"
@@ -178,7 +178,7 @@ export default function ProductsScreen({ navigation }: any) {
             <Text style={[styles.quantityLabelText, { color: Colors.textSecondary }]}>Adjust Stock</Text>
           </View>
           <View style={styles.quantityButtons}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.quantityButton, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
               onPress={(e) => {
                 e.stopPropagation();
@@ -188,7 +188,7 @@ export default function ProductsScreen({ navigation }: any) {
               <Ionicons name="remove" size={16} color={Colors.textSecondary} />
             </TouchableOpacity>
             <Text style={[styles.quantityText, { color: Colors.textPrimary }]}>{item.stock_quantity}</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.quantityButton, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
               onPress={(e) => {
                 e.stopPropagation();
@@ -248,11 +248,11 @@ export default function ProductsScreen({ navigation }: any) {
     <View style={[styles.container, { backgroundColor: Colors.backgroundSecondary }]}>
       {/* Stats Header */}
       <View style={[styles.statsHeader, { backgroundColor: Colors.card, borderBottomColor: Colors.borderLight }]}>
-        <View style={[styles.statBox, { backgroundColor: isDark ? '#4c1d95' : '#faf5ff', borderColor: Colors.primary + '20' }]}>
+        <View style={[styles.statBox, { backgroundColor: Colors.primary + '15', borderColor: Colors.primary + '30' }]}>
           <Text style={[styles.statLabel, { color: Colors.textSecondary }]}>Inventory Value</Text>
           <Text style={[styles.statValue, { color: Colors.primary }]}>{formatCurrency(stats.totalValue)}</Text>
         </View>
-        <View style={[styles.statBox, { backgroundColor: isDark ? '#7f1d1d' : '#fef2f2', borderColor: Colors.creditRed + '20' }]}>
+        <View style={[styles.statBox, { backgroundColor: Colors.creditRed + '15', borderColor: Colors.creditRed + '30' }]}>
           <Text style={[styles.statLabel, { color: Colors.textSecondary }]}>Low Stock Items</Text>
           <Text style={[styles.statValue, { color: Colors.creditRed }]}>{stats.lowStock}</Text>
         </View>
@@ -314,8 +314,8 @@ export default function ProductsScreen({ navigation }: any) {
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={renderEmpty}
         refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
+          <RefreshControl
+            refreshing={refreshing}
             onRefresh={() => { setRefreshing(true); loadProducts(); }}
             colors={[Colors.primary]}
             tintColor={Colors.primary}
@@ -355,13 +355,13 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: Typography.fontSm,
     marginBottom: Spacing.xs,
-    fontWeight: '600',
+    fontFamily: Typography.fonts.semiBold,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   statValue: {
     fontSize: Typography.fontLg,
-    fontWeight: '800',
+    fontFamily: Typography.fonts.extraBold,
   },
   searchContainer: {
     paddingHorizontal: Spacing.md,
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: Typography.fontXs,
     marginLeft: Spacing.xs,
-    fontWeight: '500',
+    fontFamily: Typography.fonts.medium,
     height: 32,
   },
   categoriesWrapper: {
@@ -405,10 +405,10 @@ const styles = StyleSheet.create({
   },
   categoryChipText: {
     fontSize: Typography.fontXs,
-    fontWeight: '600',
+    fontFamily: Typography.fonts.semiBold,
   },
   categoryChipTextActive: {
-    fontWeight: '700',
+    fontFamily: Typography.fonts.bold,
   },
   listContent: {
     padding: Spacing.sm,
@@ -457,12 +457,12 @@ const styles = StyleSheet.create({
   },
   productName: {
     fontSize: Typography.fontBase,
-    fontWeight: '700',
+    fontFamily: Typography.fonts.bold,
     marginBottom: Spacing.xs,
   },
   categoryText: {
     fontSize: Typography.fontXs,
-    fontWeight: '400',
+    fontFamily: Typography.fonts.regular,
   },
   productRight: {
     marginLeft: Spacing.sm,
@@ -489,17 +489,17 @@ const styles = StyleSheet.create({
   },
   categoryBadgeText: {
     fontSize: Typography.font3xs,
-    fontWeight: '800',
+    fontFamily: Typography.fonts.extraBold,
     letterSpacing: 0.8,
   },
   unitText: {
     fontSize: Typography.fontXs,
     marginBottom: Spacing.xs,
-    fontWeight: '500',
+    fontFamily: Typography.fonts.medium,
   },
   productPrice: {
     fontSize: Typography.fontLg,
-    fontWeight: '900',
+    fontFamily: Typography.fonts.extraBold,
     marginBottom: Spacing.xs,
     letterSpacing: -0.5,
   },
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
   },
   stockText: {
     fontSize: Typography.fontXs,
-    fontWeight: '600',
+    fontFamily: Typography.fonts.semiBold,
   },
   quantityControls: {
     flexDirection: 'row',
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
   },
   quantityLabelText: {
     fontSize: Typography.font3xs,
-    fontWeight: '600',
+    fontFamily: Typography.fonts.semiBold,
   },
   quantityButtons: {
     flexDirection: 'row',
@@ -551,7 +551,7 @@ const styles = StyleSheet.create({
   },
   quantityText: {
     fontSize: Typography.fontSm,
-    fontWeight: '700',
+    fontFamily: Typography.fonts.bold,
     minWidth: 32,
     textAlign: 'center',
   },
@@ -563,7 +563,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: Typography.fontXs,
-    fontWeight: '600',
+    fontFamily: Typography.fonts.semiBold,
     marginTop: Spacing.lg,
     marginBottom: Spacing.sm,
   },
@@ -583,7 +583,7 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     fontSize: Typography.fontSm,
-    fontWeight: '600',
+    fontFamily: Typography.fonts.semiBold,
   },
   fab: {
     position: 'absolute',

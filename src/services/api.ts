@@ -6,6 +6,7 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL, API_ENDPOINTS } from '../constants/api';
+import * as FileSystem from 'expo-file-system/legacy';
 
 class ApiService {
   private api: AxiosInstance;
@@ -65,12 +66,12 @@ class ApiService {
       });
       console.log('📡 API: Login response status:', response.status);
       console.log('📡 API: Login response data:', response.data);
-      
+
       // Check if login was successful
       if (!response.data.token) {
         throw new Error('Login failed: No token received');
       }
-      
+
       await AsyncStorage.setItem('authToken', response.data.token);
       await AsyncStorage.setItem('userData', JSON.stringify(response.data.user));
       console.log('📡 API: Token saved to AsyncStorage');
@@ -80,7 +81,7 @@ class ApiService {
       console.error('📡 API: Error:', error.message);
       console.error('📡 API: Error response:', error.response?.data);
       console.error('📡 API: Error status:', error.response?.status);
-      
+
       // Throw a user-friendly error message
       if (error.response?.status === 404) {
         throw new Error('Invalid phone number or password');
@@ -170,6 +171,7 @@ class ApiService {
     amount: number;
     notes?: string;
     receipt_url?: string;
+    created_by?: string;
   }) {
     const response = await this.api.post(API_ENDPOINTS.ADD_TRANSACTION, data);
     return response.data;
@@ -246,6 +248,46 @@ class ApiService {
   async regeneratePin() {
     const response = await this.api.post(API_ENDPOINTS.REGENERATE_PIN);
     return response.data;
+  }
+
+
+  // Invoice Generation
+  async generateInvoice(data: any): Promise<string> {
+    try {
+      const response = await this.api.post('/api/generate-invoice', data, {
+        responseType: 'blob'
+      });
+
+      const blob = response.data;
+      const reader = new FileReader();
+
+      return new Promise((resolve, reject) => {
+        reader.onloadend = async () => {
+          try {
+            const base64data = reader.result as string;
+            const buyerName = data.buyer_name?.replace(/[^a-z0-9]/gi, '_') || 'invoice';
+            const filename = `invoice_${buyerName}_${Date.now()}.pdf`;
+
+            const filepath = `${FileSystem.documentDirectory}${filename}`;
+
+            await FileSystem.writeAsStringAsync(
+              filepath,
+              base64data.split(',')[1],
+              { encoding: 'base64' }
+            );
+
+            resolve(filepath);
+          } catch (error) {
+            reject(error);
+          }
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('Generate invoice error:', error);
+      throw error;
+    }
   }
 
   async updateLocation(data: { latitude: number; longitude: number; address: string }) {

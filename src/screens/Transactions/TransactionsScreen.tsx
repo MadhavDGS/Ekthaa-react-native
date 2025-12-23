@@ -250,7 +250,7 @@ export default function TransactionsScreen({ navigation }: any) {
             <Text style={[
               styles.filterText,
               { color: filterType === type ? '#fff' : Colors.textPrimary },
-              filterType === type && { fontWeight: '700' }
+              filterType === type && { fontFamily: Typography.fonts.bold }
             ]}>
               {type === 'all' ? 'All' : type === 'credit' ? 'Received' : 'Given'}
             </Text>
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
   },
   balanceLabel: {
     fontSize: Typography.fontXs,
-    fontWeight: '600',
+    fontFamily: Typography.fonts.semiBold,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
   },
   balanceStatus: {
     fontSize: Typography.font3xs,
-    fontWeight: '500',
+    fontFamily: Typography.fonts.medium,
   },
   statsChips: {
     flexDirection: 'row',
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
   },
   chipLabel: {
     fontSize: Typography.font3xs,
-    fontWeight: '600',
+    fontFamily: Typography.fonts.semiBold,
     textTransform: 'uppercase',
     letterSpacing: 0.3,
   },
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: Typography.fontXs,
     marginLeft: Spacing.xs,
-    fontWeight: '500',
+    fontFamily: Typography.fonts.medium,
     height: 32,
   },
   clearButton: {
@@ -393,7 +393,7 @@ const styles = StyleSheet.create({
   },
   filterText: {
     fontSize: Typography.fontXs,
-    fontWeight: '600',
+    fontFamily: Typography.fonts.semiBold,
   },
   listContent: {
     paddingHorizontal: Spacing.md,
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: Typography.fontSm,
-    fontWeight: '700',
+    fontFamily: Typography.fonts.bold,
     letterSpacing: 0.3,
   },
   txnCard: {
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
   },
   customerName: {
     fontSize: Typography.fontBase,
-    fontWeight: '700',
+    fontFamily: Typography.fonts.bold,
     marginBottom: 2,
   },
   timeRow: {
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
   },
   txnTime: {
     fontSize: Typography.font3xs,
-    fontWeight: '500',
+    fontFamily: Typography.fonts.medium,
   },
   amountContainer: {
     alignItems: 'flex-end',
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
   },
   typeBadgeText: {
     fontSize: Typography.font3xs,
-    fontWeight: '700',
+    fontFamily: Typography.fonts.bold,
     textTransform: 'uppercase',
     letterSpacing: 0.3,
   },
@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: Typography.fontXs,
     lineHeight: 18,
-    fontWeight: '500',
+    fontFamily: Typography.fonts.medium,
   },
   emptyContainer: {
     alignItems: 'center',
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: Typography.fontBase,
-    fontWeight: '700',
+    fontFamily: Typography.fonts.bold,
     marginTop: Spacing.lg,
     marginBottom: Spacing.sm,
   },

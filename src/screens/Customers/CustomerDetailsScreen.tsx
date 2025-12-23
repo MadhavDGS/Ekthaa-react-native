@@ -1,9 +1,9 @@
 /**
- * Customer Details Screen
- * Shows customer info, balance, and WhatsApp-style transaction bubbles
+ * Customer Details Screen - GPay-Inspired Design
+ * Shows customer info, balance, and GPay-style transaction timeline
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { getThemedColors, Typography, Spacing, BorderRadius } from '../../constants/theme';
 import { AvatarSizes, IconSizes } from '../../constants/scales';
 import { useTheme } from '../../context/ThemeContext';
@@ -31,6 +32,7 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
   const [refreshing, setRefreshing] = useState(false);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     navigation.setOptions({
@@ -40,10 +42,10 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
       headerRight: () => (
         <TouchableOpacity
           onPress={handleSendReminder}
-          style={{ marginRight: 8 }}
+          style={{ marginRight: 8, justifyContent: 'center', alignItems: 'center' }}
           activeOpacity={0.7}
         >
-          <Ionicons name="logo-whatsapp" size={28} color="#25D366" />
+          <Ionicons name="logo-whatsapp" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
       ),
     });
@@ -53,6 +55,15 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
     loadCustomerDetails();
   }, [customerId]);
 
+  useEffect(() => {
+    // Auto-scroll to bottom when transactions load
+    if (transactions.length > 0 && scrollViewRef.current) {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 300);
+    }
+  }, [transactions]);
+
   const loadCustomerDetails = async () => {
     try {
       const [customerData, transactionsData] = await Promise.all([
@@ -60,7 +71,9 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
         ApiService.getTransactions(customerId),
       ]);
       setCustomer(customerData.customer);
-      setTransactions(transactionsData.transactions || []);
+      const txns = transactionsData.transactions || [];
+      console.log('🔍 First transaction sample:', JSON.stringify(txns[0], null, 2));
+      setTransactions(txns);
     } catch (error) {
       console.error('Error loading customer details:', error);
     } finally {
@@ -75,29 +88,37 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
   };
 
   const formatCurrency = (amount: number) => {
-    return `₹${amount.toFixed(2)}`;
+    return `₹${Math.round(amount).toLocaleString('en-IN')}`;
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) return 'Today';
+    if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
+
     return date.toLocaleDateString('en-IN', {
-      day: '2-digit',
+      day: 'numeric',
       month: 'short',
-      year: 'numeric',
+      year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
     });
   };
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString('en-IN', {
-      hour: '2-digit',
+      hour: 'numeric',
       minute: '2-digit',
+      hour12: true,
     });
   };
 
   const handleSendReminder = async () => {
     if (!customer) return;
-    
+
     const balance = customer.balance || 0;
     if (balance <= 0) {
       Alert.alert('No Balance', 'This customer has no outstanding balance.');
@@ -109,17 +130,14 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
     const whatsappWebUrl = `https://wa.me/91${customer.phone_number}?text=${encodeURIComponent(message)}`;
 
     try {
-      // Try to open WhatsApp app first
       const supported = await Linking.canOpenURL(whatsappAppUrl);
       if (supported) {
         await Linking.openURL(whatsappAppUrl);
       } else {
-        // Fall back to WhatsApp Web
         await Linking.openURL(whatsappWebUrl);
       }
     } catch (error) {
       console.error('Error opening WhatsApp:', error);
-      // If all else fails, try web as last resort
       try {
         await Linking.openURL(whatsappWebUrl);
       } catch (webError) {
@@ -135,7 +153,7 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
       if (!groups[date]) groups[date] = [];
       groups[date].push(txn);
     });
-    
+
     return Object.entries(groups)
       .map(([date, items]) => ({
         date,
@@ -166,8 +184,33 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: '#f5f5f5' }]}>
+    <View style={[styles.container, { backgroundColor: isDark ? Colors.background : '#f5f5f5' }]}>
+      {/* Balance Card - Clean & Minimal */}
+      <View style={[styles.balanceCard, {
+        backgroundColor: Colors.card,
+        borderColor: Colors.borderLight,
+      }]}>
+        <View style={styles.balanceHeader}>
+          <Text style={[styles.balanceLabel, { color: Colors.textSecondary }]}>Outstanding Balance</Text>
+          <View style={[styles.balanceBadge, {
+            backgroundColor: customer.balance > 0
+              ? (isDark ? 'rgba(90, 154, 142, 0.2)' : 'rgba(90, 154, 142, 0.1)')
+              : (isDark ? 'rgba(156, 163, 175, 0.2)' : 'rgba(156, 163, 175, 0.1)')
+          }]}>
+            <Text style={[styles.balanceBadgeText, {
+              color: customer.balance > 0 ? Colors.primary : Colors.textSecondary
+            }]}>
+              {customer.balance > 0 ? 'To Receive' : customer.balance < 0 ? 'Advance Given' : 'Settled'}
+            </Text>
+          </View>
+        </View>
+        <Text style={[styles.balanceAmount, { color: Colors.textPrimary }]}>
+          {formatCurrency(Math.abs(customer.balance))}
+        </Text>
+      </View>
+
       <ScrollView
+        ref={scrollViewRef}
         style={styles.content}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -175,63 +218,85 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} tintColor={Colors.primary} />
         }
       >
-        {/* Balance Summary */}
-        <View style={[styles.balanceSummary, { backgroundColor: customer.balance > 0 ? '#fee2e2' : '#d1fae5' }]}>
-          <View>
-            <Text style={[styles.balanceLabel, { color: '#6b7280' }]}>Outstanding Balance</Text>
-            <Text style={[styles.balanceAmount, { color: customer.balance > 0 ? '#dc2626' : '#059669' }]}>
-              {formatCurrency(Math.abs(customer.balance))}
-            </Text>
-            <Text style={[styles.balanceStatus, { color: customer.balance > 0 ? '#dc2626' : '#059669' }]}>
-              {customer.balance > 0 ? 'You will get' : customer.balance < 0 ? 'You gave' : 'Settled up'}
-            </Text>
-          </View>
-        </View>
-
-        {/* Transactions - Chat Style */}
+        {/* Transactions - GPay Style */}
         {transactions.length > 0 ? (
-          <View style={styles.chatContainer}>
+          <View style={styles.transactionsContainer}>
             {groupByDate(transactions).map((group, groupIndex) => (
               <View key={groupIndex}>
                 {/* Date Separator */}
-                <Text style={styles.dateSeparator}>{group.displayDate}</Text>
-                
+                <View style={styles.dateSeparatorContainer}>
+                  <View style={[styles.dateBadge, {
+                    backgroundColor: isDark ? Colors.card : '#e5e7eb'
+                  }]}>
+                    <Text style={[styles.dateText, { color: Colors.textSecondary }]}>
+                      {group.displayDate}
+                    </Text>
+                  </View>
+                </View>
+
                 {/* Transactions for this date */}
                 {group.data.map((transaction) => {
-                  const isCredit = transaction.type === 'credit';
+                  const isCredit = transaction.transaction_type === 'credit';
+                  const isBusinessCreated = transaction.created_by === 'business';
+
                   return (
-                    <View key={transaction.id} style={[styles.messageRow, isCredit ? styles.messageRowRight : styles.messageRowLeft]}>
-                      {/* Avatar for payment received (left side) */}
-                      {!isCredit && (
-                        <View style={[styles.avatar, { backgroundColor: Colors.primary + '20' }]}>
+                    <View
+                      key={transaction.id}
+                      style={[
+                        styles.transactionRow,
+                        isBusinessCreated ? styles.transactionRowRight : styles.transactionRowLeft
+                      ]}
+                    >
+                      {/* Avatar for customer/non-business transactions (left) */}
+                      {!isBusinessCreated && (
+                        <View style={[styles.avatar, {
+                          backgroundColor: isDark ? 'rgba(90, 154, 142, 0.2)' : 'rgba(90, 154, 142, 0.15)'
+                        }]}>
                           <Text style={[styles.avatarText, { color: Colors.primary }]}>
                             {customer.name.charAt(0).toUpperCase()}
                           </Text>
                         </View>
                       )}
-                      
-                      {/* Message Bubble */}
-                      <View style={[styles.messageBubble, isCredit ? styles.bubbleCredit : styles.bubblePayment]}>
-                        {/* Transaction Type Label */}
-                        <Text style={[styles.transactionLabel, { color: isCredit ? '#ef4444' : '#10b981' }]}>
-                          {isCredit ? 'Credit Taken' : 'Payment Received'}
+
+                      {/* Transaction Bubble */}
+                      <View style={[
+                        styles.transactionBubble,
+                        !isBusinessCreated ? styles.bubbleReceived : styles.bubbleSent,
+                        {
+                          backgroundColor: !isBusinessCreated
+                            ? (isDark ? '#2a2a2a' : '#f5f5f5')
+                            : (isDark ? 'rgba(90, 154, 142, 0.15)' : 'rgba(90, 154, 142, 0.08)')
+                        }
+                      ]}>
+                        {/* Amount */}
+                        <Text style={[styles.transactionAmount, { color: Colors.textPrimary }]}>
+                          {formatCurrency(transaction.amount)}
                         </Text>
-                        
-                        <Text style={styles.amount}>₹{transaction.amount.toLocaleString('en-IN')}</Text>
-                        
+
+                        {/* Status Row */}
                         <View style={styles.statusRow}>
-                          <Ionicons name="checkmark-circle" size={14} color={isCredit ? '#ef4444' : '#10b981'} />
+                          <Ionicons
+                            name="checkmark-circle"
+                            size={16}
+                            color={isCredit ? '#ef4444' : '#10b981'}
+                          />
                           <Text style={[styles.statusText, { color: isCredit ? '#ef4444' : '#10b981' }]} numberOfLines={1}>
-                            {isCredit ? 'You will get back' : 'You received'}
+                            {isCredit ? 'Credit Taken' : 'Payment Made'}
                           </Text>
-                          <Ionicons name="chevron-forward" size={12} color="#9ca3af" />
+                          <Ionicons name="chevron-forward" size={14} color={Colors.textTertiary} />
                         </View>
-                        
+
+                        {/* Notes */}
                         {transaction.notes && (
-                          <Text style={styles.notes} numberOfLines={2}>{transaction.notes}</Text>
+                          <Text style={[styles.notes, { color: Colors.textSecondary }]} numberOfLines={2}>
+                            {transaction.notes}
+                          </Text>
                         )}
-                        
-                        <Text style={styles.time}>{formatTime(transaction.created_at)}</Text>
+
+                        {/* Time */}
+                        <Text style={[styles.time, { color: Colors.textTertiary }]}>
+                          {formatTime(transaction.created_at)}
+                        </Text>
                       </View>
                     </View>
                   );
@@ -241,17 +306,20 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
           </View>
         ) : (
           <View style={[styles.emptyState, { backgroundColor: Colors.card }]}>
-            <Ionicons name="receipt-outline" size={IconSizes.xlarge} color={Colors.textTertiary} />
+            <Ionicons name="receipt-outline" size={48} color={Colors.textTertiary} />
             <Text style={[styles.emptyText, { color: Colors.textSecondary }]}>No transactions yet</Text>
           </View>
         )}
       </ScrollView>
 
       {/* Bottom Action Buttons */}
-      <View style={[styles.bottomActions, { backgroundColor: Colors.card, borderTopColor: Colors.borderLight }]}>
+      <View style={[styles.bottomActions, {
+        backgroundColor: Colors.card,
+        borderTopColor: Colors.borderLight
+      }]}>
         <View style={styles.actionButtonsRow}>
           <TouchableOpacity
-            style={[styles.actionButton, styles.creditButton]}
+            style={styles.creditButton}
             onPress={() => navigation.navigate('AddTransaction', {
               customerId: customer.id,
               customerName: customer.name,
@@ -259,12 +327,12 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
             })}
             activeOpacity={0.7}
           >
-            <Ionicons name="arrow-up-outline" size={IconSizes.medium} color="#fff" />
+            <Ionicons name="arrow-up-outline" size={20} color="#fff" />
             <Text style={styles.actionButtonText}>Give Credit</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.actionButton, styles.paymentButton]}
+            style={styles.paymentButton}
             onPress={() => navigation.navigate('AddTransaction', {
               customerId: customer.id,
               customerName: customer.name,
@@ -272,7 +340,7 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
             })}
             activeOpacity={0.7}
           >
-            <Ionicons name="arrow-down-outline" size={IconSizes.medium} color="#fff" />
+            <Ionicons name="arrow-down-outline" size={20} color="#fff" />
             <Text style={styles.actionButtonText}>Receive Payment</Text>
           </TouchableOpacity>
         </View>
@@ -304,114 +372,137 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 100,
   },
-  balanceSummary: {
+  balanceCard: {
+    marginHorizontal: Spacing.md,
+    marginVertical: Spacing.md,
     padding: Spacing.lg,
-    marginBottom: Spacing.xs,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    backgroundColor: 'transparent',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+      },
+      android: { elevation: 2 },
+    }),
+  },
+  balanceHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
   },
   balanceLabel: {
-    fontSize: Typography.fontXs,
-    marginBottom: Spacing.xs,
+    fontSize: Typography.fontSm,
+    fontFamily: Typography.fonts.semiBold,
+  },
+  balanceBadge: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.md,
+  },
+  balanceBadgeText: {
+    fontSize: Typography.font3xs,
+    fontFamily: Typography.fonts.bold,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   balanceAmount: {
-    fontSize: 28,
-    fontWeight: Typography.extraBold,
-    marginBottom: Spacing.xs,
+    fontSize: 32,
+    fontWeight: '900',
+    letterSpacing: -1,
   },
-  balanceStatus: {
-    fontSize: Typography.fontXs,
-    fontWeight: Typography.medium,
-  },
-  chatContainer: {
+  transactionsContainer: {
     paddingHorizontal: Spacing.md,
   },
-  dateSeparator: {
-    textAlign: 'center',
-    color: '#9ca3af',
-    fontSize: Typography.fontXs,
+  dateSeparatorContainer: {
+    alignItems: 'center',
     marginVertical: Spacing.md,
   },
-  messageRow: {
+  dateBadge: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.full,
+  },
+  dateText: {
+    fontSize: Typography.fontXs,
+    fontFamily: Typography.fonts.semiBold,
+  },
+  transactionRow: {
     flexDirection: 'row',
     marginBottom: Spacing.md,
     alignItems: 'flex-end',
   },
-  messageRowLeft: {
+  transactionRowLeft: {
     justifyContent: 'flex-start',
   },
-  messageRowRight: {
+  transactionRowRight: {
     justifyContent: 'flex-end',
   },
   avatar: {
-    width: AvatarSizes.small,
-    height: AvatarSizes.small,
-    borderRadius: AvatarSizes.small / 2,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: Spacing.xs,
   },
   avatarText: {
-    fontSize: Typography.fontXs,
-    fontWeight: Typography.bold,
+    fontSize: 14,
+    fontFamily: Typography.fonts.bold,
   },
-  messageBubble: {
-    minWidth: '45%',
+  transactionBubble: {
+    minWidth: '50%',
     maxWidth: '75%',
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.06,
+        shadowRadius: 4,
+      },
+      android: { elevation: 1 },
+    }),
   },
-  bubblePayment: {
-    backgroundColor: '#f0fdf4',
+  bubbleReceived: {
     alignSelf: 'flex-start',
-    borderTopLeftRadius: 0,
-    ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 4 },
-      android: { elevation: 1 },
-    }),
+    borderTopLeftRadius: 4,
   },
-  bubbleCredit: {
-    backgroundColor: '#fef2f2',
+  bubbleSent: {
     alignSelf: 'flex-end',
-    borderTopRightRadius: 0,
-    ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 4 },
-      android: { elevation: 1 },
-    }),
+    borderTopRightRadius: 4,
   },
-  amount: {
-    fontSize: Typography.fontXl,
-    fontWeight: Typography.extraBold,
-    color: '#111827',
+  transactionAmount: {
+    fontSize: Typography.fontLg,
+    fontWeight: '800',
     marginBottom: Spacing.xs,
-  },
-  transactionLabel: {
-    fontSize: Typography.font3xs,
-    fontWeight: Typography.bold,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 4,
+    letterSpacing: -0.5,
   },
   statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
     marginBottom: Spacing.xs,
-    flexWrap: 'nowrap',
   },
   statusText: {
-    fontSize: Typography.fontXs,
-    fontWeight: Typography.semiBold,
     flex: 1,
-    numberOfLines: 1,
+    fontSize: Typography.fontSm,
+    fontFamily: Typography.fonts.semiBold,
   },
   notes: {
     fontSize: Typography.fontXs,
-    color: '#6b7280',
     marginBottom: Spacing.xs,
+    lineHeight: 18,
   },
   time: {
     fontSize: Typography.font3xs,
-    color: '#9ca3af',
     textAlign: 'right',
+    marginTop: 2,
   },
   emptyState: {
     borderRadius: BorderRadius.md,
@@ -419,7 +510,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: Spacing.md,
     ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3 },
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+      },
       android: { elevation: 2 },
     }),
   },
@@ -432,7 +528,12 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? Spacing.xl : Spacing.md,
     borderTopWidth: 1,
     ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.08, shadowRadius: 8 },
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+      },
       android: { elevation: 4 },
     }),
   },
@@ -440,7 +541,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.sm,
   },
-  actionButton: {
+  creditButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
@@ -448,16 +549,35 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     borderRadius: BorderRadius.lg,
     gap: Spacing.xs,
+    backgroundColor: '#ef4444',
     ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 4 },
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+      },
       android: { elevation: 3 },
     }),
   },
-  creditButton: {
-    backgroundColor: '#ef4444',
-  },
   paymentButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    gap: Spacing.xs,
     backgroundColor: '#10b981',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+      },
+      android: { elevation: 3 },
+    }),
   },
   actionButtonText: {
     color: '#fff',

@@ -116,6 +116,15 @@ export const Typography = {
   semiBold: '600' as const,
   medium: '500' as const,
   regular: '400' as const,
+
+  // Font Families (Use these instead of fontWeight for consistent cross-platform look)
+  fonts: {
+    extraBold: 'Inter_800ExtraBold',
+    bold: 'Inter_700Bold',
+    semiBold: 'Inter_600SemiBold',
+    medium: 'Inter_500Medium',
+    regular: 'Inter_400Regular',
+  },
 };
 
 export const Spacing = {
@@ -149,38 +158,38 @@ export const BorderRadius = {
 export const Shadows = {
   sm: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.18,
+    shadowRadius: 1.0,
+    elevation: 1,
   },
   md: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 3,
   },
   lg: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.30,
+    shadowRadius: 4.65,
+    elevation: 6,
   },
   purple: {
     shadowColor: '#7c3aed',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 32,
-    elevation: 12,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.30,
+    shadowRadius: 4.65,
+    elevation: 6,
   },
   fab: {
-    shadowColor: '#7c3aed',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOpacity: 0.30,
+    shadowRadius: 4.65,
+    elevation: 6,
   },
 };
 

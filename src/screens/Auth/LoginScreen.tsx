@@ -53,7 +53,7 @@ export default function LoginScreen({ navigation }: any) {
       const response = await ApiService.login(phoneNumber, password);
       console.log('✅ Login successful!', response);
       setSuccess('Login successful! Redirecting...');
-      
+
       // Small delay to show success message, then trigger re-render
       setTimeout(() => {
         // Force re-render by navigating to a dummy route and back
@@ -81,8 +81,11 @@ export default function LoginScreen({ navigation }: any) {
         >
           {/* Logo Section */}
           <View style={styles.logoSection}>
-            <View style={[styles.logoContainer, { backgroundColor: isDark ? '#4c1d95' : '#f5f3ff' }]}>
-              <Ionicons name="business" size={58} color={Colors.primary} />
+            <View style={[styles.logoContainer, { backgroundColor: 'transparent' }]}>
+              <Image
+                source={require('../../../assets/logo.png')}
+                style={{ width: 120, height: 120, resizeMode: 'contain' }}
+              />
             </View>
           </View>
 

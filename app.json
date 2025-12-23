@@ -20,10 +20,16 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#5A9A8E"
       },
+      "package": "com.ekthaa.business",
       "edgeToEdgeEnabled": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a7cf2883-1150-4efa-bff3-b5b161a7d1e6"
+      }
     }
   }
 }

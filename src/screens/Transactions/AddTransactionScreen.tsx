@@ -1,6 +1,6 @@
 /**
- * Add Transaction Screen - Google Pay Inspired
- * Handles adding credit/payment transactions
+ * Add Transaction Screen - Minimal & Beautiful Design
+ * Clean, focused interface for adding transactions
  */
 
 import React, { useState, useEffect } from 'react';
@@ -16,8 +16,10 @@ import {
   Alert,
   Keyboard,
   TouchableWithoutFeedback,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import { getThemedColors, Typography, Spacing, BorderRadius } from '../../constants/theme';
 import { IconSizes, AvatarSizes } from '../../constants/scales';
@@ -28,16 +30,23 @@ export default function AddTransactionScreen({ route, navigation }: any) {
   const { isDark } = useTheme();
   const Colors = getThemedColors(isDark);
   const { customerId, customerName, transactionType } = route.params;
-  
+
   const [amount, setAmount] = useState('');
   const [notes, setNotes] = useState('');
   const [receiptImage, setReceiptImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showNoteInput, setShowNoteInput] = useState(false);
+  const [buttonScale] = useState(new Animated.Value(1));
 
   const isCredit = transactionType === 'credit';
-  const themeColor = isCredit ? '#ef4444' : '#10b981';
-  const lightThemeColor = isCredit ? '#fef2f2' : '#f0fdf4';
+
+  // Softer, more refined colors
+  const themeColor = isCredit ? '#f87171' : '#34d399';
+  const darkThemeColor = isCredit ? '#dc2626' : '#059669';
+  const lightThemeColor = isCredit ? 'rgba(248, 113, 113, 0.1)' : 'rgba(52, 211, 153, 0.1)';
+  const gradientColors = isCredit
+    ? ['#f87171', '#ef4444', '#dc2626']
+    : ['#34d399', '#10b981', '#059669'];
 
   useEffect(() => {
     navigation.setOptions({
@@ -86,11 +95,28 @@ export default function AddTransactionScreen({ route, navigation }: any) {
     }
   };
 
+  const animateButton = () => {
+    Animated.sequence([
+      Animated.timing(buttonScale, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(buttonScale, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
   const handleSaveTransaction = async () => {
     if (!amount || parseFloat(amount) <= 0) {
       Alert.alert('Error', 'Please enter a valid amount');
       return;
     }
+
+    animateButton();
 
     try {
       setLoading(true);
@@ -100,6 +126,7 @@ export default function AddTransactionScreen({ route, navigation }: any) {
         amount: parseFloat(amount),
         notes: notes || undefined,
         receipt_url: receiptImage || undefined,
+        created_by: 'business', // Mobile app transactions created by business
       });
 
       Alert.alert(
@@ -122,27 +149,44 @@ export default function AddTransactionScreen({ route, navigation }: any) {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         style={[styles.container, { backgroundColor: Colors.background }]}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {/* Customer Info - Top */}
+        {/* Customer Info - Minimal & Clean */}
         <View style={styles.topSection}>
-          <View style={[styles.avatar, { backgroundColor: themeColor + '20' }]}>
-            <Text style={[styles.avatarText, { color: themeColor }]}>
-              {customerName.charAt(0).toUpperCase()}
+          <LinearGradient
+            colors={[lightThemeColor, lightThemeColor]}
+            style={[styles.avatarGradient]}
+          >
+            <View style={[styles.avatar, { backgroundColor: 'transparent' }]}>
+              <Text style={[styles.avatarText, { color: isDark ? themeColor : darkThemeColor }]}>
+                {customerName.charAt(0).toUpperCase()}
+              </Text>
+            </View>
+          </LinearGradient>
+          <Text style={[styles.customerName, { color: Colors.textPrimary }]}>
+            {customerName}
+          </Text>
+          <View style={[styles.typeBadge, {
+            backgroundColor: isDark ? lightThemeColor : lightThemeColor,
+            borderColor: isDark ? themeColor + '30' : darkThemeColor + '30'
+          }]}>
+            <Ionicons
+              name={isCredit ? 'arrow-up-circle' : 'arrow-down-circle'}
+              size={14}
+              color={isDark ? themeColor : darkThemeColor}
+            />
+            <Text style={[styles.typeBadgeText, { color: isDark ? themeColor : darkThemeColor }]}>
+              {isCredit ? 'Credit' : 'Payment'}
             </Text>
           </View>
-          <Text style={[styles.customerName, { color: Colors.textPrimary }]}>{customerName}</Text>
-          <Text style={[styles.transactionTypeLabel, { color: Colors.textSecondary }]}>
-            {isCredit ? 'Credit Transaction' : 'Payment Transaction'}
-          </Text>
         </View>
 
-        {/* Amount Input - Centered */}
+        {/* Amount Input - Large & Centered */}
         <View style={styles.centerSection}>
           <View style={styles.amountInputContainer}>
-            <Text style={[styles.currencySymbol, { color: Colors.textPrimary }]}>₹</Text>
+            <Text style={[styles.currencySymbol, { color: Colors.textSecondary }]}>₹</Text>
             <TextInput
               style={[styles.amountInput, { color: Colors.textPrimary }]}
               value={amount}
@@ -152,75 +196,125 @@ export default function AddTransactionScreen({ route, navigation }: any) {
               placeholderTextColor={Colors.textTertiary}
               autoFocus
               maxLength={10}
+              selectionColor={isDark ? themeColor : darkThemeColor}
             />
           </View>
+          {amount && parseFloat(amount) > 0 && (
+            <Text style={[styles.amountHint, { color: Colors.textTertiary }]}>
+              {isCredit ? 'You will receive' : 'You received'}
+            </Text>
+          )}
         </View>
 
-        {/* Bottom Section */}
+        {/* Bottom Section - Pill Buttons */}
         <View style={styles.bottomSection}>
-          {/* Note Input - Expandable */}
+          {/* Note Button */}
           {showNoteInput ? (
-            <View style={[styles.noteInputContainer, { borderTopColor: Colors.borderLight }]}>
+            <View style={[styles.noteInputContainer, {
+              backgroundColor: isDark ? Colors.card : Colors.backgroundSecondary,
+              borderColor: Colors.borderLight
+            }]}>
+              <Ionicons name="create-outline" size={18} color={Colors.textSecondary} />
               <TextInput
                 style={[styles.noteInput, { color: Colors.textPrimary }]}
                 value={notes}
                 onChangeText={setNotes}
-                placeholder="Add a note (optional)"
+                placeholder="Add a note..."
                 placeholderTextColor={Colors.textTertiary}
                 multiline
                 maxLength={200}
+                autoFocus
               />
-              <TouchableOpacity onPress={() => setShowNoteInput(false)} style={styles.closeNote}>
-                <Ionicons name="checkmark" size={24} color={Colors.primary} />
+              <TouchableOpacity onPress={() => setShowNoteInput(false)}>
+                <Ionicons name="close-circle" size={20} color={Colors.textTertiary} />
               </TouchableOpacity>
             </View>
           ) : (
-            <TouchableOpacity
-              style={[styles.optionRow, { borderTopColor: Colors.borderLight }]}
-              onPress={() => setShowNoteInput(true)}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="create-outline" size={20} color={Colors.textSecondary} />
-              <Text style={[styles.optionText, { color: notes ? Colors.textPrimary : Colors.textSecondary }]}>
-                {notes || 'Add note'}
-              </Text>
-            </TouchableOpacity>
+            <View style={styles.pillButtonsRow}>
+              <TouchableOpacity
+                style={[styles.pillButton, {
+                  backgroundColor: isDark ? Colors.card : Colors.backgroundSecondary,
+                  borderColor: notes ? (isDark ? themeColor : darkThemeColor) : Colors.borderLight,
+                  borderWidth: notes ? 1.5 : 1,
+                }]}
+                onPress={() => setShowNoteInput(true)}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name={notes ? 'create' : 'create-outline'}
+                  size={18}
+                  color={notes ? (isDark ? themeColor : darkThemeColor) : Colors.textSecondary}
+                />
+                <Text style={[styles.pillButtonText, {
+                  color: notes ? (isDark ? themeColor : darkThemeColor) : Colors.textSecondary,
+                  fontWeight: notes ? '600' : '500'
+                }]}>
+                  {notes ? 'Note added' : 'Add note'}
+                </Text>
+              </TouchableOpacity>
+
+              {/* Receipt Button */}
+              <TouchableOpacity
+                style={[styles.pillButton, {
+                  backgroundColor: isDark ? Colors.card : Colors.backgroundSecondary,
+                  borderColor: receiptImage ? (isDark ? themeColor : darkThemeColor) : Colors.borderLight,
+                  borderWidth: receiptImage ? 1.5 : 1,
+                }]}
+                onPress={handlePickImage}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name={receiptImage ? 'camera' : 'camera-outline'}
+                  size={18}
+                  color={receiptImage ? (isDark ? themeColor : darkThemeColor) : Colors.textSecondary}
+                />
+                <Text style={[styles.pillButtonText, {
+                  color: receiptImage ? (isDark ? themeColor : darkThemeColor) : Colors.textSecondary,
+                  fontWeight: receiptImage ? '600' : '500'
+                }]}>
+                  {receiptImage ? 'Receipt added' : 'Add receipt'}
+                </Text>
+              </TouchableOpacity>
+            </View>
           )}
 
-          {/* Receipt */}
-          <TouchableOpacity
-            style={[styles.optionRow, { borderTopColor: Colors.borderLight }]}
-            onPress={handlePickImage}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="camera-outline" size={20} color={Colors.textSecondary} />
-            <Text style={[styles.optionText, { color: receiptImage ? Colors.textPrimary : Colors.textSecondary }]}>
-              {receiptImage ? 'Receipt added' : 'Add receipt'}
-            </Text>
-            {receiptImage && <Ionicons name="checkmark-circle" size={20} color="#10b981" />}
-          </TouchableOpacity>
-
-          {/* Save Button */}
-          <TouchableOpacity
-            style={[
-              styles.saveButton,
-              {
-                backgroundColor: isCredit ? '#ef4444' : '#10b981',
-                opacity: !amount || loading ? 0.5 : 1,
-              },
-            ]}
-            onPress={handleSaveTransaction}
-            disabled={!amount || loading}
-            activeOpacity={0.8}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" size="small" />
-            ) : (
-              <Text style={styles.saveButtonText}>
-                {isCredit ? `Give ₹${amount || '0'} Credit` : `Receive ₹${amount || '0'} Payment`}
-              </Text>
-            )}
-          </TouchableOpacity>
+          {/* Save Button - Gradient */}
+          <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+            <TouchableOpacity
+              onPress={handleSaveTransaction}
+              disabled={!amount || loading}
+              activeOpacity={0.9}
+            >
+              <LinearGradient
+                colors={!amount || loading ? ['#9ca3af', '#6b7280'] : gradientColors}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.saveButton}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <>
+                    <Ionicons
+                      name={isCredit ? 'arrow-up' : 'arrow-down'}
+                      size={22}
+                      color="#fff"
+                    />
+                    <Text style={styles.saveButtonText}>
+                      {isCredit ? 'Give Credit' : 'Receive Payment'}
+                    </Text>
+                    {amount && parseFloat(amount) > 0 && (
+                      <View style={styles.amountBadge}>
+                        <Text style={styles.amountBadgeText}>
+                          ₹{parseFloat(amount).toLocaleString('en-IN')}
+                        </Text>
+                      </View>
+                    )}
+                  </>
+                )}
+              </LinearGradient>
+            </TouchableOpacity>
+          </Animated.View>
         </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -233,8 +327,16 @@ const styles = StyleSheet.create({
   },
   topSection: {
     alignItems: 'center',
-    paddingTop: Spacing.xl,
-    paddingBottom: Spacing.md,
+    paddingTop: Spacing.xl + Spacing.md,
+    paddingBottom: Spacing.lg,
+  },
+  avatarGradient: {
+    width: AvatarSizes.xlarge + 20,
+    height: AvatarSizes.xlarge + 20,
+    borderRadius: (AvatarSizes.xlarge + 20) / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.md,
   },
   avatar: {
     width: AvatarSizes.xlarge,
@@ -242,20 +344,29 @@ const styles = StyleSheet.create({
     borderRadius: AvatarSizes.xlarge / 2,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Spacing.sm,
   },
   avatarText: {
-    fontSize: Typography.font2xl,
-    fontWeight: Typography.bold,
+    fontSize: 28,
+    fontWeight: '800',
   },
   customerName: {
-    fontSize: Typography.fontLg,
-    fontWeight: Typography.bold,
-    marginBottom: 4,
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: Spacing.sm,
   },
-  transactionTypeLabel: {
-    fontSize: Typography.fontSm,
-    fontWeight: Typography.medium,
+  typeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+  },
+  typeBadgeText: {
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.3,
   },
   centerSection: {
     flex: 1,
@@ -269,68 +380,107 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   currencySymbol: {
-    fontSize: 56,
-    fontWeight: Typography.extraBold,
+    fontSize: 72,
+    fontWeight: '300',
+    marginRight: 4,
   },
   amountInput: {
-    fontSize: 56,
-    fontWeight: Typography.extraBold,
-    minWidth: 100,
-    maxWidth: 200,
+    fontSize: 72,
+    fontWeight: '800',
+    minWidth: 120,
+    maxWidth: 250,
+    textAlign: 'left',
+  },
+  amountHint: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginTop: Spacing.sm,
   },
   bottomSection: {
-    paddingBottom: Platform.OS === 'ios' ? Spacing.xl : Spacing.md,
+    paddingBottom: Platform.OS === 'ios' ? Spacing.xl + Spacing.md : Spacing.lg,
+    paddingHorizontal: Spacing.lg,
   },
-  optionRow: {
+  pillButtonsRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  pillButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: Spacing.md,
-    paddingHorizontal: Spacing.lg,
-    gap: Spacing.sm,
-    borderTopWidth: 1,
+    justifyContent: 'center',
+    gap: Spacing.xs,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
   },
-  optionText: {
-    flex: 1,
-    fontSize: Typography.fontBase,
+  pillButtonText: {
+    fontSize: 15,
   },
   noteInputContainer: {
-    padding: Spacing.md,
-    paddingHorizontal: Spacing.lg,
-    borderTopWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    marginBottom: Spacing.md,
+    minHeight: 56,
   },
   noteInput: {
     flex: 1,
-    fontSize: Typography.fontBase,
-    minHeight: 40,
+    fontSize: 15,
     maxHeight: 80,
   },
-  closeNote: {
-    padding: 4,
-  },
   saveButton: {
-    margin: Spacing.lg,
-    padding: Spacing.md + 2,
-    borderRadius: BorderRadius.xl,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: Spacing.sm,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.xl,
+    borderRadius: BorderRadius.xl,
+    minHeight: 56,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
+        shadowOpacity: 0.25,
+        shadowRadius: 12,
       },
       android: {
-        elevation: 4,
+        elevation: 6,
       },
     }),
   },
   saveButtonText: {
     color: '#fff',
-    fontSize: Typography.fontLg,
-    fontWeight: Typography.bold,
+    fontSize: 18,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
+  amountBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    paddingHorizontal: Spacing.sm + 2,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.md,
+  },
+  amountBadgeText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
   },
 });

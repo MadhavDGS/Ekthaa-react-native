@@ -4,10 +4,14 @@
 
 export interface User {
   id: string;
+  name?: string; // Business name from API
   business_name: string;
   phone_number: string;
   email?: string;
   profile_photo_url?: string;
+  total_customers?: number;
+  total_transactions?: number;
+  $createdAt?: string;
 }
 
 export interface Customer {
@@ -25,10 +29,11 @@ export interface Transaction {
   id: string;
   customer_id: string;
   customer_name: string;
-  type: 'credit' | 'payment';
+  transaction_type: 'credit' | 'payment';
   amount: number;
   notes?: string;
   receipt_url?: string;
+  created_by?: string | null;
   created_at: string;
 }
 

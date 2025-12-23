@@ -46,7 +46,11 @@ export default function ProfileScreen({ navigation }: any) {
         setUser(JSON.parse(userData));
       }
       const data = await ApiService.getProfile();
-      setUser(data.user);
+      console.log('📡 Profile API response:', JSON.stringify(data, null, 2));
+      // Backend returns { business: {...} }, not { user: {...} }
+      if (data.business) {
+        setUser(data.business);
+      }
     } catch (error) {
       console.error('Error loading profile:', error);
     } finally {
@@ -101,38 +105,43 @@ export default function ProfileScreen({ navigation }: any) {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} tintColor={Colors.primary} />
         }
       >
-        {/* Profile Header Card */}
-        <View style={[styles.profileHeader, { backgroundColor: Colors.primary, ...Platform.select({ ios: { shadowColor: Colors.primary }, android: {} }) }]}>
-          <View style={[styles.avatarLarge, { backgroundColor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.3)' }]}>
+        {/* Profile Header (Minimal) */}
+        <View style={styles.profileHeader}>
+          <View style={[styles.avatarLarge, { backgroundColor: Colors.primary }]}>
             <Text style={[styles.avatarLargeText, { color: '#fff' }]}>
-              {user?.business_name?.charAt(0).toUpperCase() || 'B'}
+              {user?.name?.charAt(0).toUpperCase() || 'B'}
             </Text>
           </View>
-          <Text style={[styles.businessName, { color: '#fff' }]}>{user?.business_name || 'Business Name'}</Text>
+          <Text style={[styles.businessName, { color: Colors.textPrimary }]}>{user?.name || 'Business Name'}</Text>
           <View style={styles.phoneRow}>
-            <Ionicons name="call" size={10} color="rgba(255,255,255,0.9)" />
-            <Text style={[styles.phoneNumber, { color: 'rgba(255,255,255,0.95)' }]}>{user?.phone_number || 'N/A'}</Text>
+            <Ionicons name="call" size={12} color={Colors.textSecondary} />
+            <Text style={[styles.phoneNumber, { color: Colors.textSecondary }]}>{user?.phone_number || 'N/A'}</Text>
           </View>
-          <TouchableOpacity style={styles.editButton}>
-            <Ionicons name="create-outline" size={13} color="#fff" />
-            <Text style={styles.editText}>Edit Profile</Text>
+          <TouchableOpacity
+            style={[styles.editButton, { backgroundColor: Colors.card, borderWidth: 1, borderColor: Colors.borderLight }]}
+            onPress={() => navigation.navigate('EditProfile', { user })}
+          >
+            <Ionicons name="create-outline" size={14} color={Colors.textPrimary} />
+            <Text style={[styles.editText, { color: Colors.textPrimary }]}>Edit Profile</Text>
           </TouchableOpacity>
         </View>
 
         {/* Stats Cards */}
         <View style={[styles.statsContainer, { backgroundColor: Colors.card }]}>
           <View style={styles.statCard}>
-            <Text style={[styles.statValue, { color: Colors.primary }]}>--</Text>
+            <Text style={[styles.statValue, { color: Colors.primary }]}>{user?.total_customers || 0}</Text>
             <Text style={[styles.statLabel, { color: Colors.textSecondary }]}>Customers</Text>
           </View>
           <View style={[styles.divider, { backgroundColor: Colors.borderLight }]} />
           <View style={styles.statCard}>
-            <Text style={[styles.statValue, { color: Colors.primary }]}>--</Text>
-            <Text style={[styles.statLabel, { color: Colors.textSecondary }]}>Products</Text>
+            <Text style={[styles.statValue, { color: Colors.primary }]}>{user?.total_transactions || 0}</Text>
+            <Text style={[styles.statLabel, { color: Colors.textSecondary }]}>Transactions</Text>
           </View>
           <View style={[styles.divider, { backgroundColor: Colors.borderLight }]} />
           <View style={styles.statCard}>
-            <Text style={[styles.statValue, { color: Colors.primary }]}>--</Text>
+            <Text style={[styles.statValue, { color: Colors.primary }]}>
+              {user?.$createdAt ? new Date(user.$createdAt).getFullYear() : '--'}
+            </Text>
             <Text style={[styles.statLabel, { color: Colors.textSecondary }]}>Since</Text>
           </View>
         </View>
@@ -334,11 +343,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.xl,
     marginHorizontal: Spacing.md,
     marginTop: Spacing.md,
-    borderRadius: BorderRadius.lg,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
   },
   avatarLarge: {
     width: 58,
@@ -351,11 +355,11 @@ const styles = StyleSheet.create({
   },
   avatarLargeText: {
     fontSize: 23,
-    fontWeight: 'bold',
+    fontFamily: Typography.fonts.bold,
   },
   businessName: {
     fontSize: Typography.fontXl,
-    fontWeight: 'bold',
+    fontFamily: Typography.fonts.bold,
     marginTop: Spacing.md,
     textAlign: 'center',
   },
@@ -380,7 +384,7 @@ const styles = StyleSheet.create({
   editText: {
     color: '#fff',
     fontSize: Typography.fontXs,
-    fontWeight: '600',
+    fontFamily: Typography.fonts.semiBold,
     marginLeft: 6,
   },
   statsContainer: {
@@ -401,7 +405,7 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: Typography.fontLg,
-    fontWeight: 'bold',
+    fontFamily: Typography.fonts.bold,
   },
   statLabel: {
     fontSize: Typography.fontXs,
@@ -417,7 +421,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: Typography.fontBase,
-    fontWeight: '600',
+    fontFamily: Typography.fonts.semiBold,
     marginBottom: Spacing.sm,
   },
   settingCard: {
@@ -445,7 +449,7 @@ const styles = StyleSheet.create({
   },
   settingText: {
     fontSize: Typography.fontBase,
-    fontWeight: '500',
+    fontFamily: Typography.fonts.medium,
   },
   menuSubtitle: {
     fontSize: Typography.fontXs,
@@ -462,7 +466,7 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     fontSize: Typography.fontBase,
-    fontWeight: '600',
+    fontFamily: Typography.fonts.semiBold,
     marginLeft: Spacing.xs,
   },
   footer: {
@@ -472,7 +476,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: Typography.fontBase,
-    fontWeight: '500',
+    fontFamily: Typography.fonts.medium,
     textAlign: 'center',
   },
   footerSubtext: {

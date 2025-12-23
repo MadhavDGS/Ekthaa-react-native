@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';import { IconSizes, AvatarSizes, SpacingScale } from '../../constants/scales';import { useTheme } from '../../context/ThemeContext';
+import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme'; import { IconSizes, AvatarSizes, SpacingScale } from '../../constants/scales'; import { useTheme } from '../../context/ThemeContext';
 import ApiService from '../../services/api';
 import { getAllLevel1InventoryCategories, getLevel2InventoryOptions } from '../../constants/inventoryCategories';
 
@@ -35,15 +35,15 @@ export default function AddProductScreen({ navigation }: any) {
   const [lowStockThreshold, setLowStockThreshold] = useState('5');
   const [loading, setLoading] = useState(false);
   const [imageUri, setImageUri] = useState<string | null>(null);
-  
+
   const allCategories = getAllLevel1InventoryCategories();
   const [subcategories, setSubcategories] = useState<string[]>([]);
   const [units, setUnits] = useState<string[]>([]);
-  
+
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const [showSubcategoryPicker, setShowSubcategoryPicker] = useState(false);
   const [showUnitPicker, setShowUnitPicker] = useState(false);
-  
+
   const [customCategory, setCustomCategory] = useState('');
   const [customSubcategory, setCustomSubcategory] = useState('');
   const [customUnit, setCustomUnit] = useState('');
@@ -111,7 +111,7 @@ export default function AddProductScreen({ navigation }: any) {
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
+
     if (permissionResult.granted === false) {
       Alert.alert('Permission Required', 'Permission to access camera roll is required!');
       return;
@@ -131,7 +131,7 @@ export default function AddProductScreen({ navigation }: any) {
 
   const takePhoto = async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-    
+
     if (permissionResult.granted === false) {
       Alert.alert('Permission Required', 'Permission to access camera is required!');
       return;
@@ -162,7 +162,7 @@ export default function AddProductScreen({ navigation }: any) {
 
   const handleAddProduct = async () => {
     // Determine final values for category, subcategory, and unit
-    const finalCategory = showCustomCategoryInput ? customCategory : 
+    const finalCategory = showCustomCategoryInput ? customCategory :
       allCategories.find(c => c.id === category)?.name || category;
     const finalSubcategory = showCustomSubcategoryInput ? customSubcategory : subcategory;
     const finalUnit = showCustomUnitInput ? customUnit : unit;
@@ -214,7 +214,7 @@ export default function AddProductScreen({ navigation }: any) {
         low_stock_threshold: thresholdNum,
         product_image: imageUri || undefined,
       });
-      
+
       Alert.alert('Success', 'Product added successfully!', [
         {
           text: 'OK',
@@ -306,7 +306,7 @@ export default function AddProductScreen({ navigation }: any) {
 
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { color: Colors.textPrimary }]}>Main Category *</Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}
                 onPress={() => setShowCategoryPicker(!showCategoryPicker)}
               >
@@ -314,7 +314,7 @@ export default function AddProductScreen({ navigation }: any) {
                   <Ionicons name="apps-outline" size={18} color={Colors.primary} />
                 </View>
                 <Text style={[styles.input, !category && styles.placeholder, { color: category ? Colors.textPrimary : Colors.textSecondary }]}>
-                  {category 
+                  {category
                     ? (showCustomCategoryInput ? 'Other (Custom)' : allCategories.find(c => c.id === category)?.name || category)
                     : 'Select main category'}
                 </Text>
@@ -367,7 +367,7 @@ export default function AddProductScreen({ navigation }: any) {
               <>
                 <View style={styles.inputGroup}>
                   <Text style={[styles.label, { color: Colors.textPrimary }]}>Subcategory *</Text>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}
                     onPress={() => setShowSubcategoryPicker(!showSubcategoryPicker)}
                   >
@@ -375,7 +375,7 @@ export default function AddProductScreen({ navigation }: any) {
                       <Ionicons name="list-outline" size={18} color={Colors.primary} />
                     </View>
                     <Text style={[styles.input, !subcategory && styles.placeholder, { color: subcategory ? Colors.textPrimary : Colors.textSecondary }]}>
-                      {subcategory 
+                      {subcategory
                         ? (showCustomSubcategoryInput ? 'Other (Custom)' : subcategory)
                         : 'Select subcategory'}
                     </Text>
@@ -444,7 +444,7 @@ export default function AddProductScreen({ navigation }: any) {
                     <Ionicons name="cash-outline" size={18} color={Colors.primary} />
                   </View>
                   <TextInput
-                    style={[styles.input, { color: Colors.textPrimary }]}
+                    style={[styles.input, { color: Colors.textPrimary, textAlign: 'center' }]}
                     placeholder="0.00"
                     placeholderTextColor="#9ca3af"
                     value={price}
@@ -456,7 +456,7 @@ export default function AddProductScreen({ navigation }: any) {
 
               <View style={[styles.inputGroup, { flex: 1 }]}>
                 <Text style={[styles.label, { color: Colors.textPrimary }]}>Unit *</Text>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}
                   onPress={() => setShowUnitPicker(!showUnitPicker)}
                 >
@@ -464,7 +464,7 @@ export default function AddProductScreen({ navigation }: any) {
                     <Ionicons name="scale-outline" size={18} color={Colors.primary} />
                   </View>
                   <Text style={[styles.input, !unit && styles.placeholder, { color: unit ? Colors.textPrimary : Colors.textSecondary }]}>
-                    {unit 
+                    {unit
                       ? (showCustomUnitInput ? 'Other (Custom)' : unit)
                       : 'Select'}
                   </Text>

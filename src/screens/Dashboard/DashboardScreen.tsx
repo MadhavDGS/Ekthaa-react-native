@@ -52,7 +52,7 @@ export default function DashboardScreen({ navigation }: any) {
         console.log('📊 User data:', user);
         setBusinessName(user?.business_name || user?.name || 'Business Account');
       }
-      
+
       // Then fetch fresh data from profile API
       try {
         const profileData = await ApiService.getProfile();
@@ -79,8 +79,15 @@ export default function DashboardScreen({ navigation }: any) {
       setLoading(true);
       const data = await ApiService.getDashboard();
       console.log('📊 Dashboard data:', data);
-      console.log('📊 Business name:', data?.business_name || data?.summary?.business_name);
+      console.log('📊 Business name:', data?.business?.name || data?.summary?.business_name);
       setSummary(data);
+
+      // Set business name from response
+      if (data?.business?.name) {
+        setBusinessName(data.business.name);
+      } else if (data?.summary?.business_name) {
+        setBusinessName(data.summary.business_name);
+      }
     } catch (error) {
       console.error('❌ Dashboard error:', error);
     } finally {
@@ -116,7 +123,7 @@ export default function DashboardScreen({ navigation }: any) {
         <SafeAreaView>
           <View style={styles.headerTitle}>
             <Text style={styles.appTitle}>Ekthaa</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.profileButton}
               onPress={() => navigation.getParent()?.navigate('Profile')}
               activeOpacity={0.7}
@@ -125,14 +132,14 @@ export default function DashboardScreen({ navigation }: any) {
             </TouchableOpacity>
           </View>
         </SafeAreaView>
-        
+
         <View style={styles.header}>
           <View style={styles.headerTop}>
             <Text style={styles.accountLabel}>{businessName}</Text>
           </View>
           <Text style={styles.balanceAmount}>{formatCurrency(Math.abs(netBalance))}</Text>
           <Text style={styles.balanceSubtext}>{netBalance >= 0 ? 'You will receive' : 'You will give'}</Text>
-          
+
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
               <Text style={styles.statLabel}>To Receive</Text>
@@ -156,7 +163,7 @@ export default function DashboardScreen({ navigation }: any) {
       >
         {/* Action Cards */}
         <View style={styles.actionCards}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionCard}
             onPress={() => navigation.navigate('Customers')}
             activeOpacity={0.7}
@@ -167,7 +174,7 @@ export default function DashboardScreen({ navigation }: any) {
             <Text style={[styles.cardLabel, { color: Colors.textPrimary }]}>Customers</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionCard}
             onPress={() => navigation.navigate('Products')}
             activeOpacity={0.7}
@@ -178,7 +185,7 @@ export default function DashboardScreen({ navigation }: any) {
             <Text style={[styles.cardLabel, { color: Colors.textPrimary }]}>Products</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionCard}
             onPress={() => navigation.navigate('Transactions')}
             activeOpacity={0.7}
@@ -189,7 +196,7 @@ export default function DashboardScreen({ navigation }: any) {
             <Text style={[styles.cardLabel, { color: Colors.textPrimary }]}>Transactions</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionCard}
             onPress={() => navigation.navigate('AddCustomer')}
             activeOpacity={0.7}
@@ -200,12 +207,9 @@ export default function DashboardScreen({ navigation }: any) {
             <Text style={[styles.cardLabel, { color: Colors.textPrimary }]}>Add New</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionCard}
-            onPress={() => {
-              // Navigate to customer selection for invoice generation
-              alert('Invoice generation feature coming soon');
-            }}
+            onPress={() => navigation.navigate('InvoiceGenerator')}
             activeOpacity={0.7}
           >
             <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3' }]}>
@@ -226,8 +230,8 @@ export default function DashboardScreen({ navigation }: any) {
             </View>
             <View style={styles.customerList}>
               {summaryData.recent_customers.slice(0, 5).map((c: any, i: number) => (
-                <TouchableOpacity 
-                  key={c.id} 
+                <TouchableOpacity
+                  key={c.id}
                   style={[styles.customerItem, { backgroundColor: Colors.card }]}
                   onPress={() => navigation.navigate('CustomerDetails', { customer: c })}
                   activeOpacity={0.7}
@@ -239,8 +243,8 @@ export default function DashboardScreen({ navigation }: any) {
                     <Text style={[styles.customerName, { color: Colors.textPrimary }]} numberOfLines={1}>
                       {c.name}
                     </Text>
-                    <Text style={[styles.customerBalance, { 
-                      color: c.balance > 0 ? Colors.creditGreen : Colors.creditRed 
+                    <Text style={[styles.customerBalance, {
+                      color: c.balance > 0 ? Colors.creditGreen : Colors.creditRed
                     }]}>
                       {c.balance > 0 ? '+' : ''}{formatCurrency(Math.abs(c.balance || 0))}
                     </Text>
@@ -269,8 +273,8 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.md,
   },
   loading: {
-    flex: 1, 
-    justifyContent: 'center', 
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#5A9A8E',
   },
@@ -288,7 +292,7 @@ const styles = StyleSheet.create({
   },
   appTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: Typography.fonts.bold,
     color: '#ffffff',
     fontFamily: Platform.select({
       ios: 'System',
@@ -307,11 +311,11 @@ const styles = StyleSheet.create({
   accountLabel: {
     fontSize: Typography.fontXs,
     color: 'rgba(255, 255, 255, 0.9)',
-    fontWeight: '600',
+    fontFamily: Typography.fonts.semiBold,
   },
   balanceAmount: {
     fontSize: 40,
-    fontWeight: '900',
+    fontFamily: Typography.fonts.extraBold,
     color: '#ffffff',
     marginBottom: Spacing.xs,
     letterSpacing: -1.5,
@@ -320,7 +324,7 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontXs,
     color: 'rgba(255, 255, 255, 0.85)',
     marginBottom: Spacing.lg,
-    fontWeight: '500',
+    fontFamily: Typography.fonts.medium,
   },
   statsRow: {
     flexDirection: 'row',
@@ -343,11 +347,11 @@ const styles = StyleSheet.create({
     fontSize: Typography.font3xs,
     color: 'rgba(255, 255, 255, 0.75)',
     marginBottom: 4,
-    fontWeight: '500',
+    fontFamily: Typography.fonts.medium,
   },
   statValue: {
     fontSize: Typography.fontBase,
-    fontWeight: '700',
+    fontFamily: Typography.fonts.bold,
     color: '#ffffff',
   },
   content: {
@@ -382,7 +386,7 @@ const styles = StyleSheet.create({
   },
   cardLabel: {
     fontSize: TextScale.cardLabel,
-    fontWeight: '600',
+    fontFamily: Typography.fonts.semiBold,
   },
   section: {
     paddingHorizontal: SpacingScale.sectionPadding,
@@ -396,11 +400,11 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: TextScale.sectionTitle,
-    fontWeight: '700',
+    fontFamily: Typography.fonts.bold,
   },
   viewAll: {
     fontSize: Typography.fontSm,
-    fontWeight: '600',
+    fontFamily: Typography.fonts.semiBold,
   },
   customerList: {
     gap: Spacing.xs,
@@ -412,11 +416,11 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
     gap: Spacing.sm,
     ...Platform.select({
-      ios: { 
-        shadowColor: '#000', 
-        shadowOffset: { width: 0, height: 1 }, 
-        shadowOpacity: 0.05, 
-        shadowRadius: 8 
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8
       },
       android: { elevation: 2 },
     }),
@@ -430,7 +434,7 @@ const styles = StyleSheet.create({
   },
   customerAvatarText: {
     fontSize: TextScale.listTitle,
-    fontWeight: '700',
+    fontFamily: Typography.fonts.bold,
     color: '#ffffff',
   },
   customerInfo: {
@@ -439,10 +443,10 @@ const styles = StyleSheet.create({
   },
   customerName: {
     fontSize: TextScale.listTitle,
-    fontWeight: '600',
+    fontFamily: Typography.fonts.semiBold,
   },
   customerBalance: {
     fontSize: TextScale.listSubtitle,
-    fontWeight: '700',
+    fontFamily: Typography.fonts.bold,
   },
 });
