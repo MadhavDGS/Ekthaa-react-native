@@ -57,6 +57,7 @@ export default function CustomersScreen({ navigation }: any) {
       setLoading(true);
       const data = await ApiService.getCustomers();
       console.log('📋 Customers loaded:', data.customers?.length || 0);
+      console.log('🔍 Sample customer balance:', data.customers?.[0]?.name, 'Balance:', data.customers?.[0]?.balance);
       setCustomers(data.customers || []);
       setLastFetch(Date.now());
     } catch (error) {
