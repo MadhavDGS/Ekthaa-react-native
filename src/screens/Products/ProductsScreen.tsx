@@ -240,17 +240,21 @@ export default function ProductsScreen({ navigation }: any) {
       {/* Stats Header */}
       <View style={[styles.statsHeader, { backgroundColor: Colors.card, borderBottomColor: Colors.borderLight }]}>
         <View style={[styles.statBox, { backgroundColor: isDark ? '#4c1d95' : '#faf5ff', borderColor: Colors.primary + '20' }]}>
-          <Ionicons name="pricetag-outline" size={24} color={Colors.primary} />
+          <View style={[styles.statIconWrapper, { backgroundColor: Colors.primary + '20' }]}>
+            <Ionicons name="wallet-outline" size={20} color={Colors.primary} />
+          </View>
           <View style={styles.statInfo}>
             <Text style={[styles.statLabel, { color: Colors.textSecondary }]}>Inventory Value</Text>
             <Text style={[styles.statValue, { color: Colors.primary }]}>{formatCurrency(stats.totalValue)}</Text>
           </View>
         </View>
         {stats.lowStock > 0 && (
-          <View style={styles.statBox}>
-            <Ionicons name="alert-circle-outline" size={24} color={Colors.creditRed} />
+          <View style={[styles.statBox, { backgroundColor: isDark ? '#7f1d1d' : '#fef2f2', borderColor: Colors.creditRed + '20' }]}>
+            <View style={[styles.statIconWrapper, { backgroundColor: Colors.creditRed + '20' }]}>
+              <Ionicons name="alert-circle-outline" size={20} color={Colors.creditRed} />
+            </View>
             <View style={styles.statInfo}>
-              <Text style={styles.statLabel}>Low Stock Items</Text>
+              <Text style={[styles.statLabel, { color: Colors.textSecondary }]}>Low Stock Items</Text>
               <Text style={[styles.statValue, { color: Colors.creditRed }]}>{stats.lowStock}</Text>
             </View>
           </View>
@@ -354,9 +358,16 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
     borderWidth: 1,
   },
+  statIconWrapper: {
+    width: 36,
+    height: 36,
+    borderRadius: BorderRadius.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.sm,
+  },
   statInfo: {
     flex: 1,
-    marginLeft: Spacing.sm,
   },
   statLabel: {
     fontSize: Typography.fontXs,
