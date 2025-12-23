@@ -23,6 +23,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
 import { useTheme } from '../../context/ThemeContext';
+import { SkeletonHeader, SkeletonCard } from '../../components/Skeletons';
 import ApiService from '../../services/api';
 import { User } from '../../types';
 
@@ -113,11 +114,12 @@ export default function ProfileScreen({ navigation }: any) {
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: Colors.backgroundSecondary }]}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.primary} />
-        </View>
-      </SafeAreaView>
+      <View style={[styles.container, { backgroundColor: Colors.background }]}>
+        <SkeletonHeader isDark={isDark} />
+        <SkeletonCard isDark={isDark} />
+        <SkeletonCard isDark={isDark} />
+        <SkeletonCard isDark={isDark} />
+      </View>
     );
   }
 
