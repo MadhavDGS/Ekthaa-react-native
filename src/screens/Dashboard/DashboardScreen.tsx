@@ -23,6 +23,7 @@ import { getThemedColors, AvatarColors, Typography, Spacing, BorderRadius } from
 import { AvatarSizes, IconSizes, TextScale, SpacingScale } from '../../constants/scales';
 import { useTheme } from '../../context/ThemeContext';
 import ApiService from '../../services/api';
+import { SkeletonStats, SkeletonCard } from '../../components/Skeletons';
 
 const { width } = Dimensions.get('window');
 
@@ -100,8 +101,17 @@ export default function DashboardScreen({ navigation }: any) {
 
   if (loading) {
     return (
-      <View style={[styles.loading, { backgroundColor: Colors.backgroundSecondary }]}>
-        <ActivityIndicator size="large" color={Colors.primary} />
+      <View style={[styles.container, { backgroundColor: Colors.backgroundSecondary }]}>
+        <LinearGradient colors={['#5A9A8E', '#4A8A7E']} style={styles.gradientHeader}>
+          <SafeAreaView>
+            <View style={styles.headerTitle}>
+              <View style={{ height: 18, width: 60, backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 4 }} />
+            </View>
+          </SafeAreaView>
+        </LinearGradient>
+        <SkeletonStats isDark={isDark} />
+        <SkeletonCard isDark={isDark} />
+        <SkeletonCard isDark={isDark} />
       </View>
     );
   }
