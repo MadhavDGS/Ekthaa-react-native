@@ -624,8 +624,8 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
   },
   iconWrapper: {
-    width: 29,
-    height: 29,
+    width: 30,
+    height: 30,
     borderRadius: Spacing.sm,
     justifyContent: 'center',
     alignItems: 'center',
@@ -644,7 +644,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
     marginHorizontal: Spacing.lg,
     flexDirection: 'row',
-    gap: 7,
+    gap: Spacing.xs,
     ...Platform.select({
       ios: { shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
       android: { elevation: 4 },
@@ -664,14 +664,14 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
     borderRadius: BorderRadius.md,
     borderWidth: 1,
-    maxHeight: 180,
+    maxHeight: 160,
     ...Platform.select({
       ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 },
       android: { elevation: 4 },
     }),
   },
   pickerScroll: {
-    maxHeight: 180,
+    maxHeight: 160,
   },
   pickerItem: {
     paddingVertical: Spacing.md,
@@ -694,8 +694,8 @@ const styles = StyleSheet.create({
   },
   imagePreviewContainer: {
     position: 'relative',
-    width: 162,
-    height: 162,
+    width: 86,
+    height: 86,
     borderRadius: BorderRadius.lg,
     overflow: 'hidden',
   },
@@ -725,9 +725,9 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.xl,
   },
   cameraIconCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.md,
@@ -741,7 +741,7 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontBase,
   },
   textArea: {
-    minHeight: 72,
+    minHeight: 50,
     paddingTop: Spacing.sm,
   },
 });

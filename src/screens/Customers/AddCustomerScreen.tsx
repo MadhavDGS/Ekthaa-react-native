@@ -212,11 +212,11 @@ const styles = StyleSheet.create({
   },
   textAreaContainer: {
     paddingVertical: Spacing.md,
-    minHeight: 90,
+    minHeight: 95,
   },
   iconWrapper: {
-    width: 29,
-    height: 29,
+    width: 30,
+    height: 30,
     borderRadius: Spacing.sm,
     justifyContent: 'center',
     alignItems: 'center',
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   textArea: {
-    minHeight: 63,
+    minHeight: 65,
     paddingTop: Spacing.xs,
   },
   submitButton: {
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
     marginHorizontal: Spacing.lg,
     flexDirection: 'row',
-    gap: 7,
+    gap: Spacing.xs,
     ...Platform.select({
       ios: { shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
       android: { elevation: 4 },

@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
-    height: 45,
+    height: 48,
     borderWidth: 1.5,
   },
   searchInput: {
@@ -390,8 +390,8 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
   },
   categoryChip: {
-    paddingHorizontal: 17,
-    paddingVertical: 9,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
     borderRadius: BorderRadius.lg,
     marginRight: Spacing.xs,
     borderWidth: 1.5,
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: Spacing.md,
-    paddingBottom: 103,
+    paddingBottom: 110,
   },
   productCard: {
     borderRadius: BorderRadius.xl,
@@ -442,8 +442,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   productIconSmall: {
-    width: 39,
-    height: 39,
+    width: 40,
+    height: 40,
     borderRadius: BorderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
@@ -466,8 +466,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   productImage: {
-    width: 82,
-    height: 114,
+    width: 86,
+    height: 120,
     borderRadius: BorderRadius.sm,
   },
   categoryBadge: {
@@ -513,8 +513,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   quantityButton: {
-    width: 36,
-    height: 36,
+    width: 38,
+    height: 38,
     borderRadius: BorderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
@@ -527,14 +527,14 @@ const styles = StyleSheet.create({
   quantityText: {
     fontSize: Typography.fontLg,
     fontWeight: '700',
-    minWidth: 41,
+    minWidth: 44,
     textAlign: 'center',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 48,
+    paddingVertical: 50,
   },
   emptyTitle: {
     fontSize: Typography.fontLg,
@@ -563,10 +563,10 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 16,
-    bottom: Platform.OS === 'ios' ? 82 : 65,
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    bottom: Platform.OS === 'ios' ? 86 : 70,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
     ...Platform.select({
