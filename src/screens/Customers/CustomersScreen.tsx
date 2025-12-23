@@ -20,6 +20,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import ApiService from '../../services/api';
 import { getThemedColors, AvatarColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
+import { AvatarSizes, IconSizes, TextScale, SpacingScale } from '../../constants/scales';
+import { listStyles, avatarStyles, searchBarStyles } from '../../styles/commonStyles';
 import { useTheme } from '../../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
@@ -32,11 +34,17 @@ export default function CustomersScreen({ navigation }: any) {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [lastFetch, setLastFetch] = useState<number>(0);
 
   useFocusEffect(
     useCallback(() => {
-      loadCustomers();
-    }, [])
+      const now = Date.now();
+      const fiveMinutes = 5 * 60 * 1000;
+      // Only fetch if data is stale (5+ minutes old) or doesn't exist
+      if (!customers.length || now - lastFetch > fiveMinutes) {
+        loadCustomers();
+      }
+    }, [customers.length, lastFetch])
   );
 
   useEffect(() => {
@@ -49,6 +57,7 @@ export default function CustomersScreen({ navigation }: any) {
       const data = await ApiService.getCustomers();
       console.log('📋 Customers loaded:', data.customers?.length || 0);
       setCustomers(data.customers || []);
+      setLastFetch(Date.now());
     } catch (error) {
       console.error('❌ Load customers error:', error);
     } finally {
@@ -170,7 +179,7 @@ export default function CustomersScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  search: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderBottomWidth: 1 },
+  search: { paddingHorizontal: SpacingScale.sectionPadding, paddingVertical: Spacing.sm, borderBottomWidth: 1 },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -179,7 +188,7 @@ const styles = StyleSheet.create({
     height: 32,
   },
   input: { flex: 1, fontSize: Typography.fontXs, marginLeft: Spacing.xs, height: 40 },
-  list: { padding: Spacing.md, paddingBottom: 95 },
+  list: { padding: SpacingScale.sectionPadding, paddingBottom: 95 },
   card: {
     marginBottom: Spacing.sm,
     borderRadius: BorderRadius.md,
@@ -191,8 +200,8 @@ const styles = StyleSheet.create({
       android: { elevation: 2 },
     }),
   },
-  avatar: { width: 30, height: 30, borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginRight: Spacing.sm },
-  avatarText: { fontSize: Typography.fontBase, fontWeight: Typography.bold, color: '#fff' },
+  avatar: { width: AvatarSizes.medium, height: AvatarSizes.medium, borderRadius: AvatarSizes.medium / 2, justifyContent: 'center', alignItems: 'center', marginRight: Spacing.sm },
+  avatarText: { fontSize: TextScale.listTitle, fontWeight: Typography.bold, color: '#fff' },
   info: { flex: 1 },
   name: { fontSize: Typography.fontSm, fontWeight: Typography.semiBold, marginBottom: Spacing.xs },
   phone: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs },

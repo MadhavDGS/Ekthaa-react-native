@@ -18,6 +18,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
+import { AvatarSizes, IconSizes } from '../../constants/scales';
 import { useTheme } from '../../context/ThemeContext';
 import ApiService from '../../services/api';
 
@@ -198,9 +199,9 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.space6,
   },
   logoContainer: {
-    width: 126,
-    height: 126,
-    borderRadius: 63,
+    width: AvatarSizes.xxlarge + 46,
+    height: AvatarSizes.xxlarge + 46,
+    borderRadius: (AvatarSizes.xxlarge + 46) / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },

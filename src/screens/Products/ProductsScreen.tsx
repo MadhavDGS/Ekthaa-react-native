@@ -20,6 +20,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import ApiService from '../../services/api';
 import { Spacing, Typography, BorderRadius } from '../../constants/theme';
+import { AvatarSizes, IconSizes, TextScale, SpacingScale } from '../../constants/scales';
 import { getThemedColors } from '../../constants/theme';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -34,11 +35,17 @@ export default function ProductsScreen({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [stats, setStats] = useState({ totalValue: 0, lowStock: 0 });
+  const [lastFetch, setLastFetch] = useState<number>(0);
 
   useFocusEffect(
     useCallback(() => {
-      loadProducts();
-    }, [])
+      const now = Date.now();
+      const fiveMinutes = 5 * 60 * 1000;
+      // Only fetch if data is stale (5+ minutes old) or doesn't exist
+      if (!products.length || now - lastFetch > fiveMinutes) {
+        loadProducts();
+      }
+    }, [products.length, lastFetch])
   );
 
   useEffect(() => {
@@ -51,6 +58,7 @@ export default function ProductsScreen({ navigation }: any) {
       const data = await ApiService.getProducts();
       console.log('📋 Products loaded:', data.products?.length || 0);
       setProducts(data.products || []);
+      setLastFetch(Date.now());
       
       // Extract unique categories
       const uniqueCategories = ['All', ...new Set(data.products?.map((p: any) => p.category) || [])];
@@ -59,6 +67,7 @@ export default function ProductsScreen({ navigation }: any) {
       // Calculate stats
       const totalValue = data.products?.reduce((sum: number, p: any) => sum + (p.price * p.stock_quantity), 0) || 0;
       const lowStock = data.products?.filter((p: any) => p.stock_quantity <= (p.low_stock_threshold || 5)).length || 0;
+      console.log('📊 Stats calculated - Inventory Value:', totalValue, 'Low Stock:', lowStock);
       setStats({ totalValue, lowStock });
     } catch (error) {
       console.error('❌ Load products error:', error);
@@ -240,19 +249,13 @@ export default function ProductsScreen({ navigation }: any) {
       {/* Stats Header */}
       <View style={[styles.statsHeader, { backgroundColor: Colors.card, borderBottomColor: Colors.borderLight }]}>
         <View style={[styles.statBox, { backgroundColor: isDark ? '#4c1d95' : '#faf5ff', borderColor: Colors.primary + '20' }]}>
-          <View style={styles.statInfo}>
-            <Text style={[styles.statLabel, { color: Colors.textSecondary }]}>Inventory Value</Text>
-            <Text style={[styles.statValue, { color: Colors.primary }]}>{formatCurrency(stats.totalValue)}</Text>
-          </View>
+          <Text style={[styles.statLabel, { color: Colors.textSecondary }]}>Inventory Value</Text>
+          <Text style={[styles.statValue, { color: Colors.primary }]}>{formatCurrency(stats.totalValue)}</Text>
         </View>
-        {stats.lowStock > 0 && (
-          <View style={[styles.statBox, { backgroundColor: isDark ? '#7f1d1d' : '#fef2f2', borderColor: Colors.creditRed + '20' }]}>
-            <View style={styles.statInfo}>
-              <Text style={[styles.statLabel, { color: Colors.textSecondary }]}>Low Stock Items</Text>
-              <Text style={[styles.statValue, { color: Colors.creditRed }]}>{stats.lowStock}</Text>
-            </View>
-          </View>
-        )}
+        <View style={[styles.statBox, { backgroundColor: isDark ? '#7f1d1d' : '#fef2f2', borderColor: Colors.creditRed + '20' }]}>
+          <Text style={[styles.statLabel, { color: Colors.textSecondary }]}>Low Stock Items</Text>
+          <Text style={[styles.statValue, { color: Colors.creditRed }]}>{stats.lowStock}</Text>
+        </View>
       </View>
 
       {/* Search Bar */}
@@ -342,7 +345,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     flexDirection: 'row',
     gap: Spacing.sm,
-    borderBottomWidth: 1,
   },
   statBox: {
     flex: 1,
@@ -350,24 +352,20 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
     borderWidth: 1,
   },
-  statInfo: {
-    flex: 1,
-  },
   statLabel: {
-    fontSize: Typography.fontXs,
+    fontSize: Typography.fontSm,
     marginBottom: Spacing.xs,
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   statValue: {
-    fontSize: Typography.fontBase,
+    fontSize: Typography.fontLg,
     fontWeight: '800',
   },
   searchContainer: {
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
-    borderBottomWidth: 1,
   },
   searchBar: {
     flexDirection: 'row',
@@ -447,8 +445,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   productIconSmall: {
-    width: 30,
-    height: 30,
+    width: IconSizes.large,
+    height: IconSizes.large,
     borderRadius: BorderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
@@ -540,8 +538,8 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   quantityButton: {
-    width: 28,
-    height: 28,
+    width: IconSizes.large,
+    height: IconSizes.large,
     borderRadius: BorderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
@@ -591,9 +589,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 16,
     bottom: Platform.OS === 'ios' ? 86 : 70,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: IconSizes.xlarge + 10,
+    height: IconSizes.xlarge + 10,
+    borderRadius: (IconSizes.xlarge + 10) / 2,
     justifyContent: 'center',
     alignItems: 'center',
     ...Platform.select({

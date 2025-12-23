@@ -20,6 +20,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ApiService from '../../services/api';
 import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
+import { AvatarSizes, IconSizes, TextScale } from '../../constants/scales';
 import { useTheme } from '../../context/ThemeContext';
 
 export default function BusinessScreen({ navigation }: any) {
@@ -223,7 +224,7 @@ const styles = StyleSheet.create({
       android: { elevation: 6 },
     }),
   },
-  avatar: { width: 72, height: 72, borderRadius: 36, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center', marginBottom: Spacing.lg },
+  avatar: { width: AvatarSizes.xlarge, height: AvatarSizes.xlarge, borderRadius: AvatarSizes.xlarge / 2, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center', marginBottom: Spacing.lg },
   avatarText: { fontSize: Typography.font2xl, fontWeight: Typography.extraBold, color: '#fff' },
   businessName: { fontSize: Typography.fontXl, fontWeight: Typography.extraBold, color: '#fff', marginBottom: Spacing.sm },
   phoneRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs, marginBottom: Spacing.lg },
@@ -241,7 +242,7 @@ const styles = StyleSheet.create({
     }),
   },
   menuItem: { flexDirection: 'row', alignItems: 'center', padding: Spacing.lg },
-  menuIcon: { width: 43, height: 43, borderRadius: BorderRadius.md, justifyContent: 'center', alignItems: 'center', marginRight: Spacing.lg },
+  menuIcon: { width: AvatarSizes.large, height: AvatarSizes.large, borderRadius: BorderRadius.md, justifyContent: 'center', alignItems: 'center', marginRight: Spacing.lg },
   menuContent: { flex: 1 },
   menuTitle: { fontSize: Typography.fontMd, fontWeight: Typography.semiBold, marginBottom: 2 },
   menuSubtitle: { fontSize: Typography.fontSm },

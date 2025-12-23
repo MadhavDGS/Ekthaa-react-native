@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
+import { IconSizes, SpacingScale } from '../../constants/scales';
 import { useTheme } from '../../context/ThemeContext';
 import ApiService from '../../services/api';
 
@@ -72,11 +73,11 @@ export default function AddCustomerScreen({ navigation }: any) {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.header}>
+          {/* <View style={styles.header}>
             <Ionicons name="person-add" size={43} color={Colors.primary} />
             <Text style={[styles.headerTitle, { color: Colors.textPrimary }]}>New Customer</Text>
             <Text style={[styles.headerSubtitle, { color: Colors.textSecondary }]}>Add customer details to your ledger</Text>
-          </View>
+          </View> */}
 
           <View style={[styles.form, { backgroundColor: Colors.card }]}>
             <View style={styles.inputGroup}>
@@ -174,49 +175,49 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: Spacing.space6,
-    paddingVertical: Spacing.lg,
+    marginBottom: Spacing.lg,
+    paddingVertical: Spacing.md,
   },
   headerTitle: {
-    fontSize: Typography.fontXl,
+    fontSize: Typography.fontBase,
     fontWeight: Typography.bold,
-    marginTop: Spacing.md,
+    marginTop: Spacing.sm,
     marginBottom: Spacing.xs,
   },
   headerSubtitle: {
-    fontSize: Typography.fontBase,
+    fontSize: Typography.fontXs,
   },
   form: {
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.xl,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
     ...Platform.select({
       ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8 },
       android: { elevation: 2 },
     }),
   },
   inputGroup: {
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.md,
   },
   label: {
-    fontSize: Typography.fontBase,
+    fontSize: Typography.fontXs,
     fontWeight: Typography.semiBold,
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.xs,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
   },
   textAreaContainer: {
     paddingVertical: Spacing.md,
     minHeight: 95,
   },
   iconWrapper: {
-    width: 30,
-    height: 30,
+    width: IconSizes.large,
+    height: IconSizes.large,
     borderRadius: Spacing.sm,
     justifyContent: 'center',
     alignItems: 'center',
@@ -224,7 +225,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: Typography.fontSm,
+    fontSize: Typography.font3xs,
     paddingVertical: 0,
   },
   textArea: {
@@ -233,11 +234,11 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.lg,
+    paddingVertical: Spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: Spacing.sm,
-    marginHorizontal: Spacing.lg,
+    marginHorizontal: Spacing.md,
     flexDirection: 'row',
     gap: Spacing.xs,
     ...Platform.select({

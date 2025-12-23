@@ -39,10 +39,6 @@ export default function ProfileScreen({ navigation }: any) {
     }, [])
   );
 
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
   const loadProfile = async () => {
     try {
       const userData = await AsyncStorage.getItem('userData');
@@ -146,7 +142,7 @@ export default function ProfileScreen({ navigation }: any) {
           <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Business Tools</Text>
 
           <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]} onPress={() => navigation.navigate('QRCode')}>
-            <View style={[styles.settingIcon, { backgroundColor: isDark ? '#4c1d95' : Colors.bgLightPurple }]}>
+            <View style={[styles.settingIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.2)' : 'rgba(90, 154, 142, 0.1)' }]}>
               <Ionicons name="qr-code" size={17} color={Colors.primary} />
             </View>
             <View style={styles.menuContent}>
@@ -184,7 +180,7 @@ export default function ProfileScreen({ navigation }: any) {
           <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Appearance</Text>
 
           <View style={[styles.settingCard, { backgroundColor: Colors.card }]}>
-            <View style={[styles.settingIcon, { backgroundColor: isDark ? '#4c1d95' : Colors.bgLightPurple }]}>
+            <View style={[styles.settingIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.2)' : 'rgba(90, 154, 142, 0.1)' }]}>
               <Ionicons name={isDark ? 'moon' : 'sunny'} size={17} color={Colors.primary} />
             </View>
             <View style={styles.menuContent}>
@@ -204,7 +200,7 @@ export default function ProfileScreen({ navigation }: any) {
           <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Settings</Text>
 
           <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]}>
-            <View style={[styles.settingIcon, { backgroundColor: isDark ? '#4c1d95' : Colors.bgLightPurple }]}>
+            <View style={[styles.settingIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.2)' : 'rgba(90, 154, 142, 0.1)' }]}>
               <Ionicons name="person" size={17} color={Colors.primary} />
             </View>
             <View style={styles.menuContent}>

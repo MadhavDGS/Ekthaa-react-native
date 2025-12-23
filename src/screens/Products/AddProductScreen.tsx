@@ -18,8 +18,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
-import { useTheme } from '../../context/ThemeContext';
+import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';import { IconSizes, AvatarSizes, SpacingScale } from '../../constants/scales';import { useTheme } from '../../context/ThemeContext';
 import ApiService from '../../services/api';
 import { getAllLevel1InventoryCategories, getLevel2InventoryOptions } from '../../constants/inventoryCategories';
 
@@ -624,8 +623,8 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
   },
   iconWrapper: {
-    width: 30,
-    height: 30,
+    width: IconSizes.large,
+    height: IconSizes.large,
     borderRadius: Spacing.sm,
     justifyContent: 'center',
     alignItems: 'center',
@@ -725,9 +724,9 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
   },
   cameraIconCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: IconSizes.xlarge + 10,
+    height: IconSizes.xlarge + 10,
+    borderRadius: (IconSizes.xlarge + 10) / 2,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.md,

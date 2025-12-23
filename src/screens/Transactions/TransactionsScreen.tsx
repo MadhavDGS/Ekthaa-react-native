@@ -19,6 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import ApiService from '../../services/api';
 import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
+import { AvatarSizes, IconSizes, TextScale, SpacingScale } from '../../constants/scales';
 import { useTheme } from '../../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
@@ -33,11 +34,16 @@ export default function TransactionsScreen({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [stats, setStats] = useState({ totalDebit: 0, totalCredit: 0, balance: 0 });
+  const [lastFetch, setLastFetch] = useState<number>(0);
 
   useFocusEffect(
     useCallback(() => {
-      loadTransactions();
-    }, [])
+      const now = Date.now();
+      const fiveMinutes = 5 * 60 * 1000;
+      if (!transactions.length || now - lastFetch > fiveMinutes) {
+        loadTransactions();
+      }
+    }, [transactions.length, lastFetch])
   );
 
   useEffect(() => {
@@ -51,6 +57,7 @@ export default function TransactionsScreen({ navigation }: any) {
       const txnList = data.transactions || [];
       console.log('📋 Transactions loaded:', txnList.length);
       setTransactions(txnList);
+      setLastFetch(Date.now());
       
       const totalDebit = txnList.filter((t: any) => t.transaction_type === 'payment').reduce((sum: number, t: any) => sum + t.amount, 0);
       const totalCredit = txnList.filter((t: any) => t.transaction_type === 'credit').reduce((sum: number, t: any) => sum + t.amount, 0);
@@ -116,66 +123,142 @@ export default function TransactionsScreen({ navigation }: any) {
     const isCredit = item.transaction_type === 'credit';
     
     return (
-      <View style={styles.txnWrapper}>
-        <View style={[styles.bubble, { backgroundColor: Colors.card }, isCredit ? styles.bubbleCredit : styles.bubblePayment]}>
-          <View style={styles.txnHeader}>
-            <View style={[styles.icon, { backgroundColor: isCredit ? '#fee2e2' : '#dcfce7' }]}>
-              <Ionicons name={isCredit ? 'arrow-down' : 'arrow-up'} size={18} color={isCredit ? '#dc2626' : '#059669'} />
-            </View>
-            <View style={styles.txnInfo}>
-              <Text style={[styles.txnTitle, { color: Colors.textPrimary }]}>{item.customer_name || 'Unknown'}</Text>
+      <TouchableOpacity 
+        style={[styles.txnCard, { backgroundColor: Colors.card }]}
+        activeOpacity={0.6}
+      >
+        <View style={styles.txnHeader}>
+          <View style={[styles.iconCircle, { backgroundColor: isCredit ? (isDark ? '#7f1d1d' : '#fee2e2') : (isDark ? '#064e3b' : '#d1fae5') }]}>
+            <Ionicons 
+              name={isCredit ? 'arrow-down-circle' : 'arrow-up-circle'} 
+              size={18} 
+              color={isCredit ? (isDark ? '#fca5a5' : '#dc2626') : (isDark ? '#6ee7b7' : '#059669')} 
+            />
+          </View>
+          <View style={styles.txnInfo}>
+            <Text style={[styles.customerName, { color: Colors.textPrimary }]} numberOfLines={1}>{item.customer_name || 'Unknown'}</Text>
+            <View style={styles.timeRow}>
+              <Ionicons name="time-outline" size={11} color={Colors.textTertiary} />
               <Text style={[styles.txnTime, { color: Colors.textSecondary }]}>{formatTime(item.created_at)}</Text>
             </View>
-            <Text style={[styles.txnAmount, { color: isCredit ? '#dc2626' : '#059669' }]}>
+          </View>
+          <View style={styles.amountContainer}>
+            <Text style={[styles.txnAmount, { color: isCredit ? (isDark ? '#fca5a5' : '#dc2626') : (isDark ? '#6ee7b7' : '#059669') }]}>
               {isCredit ? '+' : '-'}{formatCurrency(item.amount)}
             </Text>
+            <View style={[styles.typeBadge, { backgroundColor: isCredit ? (isDark ? '#7f1d1d' : '#fee2e2') : (isDark ? '#064e3b' : '#d1fae5') }]}>
+              <Text style={[styles.typeBadgeText, { color: isCredit ? (isDark ? '#fca5a5' : '#dc2626') : (isDark ? '#6ee7b7' : '#059669') }]}>
+                {isCredit ? 'Received' : 'Given'}
+              </Text>
+            </View>
           </View>
-          {item.notes && <Text style={[styles.txnNotes, { color: Colors.textSecondary }]}>{item.notes}</Text>}
         </View>
-      </View>
+        {item.notes && (
+          <View style={styles.notesContainer}>
+            <Ionicons name="document-text-outline" size={12} color={Colors.textTertiary} style={{ marginRight: Spacing.xs }} />
+            <Text style={[styles.txnNotes, { color: Colors.textSecondary }]} numberOfLines={2}>{item.notes}</Text>
+          </View>
+        )}
+      </TouchableOpacity>
     );
   };
 
   const renderDateHeader = ({ section }: any) => (
-    <View style={styles.dateHeader}>
-      <View style={[styles.dateLine, { backgroundColor: Colors.borderLight }]} />
-      <Text style={[styles.dateText, { color: Colors.textSecondary }]}>{section.displayDate}</Text>
-      <View style={[styles.dateLine, { backgroundColor: Colors.borderLight }]} />
+    <View style={styles.dateHeaderContainer}>
+      <View style={[styles.dateBadge, { backgroundColor: isDark ? '#1f2937' : '#f3f4f6' }]}>
+        <Ionicons name="calendar-outline" size={12} color={Colors.textSecondary} style={{ marginRight: Spacing.xs }} />
+        <Text style={[styles.dateText, { color: Colors.textPrimary }]}>{section.displayDate}</Text>
+      </View>
     </View>
   );
 
   const groupedData = groupByDate(filteredTransactions);
 
   return (
-    <View style={[styles.container, { backgroundColor: Colors.background }]}>
-      <View style={[styles.statsCard, { backgroundColor: Colors.primary, ...Platform.select({ ios: { shadowColor: Colors.primary }, android: {} }) }]}>
-        <View style={styles.statRow}>
-          <View style={styles.stat}>
-            <Text style={styles.statLabel}>Received</Text>
-            <Text style={styles.statValue}>{formatCurrency(stats.totalCredit)}</Text>
+    <View style={[styles.container, { backgroundColor: Colors.backgroundSecondary }]}>
+      {/* Stats Card */}
+      <View style={[styles.statsCard, { backgroundColor: Colors.card }]}>
+        <View style={styles.balanceMain}>
+          <View style={styles.balanceHeader}>
+            <Ionicons name="wallet-outline" size={18} color={Colors.textSecondary} />
+            <Text style={[styles.balanceLabel, { color: Colors.textSecondary }]}>Net Balance</Text>
           </View>
-          <View style={styles.statDivider} />
-          <View style={styles.stat}>
-            <Text style={styles.statLabel}>Given</Text>
-            <Text style={styles.statValue}>{formatCurrency(stats.totalDebit)}</Text>
+          <Text style={[styles.balanceValue, { color: stats.balance >= 0 ? (isDark ? '#6ee7b7' : '#059669') : (isDark ? '#fca5a5' : '#dc2626') }]}>
+            {formatCurrency(Math.abs(stats.balance))}
+          </Text>
+          <Text style={[styles.balanceStatus, { color: Colors.textTertiary }]}>
+            {stats.balance >= 0 ? 'You will receive' : 'You will give'}
+          </Text>
+        </View>
+        
+        <View style={styles.statsChips}>
+          <View style={[styles.statChip, { backgroundColor: isDark ? '#064e3b' : '#d1fae5' }]}>
+            <Ionicons name="arrow-down-circle" size={14} color={isDark ? '#6ee7b7' : '#059669'} style={{ marginRight: Spacing.xs }} />
+            <View>
+              <Text style={[styles.chipLabel, { color: isDark ? '#6ee7b7' : '#047857' }]}>Received</Text>
+              <Text style={[styles.chipValue, { color: isDark ? '#6ee7b7' : '#059669' }]}>{formatCurrency(stats.totalCredit)}</Text>
+            </View>
+          </View>
+          <View style={[styles.statChip, { backgroundColor: isDark ? '#7f1d1d' : '#fee2e2' }]}>
+            <Ionicons name="arrow-up-circle" size={14} color={isDark ? '#fca5a5' : '#dc2626'} style={{ marginRight: Spacing.xs }} />
+            <View>
+              <Text style={[styles.chipLabel, { color: isDark ? '#fca5a5' : '#b91c1c' }]}>Given</Text>
+              <Text style={[styles.chipValue, { color: isDark ? '#fca5a5' : '#dc2626' }]}>{formatCurrency(stats.totalDebit)}</Text>
+            </View>
           </View>
         </View>
       </View>
 
-      <View style={styles.filters}>
+      {/* Search Bar */}
+      <View style={[styles.searchContainer, { backgroundColor: Colors.card }]}>
+        <View style={[styles.searchBar, { backgroundColor: isDark ? '#1f2937' : '#f3f4f6' }]}>
+          <Ionicons name="search" size={14} color={Colors.textTertiary} />
+          <TextInput
+            style={[styles.searchInput, { color: Colors.textPrimary }]}
+            placeholder="Search by customer or notes..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholderTextColor={Colors.textTertiary}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')} style={styles.clearButton}>
+              <Ionicons name="close-circle" size={14} color={Colors.textTertiary} />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
+      {/* Filters */}
+      <View style={styles.filtersContainer}>
         {['all', 'credit', 'payment'].map(type => (
           <TouchableOpacity
             key={type}
-            style={[styles.filter, { backgroundColor: filterType === type ? Colors.primary : Colors.card }]}
+            style={[
+              styles.filterChip,
+              { backgroundColor: isDark ? '#1f2937' : '#f3f4f6' },
+              filterType === type && { 
+                backgroundColor: Colors.primary,
+                ...Platform.select({
+                  ios: { shadowColor: Colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 },
+                  android: { elevation: 4 },
+                })
+              }
+            ]}
             onPress={() => setFilterType(type as any)}
+            activeOpacity={0.7}
           >
-            <Text style={[styles.filterText, { color: filterType === type ? '#fff' : Colors.textSecondary }]}>
+            <Text style={[
+              styles.filterText,
+              { color: filterType === type ? '#fff' : Colors.textPrimary },
+              filterType === type && { fontWeight: '700' }
+            ]}>
               {type === 'all' ? 'All' : type === 'credit' ? 'Received' : 'Given'}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
 
+      {/* Transaction List */}
       <FlatList
         data={groupedData}
         renderItem={({ item }) => (
@@ -189,7 +272,7 @@ export default function TransactionsScreen({ navigation }: any) {
           </View>
         )}
         keyExtractor={(item, idx) => item.date + idx}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={styles.listContent}
         refreshControl={
           <RefreshControl 
             refreshing={refreshing} 
@@ -198,9 +281,10 @@ export default function TransactionsScreen({ navigation }: any) {
             tintColor={Colors.primary}
           />
         }
+        showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          <View style={styles.empty}>
-            <Ionicons name="receipt-outline" size={58} color="#d1d5db" />
+          <View style={styles.emptyContainer}>
+            <Ionicons name="receipt-outline" size={64} color={Colors.textTertiary} />
             <Text style={[styles.emptyTitle, { color: Colors.textPrimary }]}>No Transactions</Text>
             <Text style={[styles.emptyText, { color: Colors.textSecondary }]}>Transactions will appear here</Text>
           </View>
@@ -211,51 +295,211 @@ export default function TransactionsScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { 
+    flex: 1,
+  },
   statsCard: {
-    margin: Spacing.lg,
+    marginHorizontal: Spacing.md,
+    marginTop: Spacing.md,
     marginBottom: Spacing.sm,
-    borderRadius: Spacing.lg,
-    padding: Spacing.xl,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.lg,
     ...Platform.select({
-      ios: { shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.2, shadowRadius: 6 },
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8 },
       android: { elevation: 3 },
     }),
   },
-  statRow: { flexDirection: 'row' },
-  stat: { flex: 1, alignItems: 'center' },
-  statDivider: { width: 1, backgroundColor: 'rgba(255,255,255,0.3)', marginHorizontal: Spacing.lg },
-  statLabel: { fontSize: Typography.fontSm, color: 'rgba(255,255,255,0.9)', marginBottom: Spacing.xs, fontWeight: Typography.medium },
-  statValue: { fontSize: Typography.fontLg, fontWeight: Typography.extraBold, color: '#fff' },
-  filters: { flexDirection: 'row', paddingHorizontal: Spacing.lg, gap: Spacing.sm, marginBottom: Spacing.md },
-  filter: { flex: 1, paddingVertical: Spacing.sm, borderRadius: BorderRadius.md, alignItems: 'center' },
-  filterActive: { },
-  filterText: { fontSize: Typography.fontBase, fontWeight: Typography.semiBold },
-  filterTextActive: { color: '#fff' },
-  list: { paddingHorizontal: Spacing.lg, paddingBottom: 90 },
-  dateHeader: { flexDirection: 'row', alignItems: 'center', marginVertical: Spacing.lg },
-  dateLine: { flex: 1, height: 1 },
-  dateText: { fontSize: Typography.fontXs, fontWeight: Typography.bold, marginHorizontal: Spacing.md, textTransform: 'uppercase' },
-  txnWrapper: { marginBottom: Spacing.sm },
-  bubble: {
-    borderRadius: Spacing.lg,
-    padding: Spacing.lg,
-    borderLeftWidth: 4,
+  balanceMain: {
+    alignItems: 'center',
+    paddingBottom: Spacing.md,
+  },
+  balanceHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    marginBottom: Spacing.sm,
+  },
+  balanceLabel: {
+    fontSize: Typography.fontXs,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  balanceValue: {
+    fontSize: Typography.font2xl,
+    fontWeight: '900',
+    marginBottom: Spacing.xs,
+    letterSpacing: -1,
+  },
+  balanceStatus: {
+    fontSize: Typography.font3xs,
+    fontWeight: '500',
+  },
+  statsChips: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  statChip: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.sm,
+    borderRadius: BorderRadius.md,
+  },
+  chipLabel: {
+    fontSize: Typography.font3xs,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+  },
+  chipValue: {
+    fontSize: Typography.fontSm,
+    fontWeight: '800',
+    marginTop: 2,
+  },
+  searchContainer: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: Spacing.sm,
+    paddingHorizontal: Spacing.sm,
+    height: 32,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: Typography.fontXs,
+    marginLeft: Spacing.xs,
+    fontWeight: '500',
+    height: 32,
+  },
+  clearButton: {
+    padding: Spacing.xs,
+  },
+  filtersContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: Spacing.md,
+    gap: Spacing.xs,
+    marginBottom: Spacing.sm,
+  },
+  filterChip: {
+    flex: 1,
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+  },
+  filterText: {
+    fontSize: Typography.fontXs,
+    fontWeight: '600',
+  },
+  listContent: {
+    paddingHorizontal: Spacing.md,
+    paddingBottom: 95,
+  },
+  dateHeaderContainer: {
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+  },
+  dateBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.md,
+  },
+  dateText: {
+    fontSize: Typography.fontSm,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
+  txnCard: {
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
     ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4 },
-      android: { elevation: 2 },
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8 },
+      android: { elevation: 3 },
     }),
   },
-  bubbleCredit: { borderLeftColor: '#dc2626' },
-  bubblePayment: { borderLeftColor: '#059669' },
-  txnHeader: { flexDirection: 'row', alignItems: 'center' },
-  icon: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginRight: Spacing.md },
-  txnInfo: { flex: 1 },
-  txnTitle: { fontSize: Typography.fontSm, fontWeight: Typography.semiBold, marginBottom: 2 },
-  txnTime: { fontSize: Typography.fontXs },
-  txnAmount: { fontSize: Typography.fontMd, fontWeight: Typography.bold },
-  txnNotes: { fontSize: Typography.fontSm, marginTop: Spacing.sm, marginLeft: 47 },
-  empty: { alignItems: 'center', paddingTop: 72 },
-  emptyTitle: { fontSize: Typography.fontXl, fontWeight: Typography.bold, marginTop: Spacing.lg, marginBottom: Spacing.sm },
-  emptyText: { fontSize: Typography.fontSm },
+  txnHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconCircle: {
+    width: AvatarSizes.medium,
+    height: AvatarSizes.medium,
+    borderRadius: AvatarSizes.medium / 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.sm,
+  },
+  txnInfo: {
+    flex: 1,
+    marginRight: Spacing.sm,
+  },
+  customerName: {
+    fontSize: Typography.fontBase,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  timeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  txnTime: {
+    fontSize: Typography.font3xs,
+    fontWeight: '500',
+  },
+  amountContainer: {
+    alignItems: 'flex-end',
+  },
+  txnAmount: {
+    fontSize: 18,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+    marginBottom: Spacing.xs,
+  },
+  typeBadge: {
+    paddingHorizontal: Spacing.xs,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.sm,
+  },
+  typeBadgeText: {
+    fontSize: Typography.font3xs,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+  },
+  notesContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginTop: Spacing.sm,
+    paddingTop: Spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.06)',
+  },
+  txnNotes: {
+    flex: 1,
+    fontSize: Typography.fontXs,
+    lineHeight: 18,
+    fontWeight: '500',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    paddingVertical: 72,
+  },
+  emptyTitle: {
+    fontSize: Typography.fontBase,
+    fontWeight: '700',
+    marginTop: Spacing.lg,
+    marginBottom: Spacing.sm,
+  },
+  emptyText: {
+    fontSize: Typography.font3xs,
+    textAlign: 'center',
+  },
 });

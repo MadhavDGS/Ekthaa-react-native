@@ -6,10 +6,10 @@
 // Light Theme Colors
 export const LightColors = {
   // Primary Colors
-  primary: '#7c3aed',
-  primaryDark: '#6d28d9',
-  primaryLight: '#5f259f',
-  primaryTransparent: 'rgba(124, 58, 237, 0.2)',
+  primary: '#5A9A8E',
+  primaryDark: '#4A8A7E',
+  primaryLight: '#6ABAAE',
+  primaryTransparent: 'rgba(90, 154, 142, 0.2)',
 
   // Background Colors
   background: '#ffffff',
@@ -43,10 +43,10 @@ export const LightColors = {
 // Dark Theme Colors (React Native standard dark mode)
 export const DarkColors = {
   // Primary Colors
-  primary: '#a78bfa',
-  primaryDark: '#8b5cf6',
-  primaryLight: '#c4b5fd',
-  primaryTransparent: 'rgba(167, 139, 250, 0.2)',
+  primary: '#5A9A8E',
+  primaryDark: '#4A8A7E',
+  primaryLight: '#6ABAAE',
+  primaryTransparent: 'rgba(90, 154, 142, 0.2)',
 
   // Background Colors
   background: '#000000',

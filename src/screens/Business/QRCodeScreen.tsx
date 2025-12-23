@@ -3,7 +3,7 @@
  * Simple React Native UI for showing business payment QR code
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -19,11 +19,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
+import * as Sharing from 'expo-sharing';
 import ApiService from '../../services/api';
 import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
 import { useTheme } from '../../context/ThemeContext';
-
-const API_BASE_URL = 'https://ekthaa-react-business.onrender.com';
+import { API_BASE_URL } from '../../constants/api';
 
 export default function QRCodeScreen({ navigation }: any) {
   const { isDark } = useTheme();
@@ -38,25 +40,46 @@ export default function QRCodeScreen({ navigation }: any) {
     }, [])
   );
 
+  useEffect(() => {
+    // Use native header
+    navigation.setOptions({
+      headerShown: true,
+      headerTitle: 'Payment QR Code',
+    });
+  }, [navigation]);
+
   const loadProfileAndQR = async () => {
     try {
       setLoading(true);
       
       // Load profile data
       const data = await ApiService.getProfile();
-      setProfile(data.business || {});
-      console.log('💼 Profile loaded with PIN:', data.business?.access_pin);
+      setProfile(data.user || data.business || {});
+      console.log('💼 Profile loaded with PIN:', data.user?.access_pin || data.business?.access_pin);
       
-      // Fetch QR code image with authentication
+      // Fetch QR code image with authentication - try multiple endpoints
       const token = await ApiService.getToken();
       if (token) {
         console.log('🔐 Fetching QR code with auth token...');
-        const response = await fetch(`${API_BASE_URL}/api/business/qr-code`, {
+        
+        // Try primary endpoint first
+        let response = await fetch(`${API_BASE_URL}/api/business/qr-code`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
           },
         });
+        
+        // If 404, try alternative endpoint
+        if (response.status === 404) {
+          console.log('🔄 Trying alternative QR endpoint...');
+          response = await fetch(`${API_BASE_URL}/api/profile/qr`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+        }
         
         if (response.ok) {
           const blob = await response.blob();
@@ -69,6 +92,7 @@ export default function QRCodeScreen({ navigation }: any) {
           reader.readAsDataURL(blob);
         } else {
           console.error('❌ QR code fetch failed:', response.status);
+          console.error('❌ Response:', await response.text());
         }
       }
     } catch (error) {
@@ -90,16 +114,45 @@ export default function QRCodeScreen({ navigation }: any) {
     }
   };
 
-  return (
-    <SafeAreaView style={[styles.container, { backgroundColor: Colors.background }]} edges={['top']}>
-      <View style={[styles.appBar, { backgroundColor: Colors.primary }]}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={22} color={Colors.white} />
-        </TouchableOpacity>
-        <Text style={styles.appBarTitle}>Payment QR Code</Text>
-        <View style={{ width: 40 }} />
-      </View>
+  const handleDownload = async () => {
+    try {
+      if (!qrImageData) {
+        Alert.alert('Error', 'QR code not loaded yet');
+        return;
+      }
 
+      // Request permissions
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Required', 'Please grant permission to save images');
+        return;
+      }
+
+      // Convert base64 to file
+      const filename = `ekthaa-qr-${Date.now()}.png`;
+      const fileUri = FileSystem.cacheDirectory + filename;
+      
+      // Remove data:image/png;base64, prefix if present
+      const base64Code = qrImageData.split(',')[1] || qrImageData;
+      
+      await FileSystem.writeAsStringAsync(fileUri, base64Code, {
+        encoding: 'base64',
+      });
+
+      // Save to media library
+      const asset = await MediaLibrary.createAssetAsync(fileUri);
+      await MediaLibrary.createAlbumAsync('Ekthaa', asset, false);
+      
+      Alert.alert('Success', 'QR code saved to gallery!');
+      console.log('✅ QR code downloaded successfully');
+    } catch (error) {
+      console.error('❌ Download error:', error);
+      Alert.alert('Error', 'Failed to download QR code');
+    }
+  };
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: Colors.background }]} edges={['bottom']}>
       <ScrollView
         style={styles.content}
         contentContainerStyle={styles.scrollContent}
@@ -189,7 +242,7 @@ export default function QRCodeScreen({ navigation }: any) {
 
           <TouchableOpacity 
             style={[styles.actionButton, styles.actionButtonSecondary, { backgroundColor: Colors.backgroundSecondary }]}
-            onPress={() => Alert.alert('Download', 'QR code download coming soon!')}
+            onPress={handleDownload}
           >
             <Ionicons name="download-outline" size={20} color={Colors.textSecondary} />
             <Text style={[styles.actionButtonText, { ...styles.actionButtonTextSecondary, color: Colors.textSecondary }]}>

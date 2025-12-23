@@ -26,6 +26,7 @@ import AddCustomerScreen from './src/screens/Customers/AddCustomerScreen';
 import ProductsScreen from './src/screens/Products/ProductsScreen';
 import AddProductScreen from './src/screens/Products/AddProductScreen';
 import TransactionsScreen from './src/screens/Transactions/TransactionsScreen';
+import AddTransactionScreen from './src/screens/Transactions/AddTransactionScreen';
 import QRCodeScreen from './src/screens/Business/QRCodeScreen';
 import ProfileScreen from './src/screens/profile/ProfileScreen';
 import { TouchableOpacity, Text } from 'react-native';
@@ -43,6 +44,7 @@ function MainTabs() {
   
   return (
     <Tab.Navigator
+      initialRouteName="Home"
       screenOptions={({ route, navigation }) => ({
         headerShown: true,
         headerStyle: {
@@ -101,12 +103,12 @@ function MainTabs() {
         },
       })}
     >
+      <Tab.Screen name="Customers" component={CustomersScreen} />
+      <Tab.Screen name="Products" component={ProductsScreen} />
       <Tab.Screen 
         name="Home" 
         component={DashboardScreen}
       />
-      <Tab.Screen name="Customers" component={CustomersScreen} />
-      <Tab.Screen name="Products" component={ProductsScreen} />
       <Tab.Screen name="Transactions" component={TransactionsScreen} />
       <Tab.Screen 
         name="Profile" 
@@ -196,7 +198,8 @@ function AppContent() {
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
-            fontWeight: '600',
+            fontWeight: '700',
+            fontSize: 20,
           },
           animation: Platform.OS === 'ios' ? 'default' : 'slide_from_right',
         }}
@@ -237,6 +240,10 @@ function AppContent() {
                 options={{ headerTitle: 'Add Product' }}
               />
               <Stack.Screen 
+                name="AddTransaction" 
+                component={AddTransactionScreen}
+              />
+              <Stack.Screen 
                 name="QRCode" 
                 component={QRCodeScreen}
                 options={{ headerShown: false }}
@@ -244,7 +251,10 @@ function AppContent() {
               <Stack.Screen 
                 name="Profile" 
                 component={ProfileScreen}
-                options={{ headerTitle: 'Profile' }}
+                options={{ 
+                  headerTitle: 'Profile',
+                  animation: 'slide_from_right',
+                }}
               />
             </>
           )}
