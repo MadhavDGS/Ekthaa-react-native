@@ -581,4 +581,14 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontXs,
     marginTop: Spacing.md,
   },
+  mapPreview: {
+    width: '100%',
+    height: 200,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.sm,
+  },
+  mapCoordinates: {
+    fontSize: Typography.fontXs,
+    textAlign: 'center',
+  },
 });
