@@ -184,6 +184,14 @@ export default function ProfileScreen({ navigation }: any) {
             <Ionicons name="call" size={12} color={Colors.textSecondary} />
             <Text style={[styles.phoneNumber, { color: Colors.textSecondary }]}>{user?.phone_number || 'N/A'}</Text>
           </View>
+          {user?.latitude && user?.longitude && (
+            <View style={styles.phoneRow}>
+              <Ionicons name="location" size={12} color={Colors.textSecondary} />
+              <Text style={[styles.phoneNumber, { color: Colors.textSecondary }]}>
+                Business Location Set
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Stats Cards */}

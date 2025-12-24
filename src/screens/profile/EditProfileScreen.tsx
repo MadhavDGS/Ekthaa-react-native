@@ -252,6 +252,67 @@ export default function EditProfileScreen({ navigation, route }: any) {
                         </View>
                     </View>
 
+                    {/* Business Location Section */}
+                    <View style={[styles.section, { backgroundColor: Colors.card }]}>
+                        <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>
+                            Business Location
+                        </Text>
+
+                        {/* Location Status */}
+                        {user?.latitude && user?.longitude ? (
+                            <View style={styles.locationInfo}>
+                                <View style={styles.locationRow}>
+                                    <Ionicons name="location" size={20} color={Colors.primary} />
+                                    <Text style={[styles.locationText, { color: Colors.textPrimary }]}>
+                                        Location Set
+                                    </Text>
+                                </View>
+                                <Text style={[styles.locationCoords, { color: Colors.textSecondary }]}>
+                                    {user.latitude.toFixed(6)}, {user.longitude.toFixed(6)}
+                                </Text>
+                            </View>
+                        ) : (
+                            <View style={styles.locationInfo}>
+                                <Text style={[styles.locationText, { color: Colors.textSecondary }]}>
+                                    No location set
+                                </Text>
+                            </View>
+                        )}
+
+                        {/* Update Location Button */}
+                        <TouchableOpacity
+                            style={[styles.locationButton, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3', borderColor: Colors.primary }]}
+                            onPress={async () => {
+                                try {
+                                    const { requestForegroundPermissionsAsync, getCurrentPositionAsync } = require('expo-location');
+                                    const { status } = await requestForegroundPermissionsAsync();
+                                    if (status !== 'granted') {
+                                        Alert.alert('Permission Denied', 'Location permission is required to update business location');
+                                        return;
+                                    }
+
+                                    setLoading(true);
+                                    const location = await getCurrentPositionAsync({});
+                                    await ApiService.updateLocation(location.coords.latitude, location.coords.longitude);
+
+                                    Alert.alert('Success', 'Business location updated successfully');
+                                    navigation.setParams({ user: { ...user, latitude: location.coords.latitude, longitude: location.coords.longitude } });
+                                } catch (error: any) {
+                                    console.error('Update location error:', error);
+                                    Alert.alert('Error', error.message || 'Failed to update location');
+                                } finally {
+                                    setLoading(false);
+                                }
+                            }}
+                            disabled={loading}
+                        >
+                            <Ionicons name="navigate" size={20} color={Colors.primary} />
+                            <Text style={[styles.locationButtonText, { color: Colors.primary }]}>
+                                Update Location (Use Current)
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+
                     {/* Bottom Spacing */}
                     <View style={{ height: 100 }} />
                 </ScrollView>
@@ -376,5 +437,36 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: Typography.fontMd,
         fontWeight: Typography.bold,
+    },
+    locationInfo: {
+        marginBottom: Spacing.md,
+    },
+    locationRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: Spacing.xs,
+        marginBottom: Spacing.xs,
+    },
+    locationText: {
+        fontSize: Typography.fontSm,
+        fontWeight: Typography.medium,
+    },
+    locationCoords: {
+        fontSize: Typography.fontXs,
+        marginLeft: 28,
+    },
+    locationButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: Spacing.md,
+        paddingHorizontal: Spacing.lg,
+        borderRadius: BorderRadius.md,
+        borderWidth: 1.5,
+        gap: Spacing.xs,
+    },
+    locationButtonText: {
+        fontSize: Typography.fontSm,
+        fontWeight: Typography.semiBold,
     },
 });
