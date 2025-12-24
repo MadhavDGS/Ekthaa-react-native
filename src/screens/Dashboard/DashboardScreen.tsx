@@ -1,7 +1,7 @@
 /**
- * Dashboard Screen - PhonePe/GPay/Paytm Style
- * 4-column grid like real payment apps
- */
+* Dashboard Screen - PhonePe/GPay/Paytm Style
+* 4-column grid like real payment apps
+*/
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -23,7 +23,6 @@ import { getThemedColors, AvatarColors, Typography, Spacing, BorderRadius } from
 import { AvatarSizes, IconSizes, TextScale, SpacingScale } from '../../constants/scales';
 import { useTheme } from '../../context/ThemeContext';
 import ApiService from '../../services/api';
-import { SkeletonStats, SkeletonCard } from '../../components/Skeletons';
 
 const { width } = Dimensions.get('window');
 
@@ -101,8 +100,8 @@ export default function DashboardScreen({ navigation }: any) {
 
   if (loading) {
     return (
-      <View style={[styles.container, { backgroundColor: Colors.backgroundSecondary }]}>
-        <ActivityIndicator size="large" color={Colors.primary} style={{ marginTop: 100 }} />
+      <View style={[styles.loading, { backgroundColor: Colors.backgroundSecondary }]}>
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
@@ -292,6 +291,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
   },
   appTitle: {
+    fontSize: 20,
+    fontFamily: Typography.fonts.bold,
     fontSize: 18,
     fontWeight: '800',
     color: '#ffffff',
