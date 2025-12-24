@@ -432,9 +432,8 @@ const styles = StyleSheet.create({
   },
   profileHeader: {
     alignItems: 'center',
-    paddingVertical: Spacing.xl,
+    paddingVertical: Spacing.lg,
     marginHorizontal: Spacing.md,
-    marginTop: Spacing.md,
   },
   avatarLarge: {
     width: 58,
