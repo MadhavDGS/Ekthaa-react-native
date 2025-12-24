@@ -33,6 +33,7 @@ export default function DashboardScreen({ navigation }: any) {
   const [refreshing, setRefreshing] = useState(false);
   const [summary, setSummary] = useState<any>(null);
   const [businessName, setBusinessName] = useState('Business Account');
+  const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
 
   useEffect(() => {
     // Hide header for seamless gradient
@@ -87,6 +88,18 @@ export default function DashboardScreen({ navigation }: any) {
         setBusinessName(data.business.name);
       } else if (data?.summary?.business_name) {
         setBusinessName(data.summary.business_name);
+      }
+
+      // Fetch recent transactions
+      try {
+        const transactionsData = await ApiService.getTransactions();
+        if (transactionsData?.transactions) {
+          // Get last 5 transactions
+          const recent = transactionsData.transactions.slice(0, 5);
+          setRecentTransactions(recent);
+        }
+      } catch (error) {
+        console.log('Could not fetch recent transactions:', error);
       }
     } catch (error) {
       console.error('❌ Dashboard error:', error);
@@ -312,6 +325,107 @@ export default function DashboardScreen({ navigation }: any) {
           </TouchableOpacity>
         </View>
 
+        {/* Daily Summary Card */}
+        <View style={[styles.summaryCard, { backgroundColor: Colors.card }]}>
+          <View style={styles.summaryHeader}>
+            <Ionicons name="calendar-outline" size={20} color={Colors.primary} />
+            <Text style={[styles.summaryTitle, { color: Colors.textPrimary }]}>Today's Activity</Text>
+          </View>
+          <View style={styles.summaryStats}>
+            <View style={styles.summaryStatItem}>
+              <Text style={[styles.summaryStatValue, { color: Colors.primary }]}>
+                {recentTransactions.filter(t => {
+                  const today = new Date().toDateString();
+                  const txDate = new Date(t.created_at || t.$createdAt).toDateString();
+                  return today === txDate;
+                }).length}
+              </Text>
+              <Text style={[styles.summaryStatLabel, { color: Colors.textSecondary }]}>Transactions</Text>
+            </View>
+            <View style={styles.summaryDivider} />
+            <View style={styles.summaryStatItem}>
+              <Text style={[styles.summaryStatValue, { color: Colors.primary }]}>
+                ₹{recentTransactions.filter(t => {
+                  const today = new Date().toDateString();
+                  const txDate = new Date(t.created_at || t.$createdAt).toDateString();
+                  return today === txDate && t.type === 'credit';
+                }).reduce((sum, t) => sum + (t.amount || 0), 0).toLocaleString('en-IN')}
+              </Text>
+              <Text style={[styles.summaryStatLabel, { color: Colors.textSecondary }]}>Credits</Text>
+            </View>
+            <View style={styles.summaryDivider} />
+            <View style={styles.summaryStatItem}>
+              <Text style={[styles.summaryStatValue, { color: Colors.primary }]}>
+                ₹{recentTransactions.filter(t => {
+                  const today = new Date().toDateString();
+                  const txDate = new Date(t.created_at || t.$createdAt).toDateString();
+                  return today === txDate && t.type === 'payment';
+                }).reduce((sum, t) => sum + (t.amount || 0), 0).toLocaleString('en-IN')}
+              </Text>
+              <Text style={[styles.summaryStatLabel, { color: Colors.textSecondary }]}>Payments</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Recent Transactions */}
+        {recentTransactions.length > 0 && (
+          <View style={styles.section}>
+            <View style={styles.sectionHead}>
+              <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Recent Transactions</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Transactions')}>
+                <Text style={[styles.viewAll, { color: Colors.primary }]}>View All</Text>
+              </TouchableOpacity>
+            </View>
+            {recentTransactions.map((transaction: any) => (
+              <TouchableOpacity
+                key={transaction.$id || transaction.id}
+                style={[styles.transactionItem, { backgroundColor: Colors.card }]}
+                onPress={() => navigation.navigate('Transactions')}
+                activeOpacity={0.7}
+              >
+                <View style={[
+                  styles.transactionIcon,
+                  {
+                    backgroundColor: transaction.type === 'credit'
+                      ? (isDark ? 'rgba(220, 38, 38, 0.15)' : '#fee2e2')
+                      : (isDark ? 'rgba(34, 197, 94, 0.15)' : '#dcfce7')
+                  }
+                ]}>
+                  <Ionicons
+                    name={transaction.type === 'credit' ? 'arrow-down' : 'arrow-up'}
+                    size={18}
+                    color={transaction.type === 'credit' ? '#dc2626' : '#22c55e'}
+                  />
+                </View>
+                <View style={styles.transactionInfo}>
+                  <Text style={[styles.transactionCustomer, { color: Colors.textPrimary }]} numberOfLines={1}>
+                    {transaction.customer_name || 'Unknown'}
+                  </Text>
+                  <Text style={[styles.transactionDate, { color: Colors.textSecondary }]}>
+                    {new Date(transaction.created_at || transaction.$createdAt).toLocaleDateString('en-IN', {
+                      day: 'numeric',
+                      month: 'short',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </Text>
+                </View>
+                <View style={styles.transactionAmount}>
+                  <Text style={[
+                    styles.transactionAmountText,
+                    { color: transaction.type === 'credit' ? '#dc2626' : '#22c55e' }
+                  ]}>
+                    {transaction.type === 'credit' ? '+' : '-'}₹{(transaction.amount || 0).toLocaleString('en-IN')}
+                  </Text>
+                  <Text style={[styles.transactionType, { color: Colors.textTertiary }]}>
+                    {transaction.type === 'credit' ? 'Credit' : 'Payment'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
         {/* Recent Customers */}
         {summaryData?.recent_customers?.length > 0 && (
           <View style={styles.section}>
@@ -349,6 +463,15 @@ export default function DashboardScreen({ navigation }: any) {
           </View>
         )}
       </ScrollView>
+
+      {/* Floating Action Button */}
+      <TouchableOpacity
+        style={[styles.fab, { backgroundColor: Colors.primary }]}
+        onPress={() => navigation.navigate('Customers')}
+        activeOpacity={0.9}
+      >
+        <Ionicons name="add" size={28} color="#fff" />
+      </TouchableOpacity>
     </View>
   );
 }
