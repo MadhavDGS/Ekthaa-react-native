@@ -20,7 +20,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import MapView, { Marker } from 'react-native-maps';
+import MapComponent from '../../components/MapComponent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
 import { useTheme } from '../../context/ThemeContext';
@@ -219,20 +219,12 @@ export default function ProfileScreen({ navigation }: any) {
         {user?.latitude && user?.longitude && (
           <View style={[styles.section, { backgroundColor: Colors.card }]}>
             <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Business Location</Text>
-            <MapView
+            <MapComponent
+              latitude={user.latitude}
+              longitude={user.longitude}
+              editable={false}
               style={styles.mapPreview}
-              region={{
-                latitude: user.latitude,
-                longitude: user.longitude,
-                latitudeDelta: 0.005,
-                longitudeDelta: 0.005,
-              }}
-              scrollEnabled={false}
-              zoomEnabled={false}
-              userInterfaceStyle={isDark ? 'dark' : 'light'}
-            >
-              <Marker coordinate={{ latitude: user.latitude, longitude: user.longitude }} />
-            </MapView>
+            />
             <Text style={[styles.mapCoordinates, { color: Colors.textSecondary }]}>
               {user.latitude.toFixed(6)}, {user.longitude.toFixed(6)}
             </Text>
