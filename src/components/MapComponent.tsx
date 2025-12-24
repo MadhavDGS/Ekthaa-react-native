@@ -56,8 +56,9 @@ export default function MapComponent({
         );
     }
 
-    // Android/Web: Use OpenStreetMap via WebView
-    const htmlContent = `
+    // Android: Use OpenStreetMap via WebView
+    if (Platform.OS === 'android') {
+        const htmlContent = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -93,24 +94,40 @@ export default function MapComponent({
     </script>
 </body>
 </html>
-    `;
+        `;
+
+        return (
+            <WebView
+                style={style || styles.map}
+                originWhitelist={['*']}
+                source={{ html: htmlContent }}
+                scrollEnabled={false}
+                {...(editable && {
+                    onMessage: (event) => {
+                        try {
+                            const data = JSON.parse(event.nativeEvent.data);
+                            onLocationChange?.(data.latitude, data.longitude);
+                        } catch (e) {
+                            console.error('Failed to parse location data:', e);
+                        }
+                    }
+                })}
+            />
+        );
+    }
+
+    // Web: Use OpenStreetMap Embed (Leaflet iframe)
+    const osmUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${longitude - 0.01},${latitude - 0.01},${longitude + 0.01},${latitude + 0.01}&marker=${latitude},${longitude}`;
 
     return (
-        <WebView
-            style={style || styles.map}
-            originWhitelist={['*']}
-            source={{ html: htmlContent }}
-            scrollEnabled={false}
-            {...(editable && {
-                onMessage: (event) => {
-                    try {
-                        const data = JSON.parse(event.nativeEvent.data);
-                        onLocationChange?.(data.latitude, data.longitude);
-                    } catch (e) {
-                        console.error('Failed to parse location data:', e);
-                    }
-                }
-            })}
+        <iframe
+            src={osmUrl}
+            style={{
+                ...(style || styles.map),
+                border: 'none',
+                borderRadius: 12,
+            }}
+            title="Map"
         />
     );
 }
