@@ -277,6 +277,7 @@ export default function EditProfileScreen({ navigation, route }: any) {
                                     }}
                                     scrollEnabled={false}
                                     zoomEnabled={false}
+                                    userInterfaceStyle={isDark ? 'dark' : 'light'}
                                 >
                                     <Marker coordinate={location} />
                                 </MapView>
@@ -354,6 +355,7 @@ export default function EditProfileScreen({ navigation, route }: any) {
                             longitudeDelta: 0.01,
                         }}
                         onPress={(e) => setLocation(e.nativeEvent.coordinate)}
+                        userInterfaceStyle={isDark ? 'dark' : 'light'}
                     >
                         {location && <Marker coordinate={location} />}
                     </MapView>

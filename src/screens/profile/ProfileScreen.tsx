@@ -229,6 +229,7 @@ export default function ProfileScreen({ navigation }: any) {
               }}
               scrollEnabled={false}
               zoomEnabled={false}
+              userInterfaceStyle={isDark ? 'dark' : 'light'}
             >
               <Marker coordinate={{ latitude: user.latitude, longitude: user.longitude }} />
             </MapView>
