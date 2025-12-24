@@ -103,8 +103,11 @@ export default function InvoiceGeneratorScreen({ navigation }: any) {
     const loadBusinessProfile = async () => {
         try {
             const data = await ApiService.getProfile();
+            console.log('Profile API Response:', data);
+
             // The API returns { user: {...} } structure
             const user = data.user || data;
+            console.log('User data:', user);
 
             setFormData(prev => ({
                 ...prev,
@@ -115,8 +118,11 @@ export default function InvoiceGeneratorScreen({ navigation }: any) {
                 seller_pincode: user.pincode || '',
                 seller_gstin: user.gst_number || '',
             }));
+
+            console.log('Seller details set successfully');
         } catch (error) {
             console.error('Failed to load business profile:', error);
+            Alert.alert('Error', 'Failed to load business details. Please enter manually.');
         }
     };
 
