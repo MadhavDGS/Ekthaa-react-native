@@ -11,6 +11,9 @@ export interface User {
   profile_photo_url?: string;
   total_customers?: number;
   total_transactions?: number;
+  latitude?: number;
+  longitude?: number;
+  location_updated_at?: string;
   $createdAt?: string;
 }
 

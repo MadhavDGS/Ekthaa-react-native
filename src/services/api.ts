@@ -253,6 +253,19 @@ class ApiService {
     return response.data;
   }
 
+  async getLocation() {
+    const response = await this.api.get('/api/location');
+    return response.data;
+  }
+
+  async updateLocation(latitude: number, longitude: number) {
+    const response = await this.api.post('/api/location/update', {
+      latitude,
+      longitude,
+    });
+    return response.data;
+  }
+
   async regeneratePin() {
     const response = await this.api.post(API_ENDPOINTS.REGENERATE_PIN);
     return response.data;
