@@ -20,6 +20,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import MapView, { Marker } from 'react-native-maps';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
 import { useTheme } from '../../context/ThemeContext';
@@ -213,6 +214,29 @@ export default function ProfileScreen({ navigation }: any) {
             <Text style={[styles.statLabel, { color: Colors.textSecondary }]}>Since</Text>
           </View>
         </View>
+
+        {/* Business Location Map */}
+        {user?.latitude && user?.longitude && (
+          <View style={[styles.section, { backgroundColor: Colors.card }]}>
+            <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Business Location</Text>
+            <MapView
+              style={styles.mapPreview}
+              region={{
+                latitude: user.latitude,
+                longitude: user.longitude,
+                latitudeDelta: 0.005,
+                longitudeDelta: 0.005,
+              }}
+              scrollEnabled={false}
+              zoomEnabled={false}
+            >
+              <Marker coordinate={{ latitude: user.latitude, longitude: user.longitude }} />
+            </MapView>
+            <Text style={[styles.mapCoordinates, { color: Colors.textSecondary }]}>
+              {user.latitude.toFixed(6)}, {user.longitude.toFixed(6)}
+            </Text>
+          </View>
+        )}
 
         {/* Business Tools Section */}
         <View style={styles.section}>
