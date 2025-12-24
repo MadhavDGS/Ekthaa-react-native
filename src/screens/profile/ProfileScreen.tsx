@@ -164,7 +164,7 @@ export default function ProfileScreen({ navigation }: any) {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: Colors.backgroundSecondary }]} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: Colors.backgroundSecondary }]}>
       <ScrollView
         style={styles.content}
         contentContainerStyle={styles.scrollContent}
@@ -434,7 +434,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: Spacing.xl,
     marginHorizontal: Spacing.md,
-    marginTop: Spacing.md,
   },
   avatarLarge: {
     width: 58,
