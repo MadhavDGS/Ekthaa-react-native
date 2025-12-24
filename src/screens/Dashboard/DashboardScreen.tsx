@@ -325,106 +325,60 @@ export default function DashboardScreen({ navigation }: any) {
           </TouchableOpacity>
         </View>
 
-        {/* Daily Summary Card */}
-        <View style={[styles.summaryCard, { backgroundColor: Colors.card }]}>
-          <View style={styles.summaryHeader}>
-            <Ionicons name="calendar-outline" size={20} color={Colors.primary} />
-            <Text style={[styles.summaryTitle, { color: Colors.textPrimary }]}>Today's Activity</Text>
-          </View>
-          <View style={styles.summaryStats}>
-            <View style={styles.summaryStatItem}>
-              <Text style={[styles.summaryStatValue, { color: Colors.primary }]}>
+        {/* Modern Daily Summary Card */}
+        <View style={[styles.modernSummaryCard, { backgroundColor: Colors.card }]}>
+          <Text style={[styles.modernSummaryTitle, { color: Colors.textPrimary }]}>Today's Activity</Text>
+          <Text style={[styles.modernSummarySubtitle, { color: Colors.textSecondary }]}>
+            {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
+          </Text>
+
+          <View style={styles.modernStatsGrid}>
+            {/* Transactions Count */}
+            <View style={[styles.modernStatCard, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.12)' : '#E8F5F3' }]}>
+              <View style={[styles.modernStatIconContainer, { backgroundColor: Colors.primary }]}>
+                <Ionicons name="swap-horizontal" size={20} color="#fff" />
+              </View>
+              <Text style={[styles.modernStatValue, { color: Colors.primary }]}>
                 {recentTransactions.filter(t => {
                   const today = new Date().toDateString();
                   const txDate = new Date(t.created_at || t.$createdAt).toDateString();
                   return today === txDate;
                 }).length}
               </Text>
-              <Text style={[styles.summaryStatLabel, { color: Colors.textSecondary }]}>Transactions</Text>
+              <Text style={[styles.modernStatLabel, { color: Colors.textSecondary }]}>Transactions</Text>
             </View>
-            <View style={styles.summaryDivider} />
-            <View style={styles.summaryStatItem}>
-              <Text style={[styles.summaryStatValue, { color: Colors.primary }]}>
+
+            {/* Credits */}
+            <View style={[styles.modernStatCard, { backgroundColor: isDark ? 'rgba(220, 38, 38, 0.12)' : '#FEE2E2' }]}>
+              <View style={[styles.modernStatIconContainer, { backgroundColor: '#dc2626' }]}>
+                <Ionicons name="arrow-down" size={20} color="#fff" />
+              </View>
+              <Text style={[styles.modernStatValue, { color: '#dc2626' }]}>
                 ₹{recentTransactions.filter(t => {
                   const today = new Date().toDateString();
                   const txDate = new Date(t.created_at || t.$createdAt).toDateString();
                   return today === txDate && t.type === 'credit';
                 }).reduce((sum, t) => sum + (t.amount || 0), 0).toLocaleString('en-IN')}
               </Text>
-              <Text style={[styles.summaryStatLabel, { color: Colors.textSecondary }]}>Credits</Text>
+              <Text style={[styles.modernStatLabel, { color: Colors.textSecondary }]}>Credits</Text>
             </View>
-            <View style={styles.summaryDivider} />
-            <View style={styles.summaryStatItem}>
-              <Text style={[styles.summaryStatValue, { color: Colors.primary }]}>
+
+            {/* Payments */}
+            <View style={[styles.modernStatCard, { backgroundColor: isDark ? 'rgba(34, 197, 94, 0.12)' : '#DCFCE7' }]}>
+              <View style={[styles.modernStatIconContainer, { backgroundColor: '#22c55e' }]}>
+                <Ionicons name="arrow-up" size={20} color="#fff" />
+              </View>
+              <Text style={[styles.modernStatValue, { color: '#22c55e' }]}>
                 ₹{recentTransactions.filter(t => {
                   const today = new Date().toDateString();
                   const txDate = new Date(t.created_at || t.$createdAt).toDateString();
                   return today === txDate && t.type === 'payment';
                 }).reduce((sum, t) => sum + (t.amount || 0), 0).toLocaleString('en-IN')}
               </Text>
-              <Text style={[styles.summaryStatLabel, { color: Colors.textSecondary }]}>Payments</Text>
+              <Text style={[styles.modernStatLabel, { color: Colors.textSecondary }]}>Payments</Text>
             </View>
           </View>
         </View>
-
-        {/* Recent Transactions */}
-        {recentTransactions.length > 0 && (
-          <View style={styles.section}>
-            <View style={styles.sectionHead}>
-              <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Recent Transactions</Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Transactions')}>
-                <Text style={[styles.viewAll, { color: Colors.primary }]}>View All</Text>
-              </TouchableOpacity>
-            </View>
-            {recentTransactions.map((transaction: any) => (
-              <TouchableOpacity
-                key={transaction.$id || transaction.id}
-                style={[styles.transactionItem, { backgroundColor: Colors.card }]}
-                onPress={() => navigation.navigate('Transactions')}
-                activeOpacity={0.7}
-              >
-                <View style={[
-                  styles.transactionIcon,
-                  {
-                    backgroundColor: transaction.type === 'credit'
-                      ? (isDark ? 'rgba(220, 38, 38, 0.15)' : '#fee2e2')
-                      : (isDark ? 'rgba(34, 197, 94, 0.15)' : '#dcfce7')
-                  }
-                ]}>
-                  <Ionicons
-                    name={transaction.type === 'credit' ? 'arrow-down' : 'arrow-up'}
-                    size={18}
-                    color={transaction.type === 'credit' ? '#dc2626' : '#22c55e'}
-                  />
-                </View>
-                <View style={styles.transactionInfo}>
-                  <Text style={[styles.transactionCustomer, { color: Colors.textPrimary }]} numberOfLines={1}>
-                    {transaction.customer_name || 'Unknown'}
-                  </Text>
-                  <Text style={[styles.transactionDate, { color: Colors.textSecondary }]}>
-                    {new Date(transaction.created_at || transaction.$createdAt).toLocaleDateString('en-IN', {
-                      day: 'numeric',
-                      month: 'short',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </Text>
-                </View>
-                <View style={styles.transactionAmount}>
-                  <Text style={[
-                    styles.transactionAmountText,
-                    { color: transaction.type === 'credit' ? '#dc2626' : '#22c55e' }
-                  ]}>
-                    {transaction.type === 'credit' ? '+' : '-'}₹{(transaction.amount || 0).toLocaleString('en-IN')}
-                  </Text>
-                  <Text style={[styles.transactionType, { color: Colors.textTertiary }]}>
-                    {transaction.type === 'credit' ? 'Credit' : 'Payment'}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
 
         {/* Recent Customers */}
         {summaryData?.recent_customers?.length > 0 && (
@@ -668,51 +622,53 @@ const styles = StyleSheet.create({
     fontSize: TextScale.listSubtitle,
     fontFamily: Typography.fonts.bold,
   },
-  // Summary Card Styles
-  summaryCard: {
+  // Modern Summary Card Styles
+  modernSummaryCard: {
     marginHorizontal: Spacing.md,
     marginTop: Spacing.md,
     padding: Spacing.lg,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 },
-      android: { elevation: 2 },
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8 },
+      android: { elevation: 4 },
     }),
   },
-  summaryHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.xs,
-    marginBottom: Spacing.md,
-  },
-  summaryTitle: {
-    fontSize: Typography.fontMd,
-    fontWeight: Typography.bold,
-  },
-  summaryStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-  },
-  summaryStatItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  summaryStatValue: {
+  modernSummaryTitle: {
     fontSize: Typography.fontLg,
     fontWeight: Typography.bold,
     marginBottom: 4,
   },
-  summaryStatLabel: {
+  modernSummarySubtitle: {
+    fontSize: Typography.fontSm,
+    marginBottom: Spacing.lg,
+  },
+  modernStatsGrid: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+  },
+  modernStatCard: {
+    flex: 1,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  modernStatIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modernStatValue: {
+    fontSize: Typography.fontLg,
+    fontWeight: Typography.bold,
+  },
+  modernStatLabel: {
     fontSize: Typography.fontXs,
     textAlign: 'center',
   },
-  summaryDivider: {
-    width: 1,
-    height: 40,
-    backgroundColor: '#e0e0e0',
-  },
-  // Transaction Styles
+  // Remove old summary styl
   transactionItem: {
     flexDirection: 'row',
     alignItems: 'center',
