@@ -58,7 +58,7 @@ interface InvoiceFormData {
 export default function InvoiceGeneratorScreen({ navigation }: any) {
     const { isDark } = useTheme();
     const Colors = getThemedColors(isDark);
-    const [activeSection, setActiveSection] = useState<InvoiceSection>('buyer');
+    const [activeSection, setActiveSection] = useState<InvoiceSection>('seller');
     const [loading, setLoading] = useState(false);
     const [products, setProducts] = useState<any[]>([]);
     const [showProductPicker, setShowProductPicker] = useState(false);
