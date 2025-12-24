@@ -264,65 +264,139 @@ export default function EditProfileScreen({ navigation, route }: any) {
                             Business Location
                         </Text>
 
-                        {/* Location Status */}
-                        {user?.latitude && user?.longitude ? (
-                            <View style={styles.locationInfo}>
-                                <View style={styles.locationRow}>
-                                    <Ionicons name="location" size={20} color={Colors.primary} />
-                                    <Text style={[styles.locationText, { color: Colors.textPrimary }]}>
-                                        Location Set
-                                    </Text>
-                                </View>
+                        {/* Map Preview */}
+                        {location && (
+                            <View style={styles.mapPreviewContainer}>
+                                <MapView
+                                    style={styles.mapPreview}
+                                    region={{
+                                        latitude: location.latitude,
+                                        longitude: location.longitude,
+                                        latitudeDelta: 0.005,
+                                        longitudeDelta: 0.005,
+                                    }}
+                                    scrollEnabled={false}
+                                    zoomEnabled={false}
+                                >
+                                    <Marker coordinate={location} />
+                                </MapView>
                                 <Text style={[styles.locationCoords, { color: Colors.textSecondary }]}>
-                                    {user.latitude.toFixed(6)}, {user.longitude.toFixed(6)}
-                                </Text>
-                            </View>
-                        ) : (
-                            <View style={styles.locationInfo}>
-                                <Text style={[styles.locationText, { color: Colors.textSecondary }]}>
-                                    No location set
+                                    {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
                                 </Text>
                             </View>
                         )}
 
-                        {/* Update Location Button */}
-                        <TouchableOpacity
-                            style={[styles.locationButton, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3', borderColor: Colors.primary }]}
-                            onPress={async () => {
-                                try {
-                                    const { requestForegroundPermissionsAsync, getCurrentPositionAsync } = require('expo-location');
-                                    const { status } = await requestForegroundPermissionsAsync();
-                                    if (status !== 'granted') {
-                                        Alert.alert('Permission Denied', 'Location permission is required to update business location');
-                                        return;
-                                    }
-
-                                    setLoading(true);
-                                    const location = await getCurrentPositionAsync({});
-                                    await ApiService.updateLocation(location.coords.latitude, location.coords.longitude);
-
-                                    Alert.alert('Success', 'Business location updated successfully');
-                                    navigation.setParams({ user: { ...user, latitude: location.coords.latitude, longitude: location.coords.longitude } });
-                                } catch (error: any) {
-                                    console.error('Update location error:', error);
-                                    Alert.alert('Error', error.message || 'Failed to update location');
-                                } finally {
-                                    setLoading(false);
-                                }
-                            }}
-                            disabled={loading}
-                        >
-                            <Ionicons name="navigate" size={20} color={Colors.primary} />
-                            <Text style={[styles.locationButtonText, { color: Colors.primary }]}>
-                                Update Location (Use Current)
+                        {!location && (
+                            <Text style={[styles.locationText, { color: Colors.textSecondary, marginBottom: Spacing.md }]}>
+                                No location set
                             </Text>
-                        </TouchableOpacity>
+                        )}
+
+                        {/* Location Buttons */}
+                        <View style={styles.locationButtonsRow}>
+                            <TouchableOpacity
+                                style={[styles.locationButton, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3', borderColor: Colors.primary }]}
+                                onPress={async () => {
+                                    try {
+                                        const { status } = await Location.requestForegroundPermissionsAsync();
+                                        if (status !== 'granted') {
+                                            Alert.alert('Permission Denied', 'Location permission is required');
+                                            return;
+                                        }
+
+                                        setLoading(true);
+                                        const currentLocation = await Location.getCurrentPositionAsync({});
+                                        const newLocation = {
+                                            latitude: currentLocation.coords.latitude,
+                                            longitude: currentLocation.coords.longitude
+                                        };
+                                        setLocation(newLocation);
+                                        await ApiService.updateLocation(newLocation.latitude, newLocation.longitude);
+
+                                        Alert.alert('Success', 'Location updated using GPS');
+                                    } catch (error: any) {
+                                        Alert.alert('Error', error.message || 'Failed to get GPS location');
+                                    } finally {
+                                        setLoading(false);
+                                    }
+                                }}
+                                disabled={loading}
+                            >
+                                <Ionicons name="navigate" size={18} color={Colors.primary} />
+                                <Text style={[styles.locationButtonText, { color: Colors.primary }]}>Use GPS</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.locationButton, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3', borderColor: Colors.primary }]}
+                                onPress={() => setShowMap(true)}
+                                disabled={loading}
+                            >
+                                <Ionicons name="map" size={18} color={Colors.primary} />
+                                <Text style={[styles.locationButtonText, { color: Colors.primary }]}>Pick on Map</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
 
                     {/* Bottom Spacing */}
                     <View style={{ height: 100 }} />
                 </ScrollView>
             </KeyboardAvoidingView>
+
+            {/* Map Picker Modal */}
+            {showMap && (
+                <View style={styles.mapModal}>
+                    <MapView
+                        style={styles.fullMap}
+                        initialRegion={{
+                            latitude: location?.latitude || 17.385,
+                            longitude: location?.longitude || 78.486,
+                            latitudeDelta: 0.01,
+                            longitudeDelta: 0.01,
+                        }}
+                        onPress={(e) => setLocation(e.nativeEvent.coordinate)}
+                    >
+                        {location && <Marker coordinate={location} />}
+                    </MapView>
+
+                    <View style={[styles.mapOverlay, { backgroundColor: Colors.card }]}>
+                        <Text style={[styles.mapInstructions, { color: Colors.textPrimary }]}>
+                            Tap on the map to set your business location
+                        </Text>
+                        <View style={styles.mapButtons}>
+                            <TouchableOpacity
+                                style={[styles.mapButton, { backgroundColor: Colors.textTertiary }]}
+                                onPress={() => setShowMap(false)}
+                            >
+                                <Text style={styles.mapButtonText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.mapButton, { backgroundColor: Colors.primary }]}
+                                onPress={async () => {
+                                    if (location) {
+                                        try {
+                                            setLoading(true);
+                                            await ApiService.updateLocation(location.latitude, location.longitude);
+                                            setShowMap(false);
+                                            Alert.alert('Success', 'Location updated successfully');
+                                        } catch (error: any) {
+                                            Alert.alert('Error', error.message || 'Failed to update location');
+                                        } finally {
+                                            setLoading(false);
+                                        }
+                                    }
+                                }}
+                                disabled={!location || loading}
+                            >
+                                {loading ? (
+                                    <ActivityIndicator color="#fff" size="small" />
+                                ) : (
+                                    <Text style={styles.mapButtonText}>Save Location</Text>
+                                )}
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            )}
 
             {/* Fixed Bottom Button */}
             <View style={[styles.bottomBar, {
@@ -472,6 +546,61 @@ const styles = StyleSheet.create({
         gap: Spacing.xs,
     },
     locationButtonText: {
+        fontSize: Typography.fontSm,
+        fontWeight: Typography.semiBold,
+    },
+    mapPreviewContainer: {
+        marginBottom: Spacing.md,
+    },
+    mapPreview: {
+        width: '100%',
+        height: 200,
+        borderRadius: BorderRadius.md,
+        marginBottom: Spacing.xs,
+    },
+    locationButtonsRow: {
+        flexDirection: 'row',
+        gap: Spacing.sm,
+    },
+    mapModal: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: '#000',
+    },
+    fullMap: {
+        flex: 1,
+    },
+    mapOverlay: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: Spacing.lg,
+        paddingBottom: Platform.OS === 'ios' ? 40 : Spacing.lg,
+        borderTopLeftRadius: BorderRadius.lg,
+        borderTopRightRadius: BorderRadius.lg,
+    },
+    mapInstructions: {
+        fontSize: Typography.fontSm,
+        marginBottom: Spacing.md,
+        textAlign: 'center',
+    },
+    mapButtons: {
+        flexDirection: 'row',
+        gap: Spacing.sm,
+    },
+    mapButton: {
+        flex: 1,
+        paddingVertical: Spacing.md,
+        borderRadius: BorderRadius.md,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    mapButtonText: {
+        color: '#fff',
         fontSize: Typography.fontSm,
         fontWeight: Typography.semiBold,
     },
