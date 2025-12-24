@@ -100,8 +100,101 @@ export default function DashboardScreen({ navigation }: any) {
 
   if (loading) {
     return (
-      <View style={[styles.loading, { backgroundColor: Colors.backgroundSecondary }]}>
-        <ActivityIndicator size="large" color={Colors.primary} />
+      <View style={[styles.container, { backgroundColor: Colors.background }]}>
+        <LinearGradient
+          colors={['#5A9A8E', '#4A7D73', '#3A6A60', '#2A5550']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          locations={[0, 0.4, 0.7, 1]}
+          style={styles.gradientHeader}
+        >
+          <SafeAreaView>
+            <View style={styles.headerTitle}>
+              <Text style={styles.appTitle}>Ekthaa</Text>
+              <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.3)' }} />
+            </View>
+          </SafeAreaView>
+
+          <View style={styles.header}>
+            <View style={styles.headerTop}>
+              <View style={{ width: 120, height: 14, backgroundColor: 'rgba(255,255,255,0.4)', borderRadius: 4 }} />
+            </View>
+            <View style={{ width: 140, height: 36, backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: 6, marginTop: 8 }} />
+            <View style={{ width: 100, height: 12, backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 4, marginTop: 8 }} />
+
+            <View style={styles.statsRow}>
+              <View style={styles.statItem}>
+                <View style={{ width: 60, height: 12, backgroundColor: 'rgba(255,255,255,0.4)', borderRadius: 4, marginBottom: 4 }} />
+                <View style={{ width: 70, height: 16, backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: 4 }} />
+              </View>
+              <View style={styles.statDivider} />
+              <View style={styles.statItem}>
+                <View style={{ width: 60, height: 12, backgroundColor: 'rgba(255,255,255,0.4)', borderRadius: 4, marginBottom: 4 }} />
+                <View style={{ width: 70, height: 16, backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: 4 }} />
+              </View>
+            </View>
+          </View>
+        </LinearGradient>
+
+        <ScrollView style={[styles.content, { backgroundColor: Colors.background }]}>
+          <View style={styles.actionCards}>
+            <TouchableOpacity style={styles.actionCard} activeOpacity={0.7}>
+              <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3' }]}>
+                <Ionicons name="people-outline" size={22} color={Colors.primary} />
+              </View>
+              <View style={{ width: 60, height: 12, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4, marginTop: 8 }} />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.actionCard} activeOpacity={0.7}>
+              <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3' }]}>
+                <Ionicons name="cube-outline" size={22} color={Colors.primary} />
+              </View>
+              <View style={{ width: 60, height: 12, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4, marginTop: 8 }} />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.actionCard} activeOpacity={0.7}>
+              <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3' }]}>
+                <Ionicons name="swap-horizontal-outline" size={22} color={Colors.primary} />
+              </View>
+              <View style={{ width: 60, height: 12, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4, marginTop: 8 }} />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.actionCard} activeOpacity={0.7}>
+              <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3' }]}>
+                <Ionicons name="receipt-outline" size={22} color={Colors.primary} />
+              </View>
+              <View style={{ width: 60, height: 12, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4, marginTop: 8 }} />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.actionCard} activeOpacity={0.7}>
+              <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3' }]}>
+                <Ionicons name="pricetag-outline" size={22} color={Colors.primary} />
+              </View>
+              <View style={{ width: 60, height: 12, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4, marginTop: 8 }} />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.actionCard} activeOpacity={0.7}>
+              <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3' }]}>
+                <Ionicons name="analytics-outline" size={22} color={Colors.primary} />
+              </View>
+              <View style={{ width: 60, height: 12, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4, marginTop: 8 }} />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.actionCard} activeOpacity={0.7}>
+              <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3' }]}>
+                <Ionicons name="qr-code-outline" size={22} color={Colors.primary} />
+              </View>
+              <View style={{ width: 60, height: 12, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4, marginTop: 8 }} />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.actionCard} activeOpacity={0.7}>
+              <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3' }]}>
+                <Ionicons name="share-social-outline" size={22} color={Colors.primary} />
+              </View>
+              <View style={{ width: 60, height: 12, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4, marginTop: 8 }} />
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </View>
     );
   }
