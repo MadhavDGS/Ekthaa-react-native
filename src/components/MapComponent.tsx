@@ -1,7 +1,16 @@
 import React from 'react';
 import { Platform, View, StyleSheet } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
 import { WebView } from 'react-native-webview';
+
+// Conditional import - only load on native platforms (not web)
+let MapView: any;
+let Marker: any;
+
+if (Platform.OS !== 'web') {
+    const RNMaps = require('react-native-maps');
+    MapView = RNMaps.default;
+    Marker = RNMaps.Marker;
+}
 
 interface MapComponentProps {
     latitude: number;
