@@ -411,6 +411,13 @@ export default function ProfileScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    ...Platform.select({
+      web: {
+        maxWidth: 1200,
+        alignSelf: 'center',
+        width: '100%',
+      },
+    }),
   },
   loadingContainer: {
     flex: 1,

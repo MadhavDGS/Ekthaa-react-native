@@ -226,7 +226,7 @@ export default function DashboardScreen({ navigation }: any) {
         style={styles.gradientHeader}
       >
         {/* Seamless Teal Header */}
-        <SafeAreaView>
+        <SafeAreaView style={Platform.OS === 'web' && { paddingTop: 0 }}>
           <View style={styles.headerTitle}>
             <Text style={styles.appTitle}>Ekthaa</Text>
             <TouchableOpacity
