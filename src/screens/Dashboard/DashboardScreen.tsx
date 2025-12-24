@@ -327,16 +327,20 @@ export default function DashboardScreen({ navigation }: any) {
 
         {/* Modern Daily Summary Card */}
         <View style={[styles.modernSummaryCard, { backgroundColor: Colors.card }]}>
-          <Text style={[styles.modernSummaryTitle, { color: Colors.textPrimary }]}>Today's Activity</Text>
-          <Text style={[styles.modernSummarySubtitle, { color: Colors.textSecondary }]}>
-            {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
-          </Text>
+          <View style={styles.summaryTitleRow}>
+            <View>
+              <Text style={[styles.modernSummaryTitle, { color: Colors.textPrimary }]}>Today's Activity</Text>
+              <Text style={[styles.modernSummarySubtitle, { color: Colors.textSecondary }]}>
+                {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+              </Text>
+            </View>
+          </View>
 
           <View style={styles.modernStatsGrid}>
             {/* Transactions Count */}
             <View style={[styles.modernStatCard, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.12)' : '#E8F5F3' }]}>
               <View style={[styles.modernStatIconContainer, { backgroundColor: Colors.primary }]}>
-                <Ionicons name="swap-horizontal" size={20} color="#fff" />
+                <Ionicons name="swap-horizontal" size={16} color="#fff" />
               </View>
               <Text style={[styles.modernStatValue, { color: Colors.primary }]}>
                 {recentTransactions.filter(t => {
@@ -351,7 +355,7 @@ export default function DashboardScreen({ navigation }: any) {
             {/* Credits */}
             <View style={[styles.modernStatCard, { backgroundColor: isDark ? 'rgba(220, 38, 38, 0.12)' : '#FEE2E2' }]}>
               <View style={[styles.modernStatIconContainer, { backgroundColor: '#dc2626' }]}>
-                <Ionicons name="arrow-down" size={20} color="#fff" />
+                <Ionicons name="arrow-down" size={16} color="#fff" />
               </View>
               <Text style={[styles.modernStatValue, { color: '#dc2626' }]}>
                 ₹{recentTransactions.filter(t => {
@@ -366,7 +370,7 @@ export default function DashboardScreen({ navigation }: any) {
             {/* Payments */}
             <View style={[styles.modernStatCard, { backgroundColor: isDark ? 'rgba(34, 197, 94, 0.12)' : '#DCFCE7' }]}>
               <View style={[styles.modernStatIconContainer, { backgroundColor: '#22c55e' }]}>
-                <Ionicons name="arrow-up" size={20} color="#fff" />
+                <Ionicons name="arrow-up" size={16} color="#fff" />
               </View>
               <Text style={[styles.modernStatValue, { color: '#22c55e' }]}>
                 ₹{recentTransactions.filter(t => {
