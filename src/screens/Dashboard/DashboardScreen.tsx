@@ -668,4 +668,112 @@ const styles = StyleSheet.create({
     fontSize: TextScale.listSubtitle,
     fontFamily: Typography.fonts.bold,
   },
+  // Summary Card Styles
+  summaryCard: {
+    marginHorizontal: Spacing.md,
+    marginTop: Spacing.md,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+    ...Platform.select({
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 },
+      android: { elevation: 2 },
+    }),
+  },
+  summaryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    marginBottom: Spacing.md,
+  },
+  summaryTitle: {
+    fontSize: Typography.fontMd,
+    fontWeight: Typography.bold,
+  },
+  summaryStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+  summaryStatItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  summaryStatValue: {
+    fontSize: Typography.fontLg,
+    fontWeight: Typography.bold,
+    marginBottom: 4,
+  },
+  summaryStatLabel: {
+    fontSize: Typography.fontXs,
+    textAlign: 'center',
+  },
+  summaryDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: '#e0e0e0',
+  },
+  // Transaction Styles
+  transactionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.sm,
+    ...Platform.select({
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2 },
+      android: { elevation: 1 },
+    }),
+  },
+  transactionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.md,
+  },
+  transactionInfo: {
+    flex: 1,
+  },
+  transactionCustomer: {
+    fontSize: Typography.fontSm,
+    fontWeight: Typography.semiBold,
+    marginBottom: 2,
+  },
+  transactionDate: {
+    fontSize: Typography.fontXs,
+  },
+  transactionAmount: {
+    alignItems: 'flex-end',
+  },
+  transactionAmountText: {
+    fontSize: Typography.fontMd,
+    fontWeight: Typography.bold,
+    marginBottom: 2,
+  },
+  transactionType: {
+    fontSize: Typography.fontXs,
+  },
+  // FAB Styles
+  fab: {
+    position: 'absolute',
+    right: Spacing.lg,
+    bottom: Spacing.xl,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
+  },
 });
