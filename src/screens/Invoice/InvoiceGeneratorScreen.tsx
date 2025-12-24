@@ -857,4 +857,74 @@ const styles = StyleSheet.create({
         fontSize: Typography.fontSm,
         fontWeight: Typography.bold,
     },
+    // Product Selection Styles
+    productSelectButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: Spacing.sm,
+        borderRadius: BorderRadius.md,
+        borderWidth: 1,
+        marginBottom: Spacing.md,
+        gap: Spacing.xs,
+    },
+    productSelectText: {
+        fontSize: Typography.fontSm,
+        fontWeight: Typography.semiBold,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'flex-end',
+    },
+    modalContent: {
+        height: '80%',
+        borderTopLeftRadius: BorderRadius.xl,
+        borderTopRightRadius: BorderRadius.xl,
+        padding: Spacing.lg,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: Spacing.md,
+    },
+    modalTitle: {
+        fontSize: Typography.fontLg,
+        fontWeight: Typography.bold,
+    },
+    searchInput: {
+        padding: Spacing.md,
+        borderRadius: BorderRadius.md,
+        marginBottom: Spacing.md,
+        fontSize: Typography.fontSm,
+    },
+    productItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: Spacing.md,
+        borderBottomWidth: 1,
+    },
+    productInfo: {
+        flex: 1,
+    },
+    productName: {
+        fontSize: Typography.fontSm,
+        fontWeight: Typography.semiBold,
+        marginBottom: 4,
+    },
+    productDetails: {
+        fontSize: Typography.fontXs,
+    },
+    productPrice: {
+        fontSize: Typography.fontMd,
+        fontWeight: Typography.bold,
+        marginLeft: Spacing.md,
+    },
+    emptyText: {
+        textAlign: 'center',
+        padding: Spacing.xl,
+        fontSize: Typography.fontSm,
+    },
 });
