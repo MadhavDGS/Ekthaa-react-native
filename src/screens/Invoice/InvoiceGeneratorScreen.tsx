@@ -15,6 +15,8 @@ import {
     Alert,
     Platform,
     KeyboardAvoidingView,
+    Modal,
+    FlatList,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getThemedColors, Typography, Spacing, BorderRadius } from '../../constants/theme';
@@ -59,6 +61,9 @@ export default function InvoiceGeneratorScreen({ navigation }: any) {
     const [activeSection, setActiveSection] = useState<InvoiceSection>('buyer');
     const [loading, setLoading] = useState(false);
     const [products, setProducts] = useState<any[]>([]);
+    const [showProductPicker, setShowProductPicker] = useState(false);
+    const [selectedItemIndex, setSelectedItemIndex] = useState<number>(0);
+    const [productSearchQuery, setProductSearchQuery] = useState('');
 
     const [formData, setFormData] = useState<InvoiceFormData>({
         seller_name: '',
@@ -147,6 +152,26 @@ export default function InvoiceGeneratorScreen({ navigation }: any) {
             setFormData(prev => ({ ...prev, items: newItems }));
         }
     };
+
+    const selectProduct = (product: any) => {
+        const newItems = [...formData.items];
+        newItems[selectedItemIndex] = {
+            product_id: product.$id || product.id,
+            description: product.name || '',
+            hsn_code: product.hsn_code || '',
+            quantity: '1',
+            rate: product.price?.toString() || '',
+            unit: product.unit || 'Nos'
+        };
+        setFormData(prev => ({ ...prev, items: newItems }));
+        setShowProductPicker(false);
+        setProductSearchQuery('');
+    };
+
+    const filteredProducts = products.filter(p =>
+        p.name?.toLowerCase().includes(productSearchQuery.toLowerCase()) ||
+        p.hsn_code?.toLowerCase().includes(productSearchQuery.toLowerCase())
+    );
 
     const calculateItemTotal = (item: InvoiceItem) => {
         const qty = parseFloat(item.quantity) || 0;
@@ -425,6 +450,20 @@ export default function InvoiceGeneratorScreen({ navigation }: any) {
                                     )}
                                 </View>
 
+                                {/* Product Selection Button */}
+                                <TouchableOpacity
+                                    style={[styles.productSelectButton, { backgroundColor: Colors.primary + '15', borderColor: Colors.primary }]}
+                                    onPress={() => {
+                                        setSelectedItemIndex(index);
+                                        setShowProductPicker(true);
+                                    }}
+                                >
+                                    <Ionicons name="list-outline" size={16} color={Colors.primary} />
+                                    <Text style={[styles.productSelectText, { color: Colors.primary }]}>
+                                        Select from Products
+                                    </Text>
+                                </TouchableOpacity>
+
                                 <Text style={[styles.label, { color: Colors.textSecondary }]}>Description *</Text>
                                 <TextInput
                                     style={[styles.input, { backgroundColor: isDark ? '#2a2a2a' : '#f5f5f5', color: Colors.textPrimary }]}
@@ -581,6 +620,59 @@ export default function InvoiceGeneratorScreen({ navigation }: any) {
                     )}
                 </TouchableOpacity>
             </View>
+
+            {/* Product Picker Modal */}
+            <Modal
+                visible={showProductPicker}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setShowProductPicker(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: Colors.card }]}>
+                        <View style={styles.modalHeader}>
+                            <Text style={[styles.modalTitle, { color: Colors.textPrimary }]}>Select Product</Text>
+                            <TouchableOpacity onPress={() => setShowProductPicker(false)}>
+                                <Ionicons name="close" size={24} color={Colors.textPrimary} />
+                            </TouchableOpacity>
+                        </View>
+
+                        <TextInput
+                            style={[styles.searchInput, { backgroundColor: isDark ? '#2a2a2a' : '#f5f5f5', color: Colors.textPrimary }]}
+                            placeholder="Search products..."
+                            placeholderTextColor={Colors.textTertiary}
+                            value={productSearchQuery}
+                            onChangeText={setProductSearchQuery}
+                        />
+
+                        <FlatList
+                            data={filteredProducts}
+                            keyExtractor={(item) => item.$id || item.id}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    style={[styles.productItem, { borderBottomColor: Colors.borderLight }]}
+                                    onPress={() => selectProduct(item)}
+                                >
+                                    <View style={styles.productInfo}>
+                                        <Text style={[styles.productName, { color: Colors.textPrimary }]}>{item.name}</Text>
+                                        <Text style={[styles.productDetails, { color: Colors.textSecondary }]}>
+                                            HSN: {item.hsn_code || 'N/A'} • Unit: {item.unit || 'Nos'}
+                                        </Text>
+                                    </View>
+                                    <Text style={[styles.productPrice, { color: Colors.primary }]}>
+                                        ₹{item.price || 0}
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
+                            ListEmptyComponent={
+                                <Text style={[styles.emptyText, { color: Colors.textSecondary }]}>
+                                    No products found
+                                </Text>
+                            }
+                        />
+                    </View>
+                </View>
+            </Modal>
         </KeyboardAvoidingView>
     );
 }
