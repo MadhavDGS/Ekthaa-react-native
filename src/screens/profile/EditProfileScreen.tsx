@@ -17,6 +17,8 @@ import {
     Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as Location from 'expo-location';
+import MapView, { Marker } from 'react-native-maps';
 import { getThemedColors, Typography, Spacing, BorderRadius } from '../../constants/theme';
 import { useTheme } from '../../context/ThemeContext';
 import ApiService from '../../services/api';
@@ -38,6 +40,10 @@ export default function EditProfileScreen({ navigation, route }: any) {
         gst_number: user?.gst_number || '',
     });
     const [loading, setLoading] = useState(false);
+    const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(
+        user?.latitude && user?.longitude ? { latitude: user.latitude, longitude: user.longitude } : null
+    );
+    const [showMap, setShowMap] = useState(false);
 
     const handleInputChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
