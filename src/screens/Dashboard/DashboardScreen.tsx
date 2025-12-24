@@ -668,7 +668,7 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontXs,
     textAlign: 'center',
   },
-  // Remove old summary styl
+  // Transaction Styles (Removed - not used anymore)
   transactionItem: {
     flexDirection: 'row',
     alignItems: 'center',
