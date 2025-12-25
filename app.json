@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Ekthaa-React-Native",
+    "name": "Ekthaa Business",
     "slug": "Ekthaa-React-Native",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -13,7 +13,8 @@
       "backgroundColor": "#5A9A8E"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ekthaa.business"
     },
     "android": {
       "adaptiveIcon": {
@@ -21,11 +22,41 @@
         "backgroundColor": "#5A9A8E"
       },
       "package": "com.ekthaa.business",
+      "versionCode": 1,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES"
+      ],
       "edgeToEdgeEnabled": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Ekthaa Business to use your location to display your business address."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Ekthaa Business to access your photos to upload product images."
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow Ekthaa Business to save images to your photo library.",
+          "savePhotosPermission": "Allow Ekthaa Business to save photos."
+        }
+      ]
+    ],
     "extra": {
       "eas": {
         "projectId": "a7cf2883-1150-4efa-bff3-b5b161a7d1e6"

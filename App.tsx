@@ -36,6 +36,8 @@ import AnalyticsScreen from './src/screens/Business/AnalyticsScreen';
 import ProfileScreen from './src/screens/profile/ProfileScreen';
 import EditProfileScreen from './src/screens/profile/EditProfileScreen';
 import PrivacySecurityScreen from './src/screens/profile/PrivacySecurityScreen';
+import PrivacyPolicyScreen from './src/screens/profile/PrivacyPolicyScreen';
+import TermsOfServiceScreen from './src/screens/profile/TermsOfServiceScreen';
 import { TouchableOpacity, Text } from 'react-native';
 
 // Theme
@@ -329,6 +331,22 @@ function AppContent() {
               component={PrivacySecurityScreen}
               options={{
                 headerTitle: 'Privacy & Security',
+                animation: 'slide_from_right',
+              }}
+            />
+            <Stack.Screen
+              name="PrivacyPolicy"
+              component={PrivacyPolicyScreen}
+              options={{
+                headerShown: false,
+                animation: 'slide_from_right',
+              }}
+            />
+            <Stack.Screen
+              name="TermsOfService"
+              component={TermsOfServiceScreen}
+              options={{
+                headerShown: false,
                 animation: 'slide_from_right',
               }}
             />

@@ -253,7 +253,10 @@ export default function PrivacySecurityScreen({ navigation }: any) {
                         />
                     </View>
 
-                    <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]}>
+                    <TouchableOpacity 
+                        style={[styles.settingCard, { backgroundColor: Colors.card }]}
+                        onPress={() => navigation.navigate('PrivacyPolicy')}
+                    >
                         <View style={[styles.settingIcon, { backgroundColor: isDark ? '#312e81' : 'rgba(99, 102, 241, 0.15)' }]}>
                             <Ionicons name="document-text" size={17} color={isDark ? '#a5b4fc' : '#6366f1'} />
                         </View>
@@ -264,7 +267,10 @@ export default function PrivacySecurityScreen({ navigation }: any) {
                         <Ionicons name="chevron-forward" size={16} color={Colors.textTertiary} />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]}>
+                    <TouchableOpacity 
+                        style={[styles.settingCard, { backgroundColor: Colors.card }]}
+                        onPress={() => navigation.navigate('TermsOfService')}
+                    >
                         <View style={[styles.settingIcon, { backgroundColor: isDark ? '#064e3b' : 'rgba(20, 184, 166, 0.15)' }]}>
                             <Ionicons name="document" size={17} color={isDark ? '#5eead4' : '#14b8a6'} />
                         </View>
