@@ -13,9 +13,13 @@
     },
     "production": {
       "android": {
-        "buildType": "app-bundle"
+        "buildType": "app-bundle",
+        "gradleCommand": ":app:bundleRelease"
       },
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "ANDROID_ENABLE_PROGUARD": "true"
+      }
     }
   },
   "submit": {
