@@ -117,25 +117,38 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
       return;
     }
 
-    const message = `Hi ${customer.name}, this is a payment reminder. Your current balance is ₹${Math.abs(balance).toFixed(0)}. Please clear your dues at your earliest convenience. Thank you!`;
-    const whatsappAppUrl = `whatsapp://send?phone=91${customer.phone_number}&text=${encodeURIComponent(message)}`;
-    const whatsappWebUrl = `https://wa.me/91${customer.phone_number}?text=${encodeURIComponent(message)}`;
+    // Confirmation dialog before sending
+    Alert.alert(
+      'Send Payment Reminder?',
+      `Send WhatsApp reminder to ${customer.name} for ₹${Math.abs(balance).toFixed(0)}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Send',
+          onPress: async () => {
+            const message = `Hi ${customer.name}, this is a payment reminder. Your current balance is ₹${Math.abs(balance).toFixed(0)}. Please clear your dues at your earliest convenience. Thank you!`;
+            const whatsappAppUrl = `whatsapp://send?phone=91${customer.phone_number}&text=${encodeURIComponent(message)}`;
+            const whatsappWebUrl = `https://wa.me/91${customer.phone_number}?text=${encodeURIComponent(message)}`;
 
-    try {
-      const supported = await Linking.canOpenURL(whatsappAppUrl);
-      if (supported) {
-        await Linking.openURL(whatsappAppUrl);
-      } else {
-        await Linking.openURL(whatsappWebUrl);
-      }
-    } catch (error) {
-      console.error('Error opening WhatsApp:', error);
-      try {
-        await Linking.openURL(whatsappWebUrl);
-      } catch (webError) {
-        Alert.alert('Error', 'Failed to open WhatsApp');
-      }
-    }
+            try {
+              const supported = await Linking.canOpenURL(whatsappAppUrl);
+              if (supported) {
+                await Linking.openURL(whatsappAppUrl);
+              } else {
+                await Linking.openURL(whatsappWebUrl);
+              }
+            } catch (error) {
+              console.error('Error opening WhatsApp:', error);
+              try {
+                await Linking.openURL(whatsappWebUrl);
+              } catch (webError) {
+                Alert.alert('Error', 'Failed to open WhatsApp');
+              }
+            }
+          },
+        },
+      ]
+    );
   };
 
   const groupByDate = (txns: Transaction[]) => {

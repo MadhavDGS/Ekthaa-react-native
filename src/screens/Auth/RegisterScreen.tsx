@@ -52,10 +52,7 @@ export default function RegisterScreen({ navigation }: any) {
       setSuccess('Registration successful! Welcome to Ekthaa!');
       
       setTimeout(() => {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Main' }],
-        });
+        navigation.navigate('BusinessDetails');
       }, 1000);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');

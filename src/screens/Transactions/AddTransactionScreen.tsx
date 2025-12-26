@@ -111,8 +111,15 @@ export default function AddTransactionScreen({ route, navigation }: any) {
   };
 
   const handleSaveTransaction = async () => {
-    if (!amount || parseFloat(amount) <= 0) {
-      Alert.alert('Error', 'Please enter a valid amount');
+    const amountValue = parseFloat(amount);
+    
+    if (!amount || amountValue <= 0) {
+      Alert.alert('Error', 'Please enter a valid amount greater than ₹0');
+      return;
+    }
+
+    if (amountValue > 10000000) {
+      Alert.alert('Error', 'Amount cannot exceed ₹1,00,00,000');
       return;
     }
 
@@ -286,7 +293,7 @@ export default function AddTransactionScreen({ route, navigation }: any) {
               activeOpacity={0.9}
             >
               <LinearGradient
-                colors={!amount || loading ? ['#9ca3af', '#6b7280'] : gradientColors}
+                colors={(!amount || loading ? ['#9ca3af', '#6b7280'] : gradientColors) as [string, string, ...string[]]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.saveButton}

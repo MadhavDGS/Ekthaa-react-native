@@ -15,6 +15,7 @@ import {
   RefreshControl,
   ScrollView,
   Image,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -42,11 +43,11 @@ export default function ProductsScreen({ navigation }: any) {
     useCallback(() => {
       const now = Date.now();
       const fiveMinutes = 5 * 60 * 1000;
-      // Only fetch if data is stale (5+ minutes old) or doesn't exist
-      if (!products.length || now - lastFetch > fiveMinutes) {
+      // Only fetch if data is stale (5+ minutes old) or hasn't been fetched yet
+      if (lastFetch === 0 || now - lastFetch > fiveMinutes) {
         loadProducts();
       }
-    }, [products.length, lastFetch])
+    }, [lastFetch])
   );
 
   useEffect(() => {
@@ -117,6 +118,7 @@ export default function ProductsScreen({ navigation }: any) {
       loadProducts();
     } catch (error) {
       console.error('❌ Failed to update stock:', error);
+      Alert.alert('Error', 'Failed to update stock quantity. Please try again.');
     }
   };
 

@@ -220,6 +220,11 @@ export default function InvoiceGeneratorScreen({ navigation }: any) {
             // Call API to generate PDF
             const pdfPath = await ApiService.generateInvoice(formData);
 
+            // Validate pdfPath before navigation
+            if (!pdfPath) {
+                throw new Error('Failed to generate PDF');
+            }
+
             // Navigate to preview screen
             navigation.navigate('InvoicePreview', {
                 pdfPath: pdfPath,

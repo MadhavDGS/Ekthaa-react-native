@@ -15,10 +15,14 @@ import {
     ScrollView,
     ActivityIndicator,
     Alert,
+    Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
-import MapComponent from '../../components/MapComponent';
+import MapView, { Marker } from 'react-native-maps';
 import { getThemedColors, Typography, Spacing, BorderRadius } from '../../constants/theme';
 import { useTheme } from '../../context/ThemeContext';
 import ApiService from '../../services/api';
@@ -40,13 +44,111 @@ export default function EditProfileScreen({ navigation, route }: any) {
         gst_number: user?.gst_number || '',
     });
     const [loading, setLoading] = useState(false);
+    const [profilePhoto, setProfilePhoto] = useState<string | null>(user?.profile_photo_url || null);
+    const [uploadingPhoto, setUploadingPhoto] = useState(false);
     const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(
         user?.latitude && user?.longitude ? { latitude: user.latitude, longitude: user.longitude } : null
     );
     const [showMap, setShowMap] = useState(false);
 
+    // Reload profile data when screen is focused to get latest photo
+    useFocusEffect(
+        React.useCallback(() => {
+            const loadLatestProfile = async () => {
+                try {
+                    const data = await ApiService.getProfile();
+                    if (data.business) {
+                        setProfilePhoto(data.business.profile_photo_url || null);
+                        setFormData({
+                            name: data.business.name || '',
+                            phone_number: data.business.phone_number || '',
+                            email: data.business.email || '',
+                            address: data.business.address || '',
+                            city: data.business.city || '',
+                            state: data.business.state || '',
+                            pincode: data.business.pincode || '',
+                            gst_number: data.business.gst_number || '',
+                        });
+                        if (data.business.latitude && data.business.longitude) {
+                            setLocation({
+                                latitude: data.business.latitude,
+                                longitude: data.business.longitude
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading latest profile:', error);
+                }
+            };
+            loadLatestProfile();
+        }, [])
+    );
+
     const handleInputChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const pickImage = async () => {
+        try {
+            // Request permission
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert('Permission Denied', 'Sorry, we need camera roll permissions to upload photos.');
+                return;
+            }
+
+            // Launch image picker
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [1, 1],
+                quality: 0.8,
+            });
+
+            if (!result.canceled && result.assets[0]) {
+                const photoUri = result.assets[0].uri;
+                setProfilePhoto(photoUri);
+                
+                // Upload immediately
+                await uploadProfilePhoto(photoUri);
+            }
+        } catch (error) {
+            console.error('Error picking image:', error);
+            Alert.alert('Error', 'Failed to pick image');
+        }
+    };
+
+    const uploadProfilePhoto = async (photoUri: string) => {
+        try {
+            setUploadingPhoto(true);
+            const response = await ApiService.uploadProfilePhoto(photoUri);
+            console.log('✅ Photo upload response:', response);
+            
+            // Backend returns 'photo_url' not 'profile_photo_url'
+            const photoUrl = response.photo_url || response.profile_photo_url;
+            if (photoUrl) {
+                setProfilePhoto(photoUrl);
+                console.log('✅ Updated profilePhoto state to:', photoUrl);
+                
+                // Also update AsyncStorage immediately so ProfileScreen can see it
+                const userData = await AsyncStorage.getItem('userData');
+                if (userData) {
+                    const parsedData = JSON.parse(userData);
+                    parsedData.profile_photo_url = photoUrl;
+                    await AsyncStorage.setItem('userData', JSON.stringify(parsedData));
+                    console.log('✅ Updated AsyncStorage with new photo URL');
+                }
+            }
+            
+            Alert.alert('Success', 'Profile photo updated successfully');
+        } catch (error: any) {
+            console.error('Upload photo error:', error);
+            Alert.alert('Error', error.response?.data?.error || 'Failed to upload photo');
+            // Reset photo on error
+            setProfilePhoto(user?.profile_photo_url || null);
+        } finally {
+            setUploadingPhoto(false);
+        }
     };
 
     const handleSave = async () => {
@@ -90,6 +192,48 @@ export default function EditProfileScreen({ navigation, route }: any) {
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
                 >
+                    {/* Profile Photo Section */}
+                    <View style={[styles.section, { backgroundColor: Colors.card }]}>
+                        <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>
+                            Profile Photo
+                        </Text>
+                        
+                        <View style={styles.photoContainer}>
+                            <TouchableOpacity
+                                style={[styles.photoUpload, { borderColor: Colors.borderLight }]}
+                                onPress={pickImage}
+                                disabled={uploadingPhoto}
+                            >
+                                {profilePhoto ? (
+                                    <Image
+                                        source={{ uri: profilePhoto }}
+                                        style={styles.profileImage}
+                                    />
+                                ) : (
+                                    <View style={[styles.photoPlaceholder, { backgroundColor: Colors.primary + '15' }]}>
+                                        <Ionicons name="camera" size={40} color={Colors.primary} />
+                                    </View>
+                                )}
+                                {uploadingPhoto && (
+                                    <View style={styles.uploadingOverlay}>
+                                        <ActivityIndicator size="large" color={Colors.primary} />
+                                    </View>
+                                )}
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.changePhotoButton, { backgroundColor: Colors.primary }]}
+                                onPress={pickImage}
+                                disabled={uploadingPhoto}
+                                activeOpacity={0.7}
+                            >
+                                <Ionicons name="camera" size={16} color="#fff" />
+                                <Text style={styles.changePhotoText}>
+                                    {profilePhoto ? 'Change Photo' : 'Upload Photo'}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
                     {/* Business Information Section */}
                     <View style={[styles.section, { backgroundColor: Colors.card }]}>
                         <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>
@@ -602,6 +746,51 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     mapButtonText: {
+        color: '#fff',
+        fontSize: Typography.fontSm,
+        fontWeight: Typography.semiBold,
+    },
+    photoContainer: {
+        alignItems: 'center',
+        marginBottom: Spacing.md,
+    },
+    photoUpload: {
+        width: 140,
+        height: 140,
+        borderRadius: 70,
+        borderWidth: 3,
+        overflow: 'hidden',
+        marginBottom: Spacing.md,
+    },
+    profileImage: {
+        width: '100%',
+        height: '100%',
+    },
+    photoPlaceholder: {
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    uploadingOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    changePhotoButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: Spacing.lg,
+        paddingVertical: Spacing.sm,
+        borderRadius: BorderRadius.md,
+        gap: Spacing.xs,
+    },
+    changePhotoText: {
         color: '#fff',
         fontSize: Typography.fontSm,
         fontWeight: Typography.semiBold,

@@ -41,10 +41,11 @@ export default function TransactionsScreen({ navigation }: any) {
     useCallback(() => {
       const now = Date.now();
       const fiveMinutes = 5 * 60 * 1000;
-      if (!transactions.length || now - lastFetch > fiveMinutes) {
+      // Only fetch if data is stale (5+ minutes old) or hasn't been fetched yet
+      if (lastFetch === 0 || now - lastFetch > fiveMinutes) {
         loadTransactions();
       }
-    }, [transactions.length, lastFetch])
+    }, [lastFetch])
   );
 
   useEffect(() => {
@@ -287,7 +288,17 @@ export default function TransactionsScreen({ navigation }: any) {
           <View style={styles.emptyContainer}>
             <Ionicons name="receipt-outline" size={64} color={Colors.textTertiary} />
             <Text style={[styles.emptyTitle, { color: Colors.textPrimary }]}>No Transactions</Text>
-            <Text style={[styles.emptyText, { color: Colors.textSecondary }]}>Transactions will appear here</Text>
+            <Text style={[styles.emptyText, { color: Colors.textSecondary }]}>
+              Transactions will appear here
+            </Text>
+            {!transactions.length && (
+              <TouchableOpacity
+                onPress={() => navigation.navigate('AddTransaction')}
+                style={{ marginTop: 20, backgroundColor: Colors.primary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 8 }}
+              >
+                <Text style={{ color: '#ffffff', fontSize: 16, fontWeight: '600' }}>Add First Transaction</Text>
+              </TouchableOpacity>
+            )}
           </View>
         }
       />

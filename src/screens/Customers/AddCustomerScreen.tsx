@@ -71,6 +71,7 @@ export default function AddCustomerScreen({ navigation }: any) {
           style={styles.content}
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
           showsVerticalScrollIndicator={false}
         >
           {/* <View style={styles.header}>

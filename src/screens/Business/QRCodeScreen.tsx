@@ -130,7 +130,7 @@ export default function QRCodeScreen({ navigation }: any) {
 
       // Convert base64 to file
       const filename = `ekthaa-qr-${Date.now()}.png`;
-      const fileUri = FileSystem.cacheDirectory + filename;
+      const fileUri = FileSystem.cacheDirectory ? `${FileSystem.cacheDirectory}${filename}` : `${filename}`;
       
       // Remove data:image/png;base64, prefix if present
       const base64Code = qrImageData.split(',')[1] || qrImageData;

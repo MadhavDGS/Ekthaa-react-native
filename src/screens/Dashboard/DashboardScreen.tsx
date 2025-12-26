@@ -3,7 +3,7 @@
 * 4-column grid like real payment apps
 */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -31,17 +31,50 @@ export default function DashboardScreen({ navigation }: any) {
   const Colors = getThemedColors(isDark);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [summary, setSummary] = useState<any>(null);
   const [businessName, setBusinessName] = useState('Business Account');
   const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
 
+  // Memoize today's transaction calculations - MUST be before conditional returns
+  const todayStats = useMemo(() => {
+    const today = new Date().toDateString();
+    const todayTxns = recentTransactions.filter(t => {
+      const txDate = new Date(t.created_at || t.$createdAt).toDateString();
+      return today === txDate;
+    });
+
+    return {
+      count: todayTxns.length,
+      credits: todayTxns
+        .filter(t => t.type === 'credit')
+        .reduce((sum, t) => sum + (t.amount || 0), 0),
+      payments: todayTxns
+        .filter(t => t.type === 'payment')
+        .reduce((sum, t) => sum + (t.amount || 0), 0),
+    };
+  }, [recentTransactions]);
+
   useEffect(() => {
+    let isMounted = true;
+
     // Hide header for seamless gradient
     navigation.setOptions({
       headerShown: false,
     });
-    loadDashboard();
-    loadBusinessName();
+
+    const loadData = async () => {
+      if (isMounted) {
+        await loadDashboard();
+        await loadBusinessName();
+      }
+    };
+
+    loadData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const loadBusinessName = async () => {
@@ -103,6 +136,7 @@ export default function DashboardScreen({ navigation }: any) {
       }
     } catch (error) {
       console.error('❌ Dashboard error:', error);
+      setError('Failed to load dashboard. Please try again.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -167,13 +201,6 @@ export default function DashboardScreen({ navigation }: any) {
 
             <TouchableOpacity style={styles.actionCard} activeOpacity={0.7}>
               <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3' }]}>
-                <Ionicons name="swap-horizontal-outline" size={22} color={Colors.primary} />
-              </View>
-              <View style={{ width: 60, height: 12, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4, marginTop: 8 }} />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.actionCard} activeOpacity={0.7}>
-              <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3' }]}>
                 <Ionicons name="receipt-outline" size={22} color={Colors.primary} />
               </View>
               <View style={{ width: 60, height: 12, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4, marginTop: 8 }} />
@@ -181,28 +208,14 @@ export default function DashboardScreen({ navigation }: any) {
 
             <TouchableOpacity style={styles.actionCard} activeOpacity={0.7}>
               <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3' }]}>
-                <Ionicons name="pricetag-outline" size={22} color={Colors.primary} />
+                <Ionicons name="person-add-outline" size={22} color={Colors.primary} />
               </View>
               <View style={{ width: 60, height: 12, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4, marginTop: 8 }} />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.actionCard} activeOpacity={0.7}>
               <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3' }]}>
-                <Ionicons name="analytics-outline" size={22} color={Colors.primary} />
-              </View>
-              <View style={{ width: 60, height: 12, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4, marginTop: 8 }} />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.actionCard} activeOpacity={0.7}>
-              <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3' }]}>
-                <Ionicons name="qr-code-outline" size={22} color={Colors.primary} />
-              </View>
-              <View style={{ width: 60, height: 12, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4, marginTop: 8 }} />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.actionCard} activeOpacity={0.7}>
-              <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3' }]}>
-                <Ionicons name="share-social-outline" size={22} color={Colors.primary} />
+                <Ionicons name="document-text-outline" size={22} color={Colors.primary} />
               </View>
               <View style={{ width: 60, height: 12, backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', borderRadius: 4, marginTop: 8 }} />
             </TouchableOpacity>
@@ -215,6 +228,25 @@ export default function DashboardScreen({ navigation }: any) {
   // Use correct field names from API: summary.total_credit and summary.total_payment
   const summaryData = summary?.summary || summary;
   const netBalance = (summaryData?.total_credit || 0) - (summaryData?.total_payment || 0);
+
+  // Error state UI
+  if (error && !loading) {
+    return (
+      <View style={[styles.container, { backgroundColor: Colors.background, justifyContent: 'center', alignItems: 'center', padding: 20 }]}>
+        <Ionicons name="alert-circle-outline" size={64} color={Colors.textSecondary} />
+        <Text style={{ color: Colors.textPrimary, marginTop: 16, fontSize: 18, textAlign: 'center', fontWeight: '600' }}>{error}</Text>
+        <TouchableOpacity
+          onPress={() => {
+            setError(null);
+            loadDashboard();
+          }}
+          style={{ marginTop: 20, backgroundColor: Colors.primary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 8 }}
+        >
+          <Text style={{ color: '#ffffff', fontSize: 16, fontWeight: '600' }}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: Colors.background }]}>
@@ -343,11 +375,7 @@ export default function DashboardScreen({ navigation }: any) {
                 <Ionicons name="swap-horizontal" size={16} color="#fff" />
               </View>
               <Text style={[styles.modernStatValue, { color: Colors.primary }]}>
-                {recentTransactions.filter(t => {
-                  const today = new Date().toDateString();
-                  const txDate = new Date(t.created_at || t.$createdAt).toDateString();
-                  return today === txDate;
-                }).length}
+                {todayStats.count}
               </Text>
               <Text style={[styles.modernStatLabel, { color: Colors.textSecondary }]}>Transactions</Text>
             </View>
@@ -358,11 +386,7 @@ export default function DashboardScreen({ navigation }: any) {
                 <Ionicons name="arrow-down" size={16} color="#fff" />
               </View>
               <Text style={[styles.modernStatValue, { color: '#dc2626' }]}>
-                ₹{recentTransactions.filter(t => {
-                  const today = new Date().toDateString();
-                  const txDate = new Date(t.created_at || t.$createdAt).toDateString();
-                  return today === txDate && t.type === 'credit';
-                }).reduce((sum, t) => sum + (t.amount || 0), 0).toLocaleString('en-IN')}
+                ₹{todayStats.credits.toLocaleString('en-IN')}
               </Text>
               <Text style={[styles.modernStatLabel, { color: Colors.textSecondary }]}>Credits</Text>
             </View>
@@ -373,11 +397,7 @@ export default function DashboardScreen({ navigation }: any) {
                 <Ionicons name="arrow-up" size={16} color="#fff" />
               </View>
               <Text style={[styles.modernStatValue, { color: '#22c55e' }]}>
-                ₹{recentTransactions.filter(t => {
-                  const today = new Date().toDateString();
-                  const txDate = new Date(t.created_at || t.$createdAt).toDateString();
-                  return today === txDate && t.type === 'payment';
-                }).reduce((sum, t) => sum + (t.amount || 0), 0).toLocaleString('en-IN')}
+                ₹{todayStats.payments.toLocaleString('en-IN')}
               </Text>
               <Text style={[styles.modernStatLabel, { color: Colors.textSecondary }]}>Payments</Text>
             </View>
@@ -466,8 +486,6 @@ const styles = StyleSheet.create({
   },
   appTitle: {
     fontSize: 20,
-    fontFamily: Typography.fonts.bold,
-    fontSize: 18,
     fontWeight: '800',
     color: '#ffffff',
     letterSpacing: 0.5,

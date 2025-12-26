@@ -26,9 +26,16 @@ class ApiService {
     // Request interceptor to add auth token
     this.api.interceptors.request.use(
       async (config) => {
-        console.log('📡 Request URL:', (config.baseURL || '') + (config.url || ''));
-        console.log('📡 Request Method:', config.method);
-        console.log('📡 Request Data:', config.data);
+        if (__DEV__) {
+          console.log('📡 Request URL:', config.url);
+          console.log('📡 Request Method:', config.method);
+          // Don't log sensitive data like passwords
+          if (config.url?.includes('/login') || config.url?.includes('/register')) {
+            console.log('📡 Request Data: [REDACTED - Auth endpoint]');
+          } else {
+            console.log('📡 Request Data:', config.data);
+          }
+        }
         const token = await AsyncStorage.getItem('authToken');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
@@ -46,7 +53,8 @@ class ApiService {
       (response) => response,
       async (error: AxiosError) => {
         if (error.response?.status === 401) {
-          // Token expired or invalid
+          // Token expired or invalid - clear auth data
+          // Note: Navigation to login handled by App.tsx auth check
           await AsyncStorage.removeItem('authToken');
           await AsyncStorage.removeItem('userData');
         }
@@ -268,6 +276,28 @@ class ApiService {
 
   async regeneratePin() {
     const response = await this.api.post(API_ENDPOINTS.REGENERATE_PIN);
+    return response.data;
+  }
+
+  async uploadProfilePhoto(photoUri: string) {
+    const formData = new FormData();
+    
+    // Create file object from URI
+    const filename = photoUri.split('/').pop() || 'profile.jpg';
+    const match = /\.(\w+)$/.exec(filename);
+    const type = match ? `image/${match[1]}` : 'image/jpeg';
+    
+    formData.append('profile_photo', {
+      uri: photoUri,
+      name: filename,
+      type: type,
+    } as any);
+    
+    const response = await this.api.post(API_ENDPOINTS.UPLOAD_PROFILE_PHOTO, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   }
 

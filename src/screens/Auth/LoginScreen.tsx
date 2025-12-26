@@ -56,8 +56,6 @@ export default function LoginScreen({ navigation }: any) {
 
       // Small delay to show success message, then trigger re-render
       setTimeout(() => {
-        // Force re-render by navigating to a dummy route and back
-        // This will trigger the auth check in App.tsx
         setLoading(false);
         // The App.tsx will automatically navigate to Main when it detects the token
       }, 500);
@@ -65,6 +63,8 @@ export default function LoginScreen({ navigation }: any) {
       console.error('❌ Login error:', err);
       setError(err.message || 'Login failed. Please check your credentials.');
       setLoading(false);
+      // Ensure UI is unlocked on error
+      setTimeout(() => setError(''), 5000);
     }
   };
 
@@ -93,8 +93,8 @@ export default function LoginScreen({ navigation }: any) {
           <View style={[styles.loginCard, { backgroundColor: Colors.card }]}>
             {/* Header */}
             <View style={styles.cardHeader}>
-              <Text style={[styles.heading1, { color: Colors.textPrimary }]}>Login to Access Your</Text>
-              <Text style={[styles.heading2, { color: Colors.primary }]}>Credit Book</Text>
+              <Text style={[styles.heading1, { color: Colors.textPrimary }]}>Login into</Text>
+              <Text style={[styles.heading2, { color: Colors.primary }]}>Ekthaa</Text>
             </View>
 
             {/* Error Message */}

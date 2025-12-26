@@ -4,7 +4,14 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Platform, ActivityIndicator, View, AppState } from 'react-native';
+import { Platform, UIManager, ActivityIndicator, View, AppState } from 'react-native';
+
+// Enable hardware acceleration on Android for better performance on MediaTek/Snapdragon
+if (Platform.OS === 'android') {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
+}
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -19,6 +26,7 @@ import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 // Screens
 import LoginScreen from './src/screens/Auth/LoginScreen';
 import RegisterScreen from './src/screens/Auth/RegisterScreen';
+import BusinessDetailsScreen from './src/screens/Auth/BusinessDetailsScreen';
 import DashboardScreen from './src/screens/Dashboard/DashboardScreen';
 import CustomersScreen from './src/screens/Customers/CustomersScreen';
 import CustomerDetailsScreen from './src/screens/Customers/CustomerDetailsScreen';
@@ -73,6 +81,15 @@ function MainTabs() {
           </Text>
         ),
         headerTitle: '',
+        headerRight: () => (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Profile')}
+            activeOpacity={0.7}
+            style={{ marginRight: 13 }}
+          >
+            <Ionicons name="person-circle-outline" size={28} color="#fff" />
+          </TouchableOpacity>
+        ),
 
         tabBarStyle: {
           backgroundColor: Colors.card,
@@ -103,8 +120,8 @@ function MainTabs() {
             case 'Transactions':
               iconName = focused ? 'receipt' : 'receipt-outline';
               break;
-            case 'Profile':
-              iconName = focused ? 'person' : 'person-outline';
+            case 'Offers':
+              iconName = focused ? 'pricetag' : 'pricetag-outline';
               break;
           }
 
@@ -120,8 +137,8 @@ function MainTabs() {
       />
       <Tab.Screen name="Transactions" component={TransactionsScreen} />
       <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
+        name="Offers"
+        component={OffersScreen}
       />
     </Tab.Navigator>
   );
@@ -242,6 +259,11 @@ function AppContent() {
             <Stack.Screen
               name="Register"
               component={RegisterScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="BusinessDetails"
+              component={BusinessDetailsScreen}
               options={{ headerShown: false }}
             />
           </>

@@ -62,7 +62,7 @@ export const listStyles = StyleSheet.create({
     padding: ListItemScale.padding,
     borderRadius: RadiusScale.card,
     gap: ListItemScale.gap,
-    ...Platform.select(ShadowScale.card),
+    ...(Platform.select(ShadowScale.card) as any),
   },
   itemCompact: {
     flexDirection: 'row',
@@ -106,7 +106,7 @@ export const actionCardStyles = StyleSheet.create({
     borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    ...Platform.select(ShadowScale.actionCard),
+    ...(Platform.select(ShadowScale.actionCard) as any),
   },
   label: {
     fontSize: TextScale.cardLabel,

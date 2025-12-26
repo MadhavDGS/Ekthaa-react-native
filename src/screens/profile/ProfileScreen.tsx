@@ -16,6 +16,7 @@ import {
   Switch,
   Share,
   Platform,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -46,13 +47,19 @@ export default function ProfileScreen({ navigation }: any) {
     try {
       const userData = await AsyncStorage.getItem('userData');
       if (userData) {
-        setUser(JSON.parse(userData));
+        const parsed = JSON.parse(userData);
+        console.log('📱 Profile from AsyncStorage:', parsed);
+        console.log('📸 Photo URL from AsyncStorage:', parsed.profile_photo_url);
+        setUser(parsed);
       }
       const data = await ApiService.getProfile();
       console.log('📡 Profile API response:', JSON.stringify(data, null, 2));
       // Backend returns { business: {...} }, not { user: {...} }
       if (data.business) {
+        console.log('📸 Photo URL from API:', data.business.profile_photo_url);
         setUser(data.business);
+        // Save updated profile to AsyncStorage
+        await AsyncStorage.setItem('userData', JSON.stringify(data.business));
       }
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -175,11 +182,24 @@ export default function ProfileScreen({ navigation }: any) {
       >
         {/* Profile Header (Minimal) */}
         <View style={styles.profileHeader}>
-          <View style={[styles.avatarLarge, { backgroundColor: Colors.primary }]}>
-            <Text style={[styles.avatarLargeText, { color: '#fff' }]}>
-              {user?.name?.charAt(0).toUpperCase() || 'B'}
-            </Text>
-          </View>
+          {(() => {
+            console.log('🖼️ Rendering profile photo, URL:', user?.profile_photo_url);
+            console.log('🖼️ User object:', JSON.stringify(user, null, 2));
+            return user?.profile_photo_url ? (
+              <Image
+                source={{ uri: user.profile_photo_url }}
+                style={styles.avatarLarge}
+                onError={(e) => console.error('❌ Image load error:', e.nativeEvent.error)}
+                onLoad={() => console.log('✅ Image loaded successfully')}
+              />
+            ) : (
+              <View style={[styles.avatarLarge, { backgroundColor: Colors.primary }]}>
+                <Text style={[styles.avatarLargeText, { color: '#fff' }]}>
+                  {user?.name?.charAt(0).toUpperCase() || 'B'}
+                </Text>
+              </View>
+            );
+          })()}
           <Text style={[styles.businessName, { color: Colors.textPrimary }]}>{user?.name || 'Business Name'}</Text>
           <View style={styles.phoneRow}>
             <Ionicons name="call" size={12} color={Colors.textSecondary} />
@@ -366,7 +386,7 @@ export default function ProfileScreen({ navigation }: any) {
             <Ionicons name="chevron-forward" size={16} color={Colors.textTertiary} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]} onPress={() => Alert.alert('Support', 'Email: support@ekthaa.com\nPhone: +91 98765 43210')}>
+          <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]} onPress={() => Alert.alert('Support', 'Email: Support@ekthaa.app\nPhone: 6305964802')}>
             <View style={[styles.settingIcon, { backgroundColor: isDark ? '#064e3b' : 'rgba(20, 184, 166, 0.15)' }]}>
               <Ionicons name="help-circle" size={17} color={isDark ? '#5eead4' : '#14b8a6'} />
             </View>

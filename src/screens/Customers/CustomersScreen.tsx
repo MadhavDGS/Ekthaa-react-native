@@ -15,6 +15,7 @@ import {
   Platform,
   RefreshControl,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -39,17 +40,30 @@ export default function CustomersScreen({ navigation }: any) {
 
   useFocusEffect(
     useCallback(() => {
+      let isMounted = true;
       const now = Date.now();
       const fiveMinutes = 5 * 60 * 1000;
-      // Only fetch if data is stale (5+ minutes old) or doesn't exist
-      if (!customers.length || now - lastFetch > fiveMinutes) {
-        loadCustomers();
+      
+      // Only fetch if data is stale (5+ minutes old) or hasn't been fetched yet
+      if (lastFetch === 0 || now - lastFetch > fiveMinutes) {
+        if (isMounted) {
+          loadCustomers();
+        }
       }
-    }, [customers.length, lastFetch])
+
+      return () => {
+        isMounted = false;
+      };
+    }, [lastFetch])
   );
 
   useEffect(() => {
-    filterCustomers();
+    // Debounce search to avoid excessive filtering
+    const timer = setTimeout(() => {
+      filterCustomers();
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, [searchQuery, customers]);
 
   const loadCustomers = async () => {
@@ -62,6 +76,7 @@ export default function CustomersScreen({ navigation }: any) {
       setLastFetch(Date.now());
     } catch (error) {
       console.error('❌ Load customers error:', error);
+      Alert.alert('Error', 'Failed to load customers. Please pull to refresh and try again.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -167,6 +182,10 @@ export default function CustomersScreen({ navigation }: any) {
             tintColor={Colors.primary}
           />
         }
+        maxToRenderPerBatch={10}
+        windowSize={10}
+        removeClippedSubviews={true}
+        initialNumToRender={15}
         ListEmptyComponent={
           <View style={styles.empty}>
             <Ionicons name="people-outline" size={46} color={Colors.textTertiary} />
