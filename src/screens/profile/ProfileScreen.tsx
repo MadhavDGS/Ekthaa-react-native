@@ -18,11 +18,11 @@ import {
   Platform,
   Image,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import MapComponent from '../../components/MapComponent';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
 import { useTheme } from '../../context/ThemeContext';
 import { SkeletonHeader, SkeletonCard } from '../../components/Skeletons';
@@ -83,12 +83,13 @@ export default function ProfileScreen({ navigation }: any) {
         onPress: async () => {
           try {
             await ApiService.logout();
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Login' }],
-            });
+            // Clear auth token - the app will automatically redirect to Login
+            await AsyncStorage.removeItem('authToken');
+            // The App.tsx checkAuth will detect the missing token and show Login screen
           } catch (error) {
             console.error('Logout error:', error);
+            // Even if logout API fails, clear local token
+            await AsyncStorage.removeItem('authToken');
           }
         },
       },
