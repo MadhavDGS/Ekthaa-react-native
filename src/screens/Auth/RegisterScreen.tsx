@@ -496,6 +496,21 @@ export default function RegisterScreen({ navigation }: any) {
       if (facebook) updateData.facebook = facebook;
       if (instagram) updateData.instagram = instagram;
 
+      // Upload profile photo if selected
+      if (profilePhoto) {
+        try {
+          console.log('📸 Uploading profile photo:', profilePhoto);
+          const photoResponse = await ApiService.uploadProfilePhoto(profilePhoto);
+          console.log('📸 Photo upload response:', photoResponse);
+          if (photoResponse.profile_photo_url) {
+            updateData.profile_photo_url = photoResponse.profile_photo_url;
+          }
+        } catch (photoError) {
+          console.error('Photo upload error:', photoError);
+          // Continue even if photo upload fails
+        }
+      }
+
       if (Object.keys(updateData).length > 0) {
         await ApiService.updateProfile(updateData);
       }
