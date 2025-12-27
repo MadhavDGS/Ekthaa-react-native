@@ -36,7 +36,15 @@
         "android.permission.READ_MEDIA_AUDIO"
       ],
       "softwareKeyboardLayoutMode": "pan",
-      "hardwareAccelerated": true
+      "hardwareAccelerated": true,
+      "statusBar": {
+        "backgroundColor": "#5A9A8E",
+        "barStyle": "light-content",
+        "translucent": false
+      },
+      "navigationBar": {
+        "backgroundColor": "#ffffff"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"

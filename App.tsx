@@ -236,7 +236,11 @@ function AppContent() {
 
   return (
     <NavigationContainer theme={navigationTheme}>
-      <StatusBar style={isDark ? 'light' : 'light'} />
+      <StatusBar 
+        style={isDark ? 'light' : 'light'} 
+        backgroundColor="#5A9A8E"
+        translucent={false}
+      />
       <Stack.Navigator
         screenOptions={{
           headerStyle: {
