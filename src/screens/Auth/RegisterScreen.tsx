@@ -607,7 +607,11 @@ export default function RegisterScreen({ navigation }: any) {
                   onPress={handleProfilePhotoPick}
                 >
                   {profilePhoto ? (
-                    <Image source={{ uri: profilePhoto }} style={styles.profilePhotoPreview} />
+                    <Image 
+                      source={{ uri: profilePhoto }} 
+                      style={styles.profilePhotoPreview}
+                      resizeMode="cover"
+                    />
                   ) : (
                     <>
                       <Ionicons name="camera" size={32} color={Colors.textTertiary} />
@@ -832,8 +836,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   profilePhotoPreview: {
-    width: '100%',
-    height: '100%',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
   },
   photoButtonText: {
     fontSize: Typography.fontSm,
