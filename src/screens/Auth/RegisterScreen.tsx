@@ -527,4 +527,40 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSm,
     fontWeight: Typography.semiBold,
   },
+  sectionDivider: {
+    marginTop: Spacing.space4,
+    marginBottom: Spacing.space3,
+  },
+  sectionTitle: {
+    fontSize: Typography.fontSm,
+    fontWeight: Typography.semiBold,
+    textAlign: 'center',
+  },
+  rowInputs: {
+    flexDirection: 'row',
+    gap: Spacing.space3,
+    marginBottom: Spacing.space3,
+  },
+  halfInputContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.space3,
+    paddingVertical: Spacing.space4,
+    gap: 8,
+  },
+  textAreaContainer: {
+    alignItems: 'flex-start',
+    minHeight: 80,
+  },
+  textAreaIcon: {
+    marginTop: Spacing.space1,
+  },
+  textArea: {
+    minHeight: 60,
+    textAlignVertical: 'top',
+    paddingTop: 0,
+  },
 });
