@@ -1,6 +1,6 @@
 /**
- * Register Screen
- * Business registration matching web app design
+ * Register Screen - Multi-Step Registration
+ * Step-by-step business registration with Next/Skip options
  */
 
 import React, { useState } from 'react';
@@ -13,27 +13,51 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   ActivityIndicator,
+  Animated,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
 import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
-import { AvatarSizes, IconSizes } from '../../constants/scales';
+import { AvatarSizes } from '../../constants/scales';
 import { useTheme } from '../../context/ThemeContext';
 import ApiService from '../../services/api';
+
+interface Step {
+  id: string;
+  title: string;
+  subtitle: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  placeholder: string;
+  value: string;
+  setValue: (value: string) => void;
+  keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'url';
+  maxLength?: number;
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  multiline?: boolean;
+  secureTextEntry?: boolean;
+  validation?: (value: string) => string | null;
+  required?: boolean;
+  isSpecial?: 'profile-photo' | 'location';
+}
 
 export default function RegisterScreen({ navigation }: any) {
   const { isDark } = useTheme();
   const Colors = getThemedColors(isDark);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const fadeAnim = useState(new Animated.Value(1))[0];
+  const [registered, setRegistered] = useState(false);
+
+  // Form state
   const [businessName, setBusinessName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  
-  // Additional business details
+  const [profilePhoto, setProfilePhoto] = useState('');
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
@@ -47,37 +71,386 @@ export default function RegisterScreen({ navigation }: any) {
   const [facebook, setFacebook] = useState('');
   const [instagram, setInstagram] = useState('');
 
-  const handleRegister = async () => {
+  const steps: Step[] = [
+    {
+      id: 'businessName',
+      title: 'What\'s your business name?',
+      subtitle: 'Enter your business or shop name',
+      icon: 'storefront',
+      placeholder: 'Enter business name',
+      value: businessName,
+      setValue: setBusinessName,
+      required: true,
+    },
+    {
+      id: 'phoneNumber',
+      title: 'Your mobile number?',
+      subtitle: 'We\'ll use this for login',
+      icon: 'call',
+      placeholder: 'Enter 10-digit mobile number',
+      value: phoneNumber,
+      setValue: setPhoneNumber,
+      maxLength: 10,
+      validation: (value) => {
+        if (value.length !== 10) return 'Phone number must be 10 digits';
+        return null;
+      },
+      required: true,
+    },
+    {
+      id: 'password',
+      title: 'Create a password',
+      subtitle: 'Keep it secure and memorable',
+      icon: 'lock-closed',
+      placeholder: 'Create password',
+      value: password,
+      setValue: setPassword,
+      autoCapitalize: 'none',
+      secureTextEntry: true,
+      validation: (value) => {
+        if (value.length < 6) return 'Password must be at least 6 characters';
+        return null;
+      },
+      required: true,
+    },
+    {
+      id: 'profilePhoto',
+      title: 'Add your business logo',
+      subtitle: 'Upload a profile photo or logo (optional)',
+      icon: 'camera',
+      placeholder: '',
+      value: profilePhoto,
+      setValue: setProfilePhoto,
+      isSpecial: 'profile-photo',
+    },
+    {
+      id: 'location',
+      title: 'Where is your business?',
+      subtitle: 'Get your current location automatically',
+      icon: 'location',
+      placeholder: '',
+      value: address,
+      setValue: setAddress,
+      isSpecial: 'location',
+    },
+    {
+      id: 'email',
+      title: 'What\'s your email?',
+      subtitle: 'We\'ll send important updates',
+      icon: 'mail',
+      placeholder: 'your.email@example.com',
+      value: email,
+      setValue: setEmail,
+      autoCapitalize: 'none',
+      validation: (value) => {
+        if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          return 'Please enter a valid email';
+        }
+        return null;
+      },
+    },
+    {
+      id: 'address',
+      title: 'Business address',
+      subtitle: 'Full address of your business',
+      icon: 'home',
+      placeholder: 'Enter full address',
+      value: address,
+      setValue: setAddress,
+    },
+    {
+      id: 'city',
+      title: 'Which city?',
+      subtitle: 'Your business location',
+      icon: 'business',
+      placeholder: 'e.g., Mumbai',
+      value: city,
+      setValue: setCity,
+    },
+    {
+      id: 'state',
+      title: 'Which state?',
+      subtitle: 'State where your business operates',
+      icon: 'map',
+      placeholder: 'e.g., Maharashtra',
+      value: state,
+      setValue: setState,
+    },
+    {
+      id: 'pincode',
+      title: 'What\'s your pincode?',
+      subtitle: 'Area pin code',
+      icon: 'pin',
+      placeholder: 'Enter 6-digit pincode',
+      value: pincode,
+      setValue: setPincode,
+      maxLength: 6,
+      validation: (value) => {
+        if (value && value.length !== 6) return 'Pincode must be 6 digits';
+        return null;
+      },
+    },
+    {
+      id: 'category',
+      title: 'Business category?',
+      subtitle: 'What type of business do you run?',
+      icon: 'grid',
+      placeholder: 'e.g., Retail, Restaurant',
+      value: category,
+      setValue: setCategory,
+    },
+    {
+      id: 'businessType',
+      title: 'Business type?',
+      subtitle: 'Legal structure of your business',
+      icon: 'briefcase',
+      placeholder: 'e.g., Sole Proprietor',
+      value: businessType,
+      setValue: setBusinessType,
+    },
+    {
+      id: 'gst',
+      title: 'GST Number',
+      subtitle: 'If you have GST registration',
+      icon: 'document-text',
+      placeholder: 'Enter GST number',
+      value: gstNumber,
+      setValue: setGstNumber,
+      autoCapitalize: 'characters',
+    },
+    {
+      id: 'description',
+      title: 'About your business',
+      subtitle: 'Brief description',
+      icon: 'text',
+      placeholder: 'What does your business do?',
+      value: description,
+      setValue: setDescription,
+      multiline: true,
+    },
+    {
+      id: 'website',
+      title: 'Website URL',
+      subtitle: 'Your business website (optional)',
+      icon: 'globe',
+      placeholder: 'https://yourbusiness.com',
+      value: website,
+      setValue: setWebsite,
+      keyboardType: 'url',
+      autoCapitalize: 'none',
+    },
+    {
+      id: 'facebook',
+      title: 'Facebook profile',
+      subtitle: 'Your business Facebook page',
+      icon: 'logo-facebook',
+      placeholder: 'Facebook URL',
+      value: facebook,
+      setValue: setFacebook,
+      keyboardType: 'url',
+      autoCapitalize: 'none',
+    },
+    {
+      id: 'instagram',
+      title: 'Instagram profile',
+      subtitle: 'Your business Instagram page',
+      icon: 'logo-instagram',
+      placeholder: 'Instagram URL',
+      value: instagram,
+      setValue: setInstagram,
+      keyboardType: 'url',
+      autoCapitalize: 'none',
+    },
+  ];
+
+  const currentStep = steps[currentStepIndex];
+  const progress = ((currentStepIndex + 1) / steps.length) * 100;
+
+  // Direct setter mapping to avoid closure issues
+  const getSetterForStep = (stepId: string) => {
+    const setterMap: { [key: string]: (value: string) => void } = {
+      businessName: setBusinessName,
+      phoneNumber: setPhoneNumber,
+      password: setPassword,
+      profilePhoto: setProfilePhoto,
+      location: setAddress,
+      email: setEmail,
+      address: setAddress,
+      city: setCity,
+      state: setState,
+      pincode: setPincode,
+      category: setCategory,
+      businessType: setBusinessType,
+      gst: setGstNumber,
+      description: setDescription,
+      website: setWebsite,
+      facebook: setFacebook,
+      instagram: setInstagram,
+    };
+    return setterMap[stepId] || (() => {});
+  };
+
+  const handleProfilePhotoPick = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission needed', 'Please grant camera roll permissions');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setProfilePhoto(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Image picker error:', error);
+      Alert.alert('Error', 'Failed to pick image');
+    }
+  };
+
+  const handleLocationPick = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission needed', 'Please grant location permissions');
+        return;
+      }
+
+      setLoading(true);
+      const location = await Location.getCurrentPositionAsync({});
+      const reverseGeocode = await Location.reverseGeocodeAsync({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+
+      if (reverseGeocode[0]) {
+        const loc = reverseGeocode[0];
+        const fullAddress = `${loc.street || ''} ${loc.name || ''}, ${loc.city || ''}, ${loc.region || ''} ${loc.postalCode || ''}`.trim();
+        setAddress(fullAddress);
+        if (loc.city) setCity(loc.city);
+        if (loc.region) setState(loc.region);
+        if (loc.postalCode) setPincode(loc.postalCode);
+      }
+    } catch (error) {
+      console.error('Location error:', error);
+      Alert.alert('Error', 'Failed to get location');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleNext = async () => {
     setError('');
-    setSuccess('');
 
-    if (!businessName || !phoneNumber || !password) {
-      setError('Business name, phone and password are required');
+    // Validate required fields
+    if (currentStep.required && !currentStep.value) {
+      setError(`${currentStep.title.replace('?', '')} is required`);
       return;
     }
 
-    if (phoneNumber.length !== 10) {
-      setError('Phone number must be exactly 10 digits');
+    // Run validation if exists
+    if (currentStep.validation) {
+      const validationError = currentStep.validation(currentStep.value);
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
+    }
+
+    // If we're on the last required step (password), register the user
+    if (currentStep.id === 'password' && !registered) {
+      await handleRegister();
       return;
     }
 
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Please enter a valid email address');
-      return;
+    // Move to next step
+    if (currentStepIndex < steps.length - 1) {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }).start(() => {
+        setCurrentStepIndex(currentStepIndex + 1);
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 150,
+          useNativeDriver: true,
+        }).start();
+      });
+    } else {
+      // Finished - update profile with remaining details
+      await handleUpdateProfile();
     }
+  };
 
-    if (pincode && pincode.length !== 6) {
-      setError('Pincode must be 6 digits');
-      return;
+  const handleSkip = () => {
+    setError('');
+    if (currentStepIndex < steps.length - 1) {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }).start(() => {
+        setCurrentStepIndex(currentStepIndex + 1);
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 150,
+          useNativeDriver: true,
+        }).start();
+      });
+    } else {
+      // Finished - go to main app
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main' }],
+      });
     }
+  };
 
+  const handleBack = () => {
+    setError('');
+    if (currentStepIndex > 0) {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }).start(() => {
+        setCurrentStepIndex(currentStepIndex - 1);
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 150,
+          useNativeDriver: true,
+        }).start();
+      });
+    }
+  };
+
+  const handleRegister = async () => {
     try {
       setLoading(true);
-      
-      // Register and get the auth token
-      const response = await ApiService.register(businessName, phoneNumber, password);
-      
-      // Update business details with additional information
+      await ApiService.register(businessName, phoneNumber, password);
+      setRegistered(true);
+      // Move to next step automatically
+      if (currentStepIndex < steps.length - 1) {
+        setCurrentStepIndex(currentStepIndex + 1);
+      }
+    } catch (err: any) {
+      console.error('Registration error:', err);
+      setError(err.response?.data?.error || err.response?.data?.message || err.message || 'Registration failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateProfile = async () => {
+    try {
+      setLoading(true);
       const updateData: any = {};
       if (email) updateData.email = email;
       if (address) updateData.address = address;
@@ -92,23 +465,22 @@ export default function RegisterScreen({ navigation }: any) {
       if (facebook) updateData.facebook = facebook;
       if (instagram) updateData.instagram = instagram;
 
-      // If we have additional details, update the profile
       if (Object.keys(updateData).length > 0) {
         await ApiService.updateProfile(updateData);
       }
 
-      setSuccess('Registration successful! Welcome to Ekthaa!');
-      
-      setTimeout(() => {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Main' }],
-        });
-      }, 1000);
+      // Navigate to main app
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main' }],
+      });
     } catch (err: any) {
-      console.error('Registration error:', err);
-      console.error('Error response:', err.response?.data);
-      setError(err.response?.data?.error || err.response?.data?.message || err.message || 'Registration failed. Please try again.');
+      console.error('Update profile error:', err);
+      // Even if update fails, navigate to app
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main' }],
+      });
     } finally {
       setLoading(false);
     }
@@ -120,288 +492,176 @@ export default function RegisterScreen({ navigation }: any) {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Logo Section */}
-          <View style={styles.logoSection}>
-            <View style={[styles.logoContainer, { backgroundColor: 'transparent' }]}>
+        {/* Header */}
+        <View style={[styles.header, { borderBottomColor: Colors.borderLight }]}>
+          <View style={styles.headerTop}>
+            {currentStepIndex > 0 && !loading && (
+              <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+                <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
+              </TouchableOpacity>
+            )}
+            <View style={{ flex: 1 }} />
+            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+              <Text style={[styles.loginLink, { color: Colors.primary }]}>
+                {currentStepIndex === 0 ? 'Login' : ''}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          
+          {/* Progress Bar */}
+          <View style={[styles.progressBar, { backgroundColor: Colors.borderLight }]}>
+            <View
+              style={[
+                styles.progressFill,
+                { backgroundColor: Colors.primary, width: `${progress}%` },
+              ]}
+            />
+          </View>
+          <Text style={[styles.progressText, { color: Colors.textTertiary }]}>
+            Step {currentStepIndex + 1} of {steps.length}
+          </Text>
+        </View>
+
+        {/* Content */}
+        <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+          {/* Logo - Only on first step */}
+          {currentStepIndex === 0 && (
+            <View style={styles.logoContainer}>
               <Image
                 source={require('../../../assets/logo.png')}
-                style={{ width: 120, height: 120, resizeMode: 'contain' }}
+                style={styles.logo}
               />
+              <Text style={[styles.appName, { color: Colors.primary }]}>Ekthaa</Text>
             </View>
-          </View>
+          )}
 
-          {/* Register Card */}
-          <View style={[styles.registerCard, { backgroundColor: Colors.card }]}>
-            {/* Header */}
-            <View style={styles.cardHeader}>
-              <Text style={[styles.heading1, { color: Colors.textPrimary }]}>Register to</Text>
-              <Text style={[styles.heading2, { color: Colors.primary }]}>Ekthaa</Text>
-            </View>
+          {/* Step Card */}
+          <View style={[styles.stepCard, { backgroundColor: Colors.card }]}>
+            <Ionicons name={currentStep.icon} size={48} color={Colors.primary} />
+            <Text style={[styles.stepTitle, { color: Colors.textPrimary }]}>
+              {currentStep.title}
+            </Text>
+            <Text style={[styles.stepSubtitle, { color: Colors.textSecondary }]}>
+              {currentStep.subtitle}
+            </Text>
 
             {/* Error Message */}
             {error ? (
               <View style={styles.errorContainer}>
                 <Ionicons name="alert-circle" size={16} color={Colors.creditRed} />
-                <Text style={styles.errorText}>{error}</Text>
+                <Text style={[styles.errorText, { color: Colors.creditRed }]}>{error}</Text>
               </View>
             ) : null}
 
-            {/* Success Message */}
-            {success ? (
-              <View style={styles.successContainer}>
-                <Ionicons name="checkmark-circle" size={16} color={Colors.paymentGreen} />
-                <Text style={styles.successText}>{success}</Text>
+            {/* Special Input: Profile Photo */}
+            {currentStep.isSpecial === 'profile-photo' ? (
+              <View style={styles.specialInputContainer}>
+                <TouchableOpacity
+                  style={[styles.photoButton, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}
+                  onPress={handleProfilePhotoPick}
+                >
+                  {profilePhoto ? (
+                    <Image source={{ uri: profilePhoto }} style={styles.profilePhotoPreview} />
+                  ) : (
+                    <>
+                      <Ionicons name="camera" size={32} color={Colors.textTertiary} />
+                      <Text style={[styles.photoButtonText, { color: Colors.textSecondary }]}>
+                        Tap to upload photo
+                      </Text>
+                    </>
+                  )}
+                </TouchableOpacity>
               </View>
-            ) : null}
-
-            {/* Business Name Input */}
-            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-              <Ionicons name="storefront" size={16} color={Colors.textTertiary} />
-              <TextInput
-                style={[styles.input, { color: Colors.textPrimary }]}
-                placeholder="Enter business name"
-                placeholderTextColor={Colors.textTertiary}
-                value={businessName}
-                onChangeText={setBusinessName}
-                autoComplete="name"
-              />
-            </View>
-
-            {/* Phone Input */}
-            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-              <Ionicons name="call" size={16} color={Colors.textTertiary} />
-              <TextInput
-                style={[styles.input, { color: Colors.textPrimary }]}
-                placeholder="Enter your mobile number"
-                placeholderTextColor={Colors.textTertiary}
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
-                keyboardType="phone-pad"
-                maxLength={10}
-                autoComplete="tel"
-              />
-            </View>
-
-            {/* Password Input */}
-            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-              <Ionicons name="lock-closed" size={16} color={Colors.textTertiary} />
-              <TextInput
-                style={[styles.input, { color: Colors.textPrimary }]}
-                placeholder="Create a password"
-                placeholderTextColor={Colors.textTertiary}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                autoComplete="password-new"
-              />
-            </View>
-
-            {/* Additional Business Details Section */}
-            <View style={styles.sectionDivider}>
-              <Text style={[styles.sectionTitle, { color: Colors.textSecondary }]}>Business Details (Optional)</Text>
-            </View>
-
-            {/* Email Input */}
-            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-              <Ionicons name="mail" size={16} color={Colors.textTertiary} />
-              <TextInput
-                style={[styles.input, { color: Colors.textPrimary }]}
-                placeholder="Email address"
-                placeholderTextColor={Colors.textTertiary}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoComplete="email"
-              />
-            </View>
-
-            {/* Address Input */}
-            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-              <Ionicons name="location" size={16} color={Colors.textTertiary} />
-              <TextInput
-                style={[styles.input, { color: Colors.textPrimary }]}
-                placeholder="Business address"
-                placeholderTextColor={Colors.textTertiary}
-                value={address}
-                onChangeText={setAddress}
-                autoComplete="street-address"
-              />
-            </View>
-
-            {/* City & State Row */}
-            <View style={styles.rowInputs}>
-              <View style={[styles.halfInputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-                <Ionicons name="business" size={16} color={Colors.textTertiary} />
+            ) : currentStep.isSpecial === 'location' ? (
+              /* Special Input: Location */
+              <View style={styles.specialInputContainer}>
+                <TouchableOpacity
+                  style={[styles.locationButton, { backgroundColor: Colors.primary }]}
+                  onPress={handleLocationPick}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <ActivityIndicator color={Colors.white} />
+                  ) : (
+                    <>
+                      <Ionicons name="location" size={24} color={Colors.white} />
+                      <Text style={[styles.locationButtonText, { color: Colors.white }]}>
+                        Get Current Location
+                      </Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+                {address ? (
+                  <Text style={[styles.locationPreview, { color: Colors.textSecondary }]}>
+                    {address}
+                  </Text>
+                ) : null}
+              </View>
+            ) : (
+              /* Regular Text Input */
+              <View style={[styles.inputWrapper, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
                 <TextInput
-                  style={[styles.input, { color: Colors.textPrimary }]}
-                  placeholder="City"
+                  key={`input-${currentStep.id}`}
+                  style={[
+                    styles.input,
+                    { color: Colors.textPrimary },
+                    currentStep.multiline && styles.textArea,
+                  ]}
+                  placeholder={currentStep.placeholder}
                   placeholderTextColor={Colors.textTertiary}
-                  value={city}
-                  onChangeText={setCity}
+                  value={currentStep.value}
+                  onChangeText={(text) => {
+                    console.log('TextInput onChange:', currentStep.id, text);
+                    const setter = getSetterForStep(currentStep.id);
+                    setter(text);
+                  }}
+                  keyboardType={currentStep.keyboardType || 'default'}
+                  maxLength={currentStep.maxLength}
+                  autoCapitalize={currentStep.autoCapitalize || 'sentences'}
+                  secureTextEntry={currentStep.secureTextEntry || false}
+                  textContentType={currentStep.secureTextEntry ? 'password' : undefined}
+                  multiline={currentStep.multiline || false}
+                  numberOfLines={currentStep.multiline ? 3 : 1}
+                  editable={true}
                 />
               </View>
-
-              <View style={[styles.halfInputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-                <Ionicons name="map" size={16} color={Colors.textTertiary} />
-                <TextInput
-                  style={[styles.input, { color: Colors.textPrimary }]}
-                  placeholder="State"
-                  placeholderTextColor={Colors.textTertiary}
-                  value={state}
-                  onChangeText={setState}
-                />
-              </View>
-            </View>
-
-            {/* Pincode Input */}
-            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-              <Ionicons name="pin" size={16} color={Colors.textTertiary} />
-              <TextInput
-                style={[styles.input, { color: Colors.textPrimary }]}
-                placeholder="Pincode"
-                placeholderTextColor={Colors.textTertiary}
-                value={pincode}
-                onChangeText={setPincode}
-                keyboardType="numeric"
-                maxLength={6}
-              />
-            </View>
-
-            {/* Category & Business Type Row */}
-            <View style={styles.rowInputs}>
-              <View style={[styles.halfInputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-                <Ionicons name="grid" size={16} color={Colors.textTertiary} />
-                <TextInput
-                  style={[styles.input, { color: Colors.textPrimary }]}
-                  placeholder="Category"
-                  placeholderTextColor={Colors.textTertiary}
-                  value={category}
-                  onChangeText={setCategory}
-                />
-              </View>
-
-              <View style={[styles.halfInputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-                <Ionicons name="briefcase" size={16} color={Colors.textTertiary} />
-                <TextInput
-                  style={[styles.input, { color: Colors.textPrimary }]}
-                  placeholder="Business Type"
-                  placeholderTextColor={Colors.textTertiary}
-                  value={businessType}
-                  onChangeText={setBusinessType}
-                />
-              </View>
-            </View>
-
-            {/* GST Number Input */}
-            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-              <Ionicons name="document-text" size={16} color={Colors.textTertiary} />
-              <TextInput
-                style={[styles.input, { color: Colors.textPrimary }]}
-                placeholder="GST Number (optional)"
-                placeholderTextColor={Colors.textTertiary}
-                value={gstNumber}
-                onChangeText={setGstNumber}
-                autoCapitalize="characters"
-              />
-            </View>
-
-            {/* Description Input */}
-            <View style={[styles.inputContainer, styles.textAreaContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-              <Ionicons name="document-text" size={16} color={Colors.textTertiary} style={styles.textAreaIcon} />
-              <TextInput
-                style={[styles.input, styles.textArea, { color: Colors.textPrimary }]}
-                placeholder="Business description"
-                placeholderTextColor={Colors.textTertiary}
-                value={description}
-                onChangeText={setDescription}
-                multiline
-                numberOfLines={3}
-              />
-            </View>
-
-            {/* Website Input */}
-            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-              <Ionicons name="globe" size={16} color={Colors.textTertiary} />
-              <TextInput
-                style={[styles.input, { color: Colors.textPrimary }]}
-                placeholder="Website URL (optional)"
-                placeholderTextColor={Colors.textTertiary}
-                value={website}
-                onChangeText={setWebsite}
-                keyboardType="url"
-                autoCapitalize="none"
-                autoComplete="off"
-              />
-            </View>
-
-            {/* Social Media Section */}
-            <View style={styles.sectionDivider}>
-              <Text style={[styles.sectionTitle, { color: Colors.textSecondary }]}>Social Media (Optional)</Text>
-            </View>
-
-            {/* Facebook Input */}
-            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-              <Ionicons name="logo-facebook" size={16} color={Colors.textTertiary} />
-              <TextInput
-                style={[styles.input, { color: Colors.textPrimary }]}
-                placeholder="Facebook profile URL"
-                placeholderTextColor={Colors.textTertiary}
-                value={facebook}
-                onChangeText={setFacebook}
-                keyboardType="url"
-                autoCapitalize="none"
-              />
-            </View>
-
-            {/* Instagram Input */}
-            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-              <Ionicons name="logo-instagram" size={16} color={Colors.textTertiary} />
-              <TextInput
-                style={[styles.input, { color: Colors.textPrimary }]}
-                placeholder="Instagram profile URL"
-                placeholderTextColor={Colors.textTertiary}
-                value={instagram}
-                onChangeText={setInstagram}
-                keyboardType="url"
-                autoCapitalize="none"
-              />
-            </View>
-
-            {/* Register Button */}
-            <TouchableOpacity
-              style={[styles.registerButton, { backgroundColor: Colors.primary }, loading && styles.registerButtonDisabled]}
-              onPress={handleRegister}
-              disabled={loading}
-              activeOpacity={0.8}
-            >
-              {loading ? (
-                <>
-                  <ActivityIndicator color={Colors.white} size="small" />
-                  <Text style={[styles.registerButtonText, { color: Colors.white }]}>Registering...</Text>
-                </>
-              ) : (
-                <>
-                  <Ionicons name="person-add" size={20} color={Colors.white} />
-                  <Text style={[styles.registerButtonText, { color: Colors.white }]}>Register</Text>
-                </>
-              )}
-            </TouchableOpacity>
-
-            {/* Login Link */}
-            <View style={styles.loginLink}>
-              <Text style={[styles.loginText, { color: Colors.textSecondary }]}>Already have an account? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                <Text style={[styles.loginLinkText, { color: Colors.primary }]}>Login</Text>
-              </TouchableOpacity>
-            </View>
+            )}
           </View>
-        </ScrollView>
+        </Animated.View>
+
+        {/* Footer Buttons */}
+        <View style={[styles.footer, { borderTopColor: Colors.borderLight }]}>
+          <TouchableOpacity
+            style={[styles.skipButton, { backgroundColor: Colors.backgroundSecondary }]}
+            onPress={handleSkip}
+            disabled={loading}
+          >
+            <Text style={[styles.skipButtonText, { color: Colors.textSecondary }]}>
+              {currentStepIndex === steps.length - 1 ? 'Finish' : 'Skip'}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.nextButton, { backgroundColor: Colors.primary }]}
+            onPress={handleNext}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color={Colors.white} />
+            ) : (
+              <>
+                <Text style={[styles.nextButtonText, { color: Colors.white }]}>
+                  {currentStep.id === 'password' && !registered
+                    ? 'Register'
+                    : currentStepIndex === steps.length - 1
+                    ? 'Complete'
+                    : 'Next'}
+                </Text>
+                <Ionicons name="arrow-forward" size={20} color={Colors.white} />
+              </>
+            )}
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -414,153 +674,168 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
-  scrollContent: {
-    flexGrow: 1,
+  header: {
+    paddingHorizontal: Spacing.space4,
+    paddingTop: Spacing.space3,
+    paddingBottom: Spacing.space4,
+    borderBottomWidth: 1,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.space3,
+  },
+  backButton: {
+    padding: Spacing.space2,
+  },
+  loginLink: {
+    fontSize: Typography.fontSm,
+    fontWeight: Typography.semiBold,
+  },
+  progressBar: {
+    height: 4,
+    borderRadius: 2,
+    overflow: 'hidden',
+    marginBottom: Spacing.space2,
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 2,
+  },
+  progressText: {
+    fontSize: Typography.fontXs,
+    textAlign: 'center',
+  },
+  content: {
+    flex: 1,
     padding: Spacing.space4,
     justifyContent: 'center',
   },
-  logoSection: {
+  logoContainer: {
     alignItems: 'center',
     marginBottom: Spacing.space6,
   },
-  logoContainer: {
-    width: AvatarSizes.xxlarge + 46,
-    height: AvatarSizes.xxlarge + 46,
-    borderRadius: (AvatarSizes.xxlarge + 46) / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
+  logo: {
+    width: 80,
+    height: 80,
+    resizeMode: 'contain',
   },
-  registerCard: {
+  appName: {
+    fontSize: Typography.fontXl,
+    fontWeight: Typography.bold,
+    marginTop: Spacing.space2,
+  },
+  stepCard: {
     borderRadius: BorderRadius.xxl,
     padding: Spacing.space6,
+    alignItems: 'center',
     ...Shadows.md,
   },
-  cardHeader: {
+  stepTitle: {
+    fontSize: Typography.fontXl,
+    fontWeight: Typography.bold,
+    marginTop: Spacing.space4,
+    textAlign: 'center',
+  },
+  stepSubtitle: {
+    fontSize: Typography.fontBase,
+    marginTop: Spacing.space2,
     marginBottom: Spacing.space5,
-    alignItems: 'center',
-  },
-  heading1: {
-    fontSize: Typography.fontLg,
-    fontWeight: Typography.bold,
-    marginBottom: 4,
-  },
-  heading2: {
-    fontSize: Typography.fontLg,
-    fontWeight: Typography.bold,
+    textAlign: 'center',
   },
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
-    borderRadius: BorderRadius.md,
-    padding: Spacing.space3,
+    gap: 8,
     marginBottom: Spacing.space3,
-    gap: 12,
   },
   errorText: {
-    flex: 1,
     fontSize: Typography.fontSm,
     fontWeight: Typography.medium,
-    color: '#dc2626',
   },
-  successContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.3)',
-    borderRadius: BorderRadius.md,
-    padding: Spacing.space3,
-    marginBottom: Spacing.space3,
-    gap: 12,
-  },
-  successText: {
-    flex: 1,
-    fontSize: Typography.fontSm,
-    fontWeight: Typography.medium,
-    color: '#059669',
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  inputWrapper: {
+    width: '100%',
     borderWidth: 1,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.space4,
     paddingVertical: Spacing.space4,
-    marginBottom: Spacing.space3,
-    gap: 11,
   },
   input: {
-    flex: 1,
     fontSize: Typography.fontBase,
     paddingVertical: 0,
-  },
-  registerButton: {
-    borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.space4,
-    paddingHorizontal: Spacing.space6,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: Spacing.space4,
-    flexDirection: 'row',
-    gap: 11,
-  },
-  registerButtonDisabled: {
-    opacity: 0.6,
-  },
-  registerButtonText: {
-    fontSize: Typography.fontMd,
-    fontWeight: Typography.bold,
-  },
-  loginLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: Spacing.space4,
-  },
-  loginText: {
-    fontSize: Typography.fontSm,
-  },
-  loginLinkText: {
-    fontSize: Typography.fontSm,
-    fontWeight: Typography.semiBold,
-  },
-  sectionDivider: {
-    marginTop: Spacing.space4,
-    marginBottom: Spacing.space3,
-  },
-  sectionTitle: {
-    fontSize: Typography.fontSm,
-    fontWeight: Typography.semiBold,
-    textAlign: 'center',
-  },
-  rowInputs: {
-    flexDirection: 'row',
-    gap: Spacing.space3,
-    marginBottom: Spacing.space3,
-  },
-  halfInputContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.space3,
-    paddingVertical: Spacing.space4,
-    gap: 8,
-  },
-  textAreaContainer: {
-    alignItems: 'flex-start',
-    minHeight: 80,
-  },
-  textAreaIcon: {
-    marginTop: Spacing.space1,
+    minHeight: 24,
   },
   textArea: {
-    minHeight: 60,
+    minHeight: 80,
     textAlignVertical: 'top',
-    paddingTop: 0,
+  },
+  specialInputContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  photoButton: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  profilePhotoPreview: {
+    width: '100%',
+    height: '100%',
+  },
+  photoButtonText: {
+    fontSize: Typography.fontSm,
+    marginTop: Spacing.space2,
+    textAlign: 'center',
+  },
+  locationButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: Spacing.space4,
+    paddingHorizontal: Spacing.space6,
+    borderRadius: BorderRadius.md,
+  },
+  locationButtonText: {
+    fontSize: Typography.fontBase,
+    fontWeight: Typography.semiBold,
+  },
+  locationPreview: {
+    fontSize: Typography.fontSm,
+    marginTop: Spacing.space3,
+    textAlign: 'center',
+  },
+  footer: {
+    flexDirection: 'row',
+    padding: Spacing.space4,
+    gap: Spacing.space3,
+    borderTopWidth: 1,
+  },
+  skipButton: {
+    flex: 1,
+    paddingVertical: Spacing.space4,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  skipButtonText: {
+    fontSize: Typography.fontBase,
+    fontWeight: Typography.semiBold,
+  },
+  nextButton: {
+    flex: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: Spacing.space4,
+    borderRadius: BorderRadius.md,
+  },
+  nextButtonText: {
+    fontSize: Typography.fontBase,
+    fontWeight: Typography.bold,
   },
 });
