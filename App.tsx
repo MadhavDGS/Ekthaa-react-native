@@ -27,6 +27,7 @@ import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import LoginScreen from './src/screens/Auth/LoginScreen';
 import RegisterScreen from './src/screens/Auth/RegisterScreen';
 import BusinessDetailsScreen from './src/screens/Auth/BusinessDetailsScreen';
+import OnboardingScreen from './src/screens/Auth/OnboardingScreen';
 import DashboardScreen from './src/screens/Dashboard/DashboardScreen';
 import CustomersScreen from './src/screens/Customers/CustomersScreen';
 import CustomerDetailsScreen from './src/screens/Customers/CustomerDetailsScreen';
@@ -259,6 +260,11 @@ function AppContent() {
             <Stack.Screen
               name="Register"
               component={RegisterScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Onboarding"
+              component={OnboardingScreen}
               options={{ headerShown: false }}
             />
             <Stack.Screen
