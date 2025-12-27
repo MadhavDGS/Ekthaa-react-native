@@ -21,6 +21,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect } from '@react-navigation/native';
 import MapComponent from '../../components/MapComponent';
 import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
@@ -121,6 +122,51 @@ export default function ProfileScreen({ navigation }: any) {
     }
   };
 
+  const handleUploadPhoto = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission needed', 'Please grant camera roll permissions to upload a photo');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setLoading(true);
+        try {
+          console.log('📸 Uploading profile photo:', result.assets[0].uri);
+          const photoResponse = await ApiService.uploadProfilePhoto(result.assets[0].uri);
+          console.log('📸 Photo upload response:', photoResponse);
+          
+          if (photoResponse.profile_photo_url) {
+            // Update user state with new photo URL
+            const updatedUser = { ...user, profile_photo_url: photoResponse.profile_photo_url };
+            setUser(updatedUser as User);
+            
+            // Update AsyncStorage
+            await AsyncStorage.setItem('userData', JSON.stringify(updatedUser));
+            
+            Alert.alert('Success', 'Profile photo updated successfully!');
+          }
+        } catch (error) {
+          console.error('Photo upload error:', error);
+          Alert.alert('Error', 'Failed to upload photo. Please try again.');
+        } finally {
+          setLoading(false);
+        }
+      }
+    } catch (error) {
+      console.error('Image picker error:', error);
+      Alert.alert('Error', 'Failed to pick image');
+    }
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: Colors.backgroundSecondary }]}>
@@ -183,24 +229,36 @@ export default function ProfileScreen({ navigation }: any) {
       >
         {/* Profile Header (Minimal) */}
         <View style={styles.profileHeader}>
-          {(() => {
-            console.log('🖼️ Rendering profile photo, URL:', user?.profile_photo_url);
-            console.log('🖼️ User object:', JSON.stringify(user, null, 2));
-            return user?.profile_photo_url ? (
-              <Image
-                source={{ uri: user.profile_photo_url }}
-                style={styles.avatarLarge}
-                onError={(e) => console.error('❌ Image load error:', e.nativeEvent.error)}
-                onLoad={() => console.log('✅ Image loaded successfully')}
-              />
-            ) : (
-              <View style={[styles.avatarLarge, { backgroundColor: Colors.primary }]}>
-                <Text style={[styles.avatarLargeText, { color: '#fff' }]}>
-                  {user?.name?.charAt(0).toUpperCase() || 'B'}
-                </Text>
-              </View>
-            );
-          })()}
+          <TouchableOpacity onPress={handleUploadPhoto} style={styles.avatarContainer}>
+            {(() => {
+              console.log('🖼️ Rendering profile photo, URL:', user?.profile_photo_url);
+              console.log('🖼️ User object:', JSON.stringify(user, null, 2));
+              return user?.profile_photo_url ? (
+                <>
+                  <Image
+                    source={{ uri: user.profile_photo_url }}
+                    style={styles.avatarLarge}
+                    onError={(e) => console.error('❌ Image load error:', e.nativeEvent.error)}
+                    onLoad={() => console.log('✅ Image loaded successfully')}
+                  />
+                  <View style={[styles.cameraIconOverlay, { backgroundColor: Colors.primary }]}>
+                    <Ionicons name="camera" size={16} color="#fff" />
+                  </View>
+                </>
+              ) : (
+                <>
+                  <View style={[styles.avatarLarge, { backgroundColor: Colors.primary }]}>
+                    <Text style={[styles.avatarLargeText, { color: '#fff' }]}>
+                      {user?.name?.charAt(0).toUpperCase() || 'B'}
+                    </Text>
+                  </View>
+                  <View style={[styles.cameraIconOverlay, { backgroundColor: Colors.primary }]}>
+                    <Ionicons name="camera" size={16} color="#fff" />
+                  </View>
+                </>
+              );
+            })()}
+          </TouchableOpacity>
           <Text style={[styles.businessName, { color: Colors.textPrimary }]}>{user?.name || 'Business Name'}</Text>
           <View style={styles.phoneRow}>
             <Ionicons name="call" size={12} color={Colors.textSecondary} />
@@ -456,6 +514,10 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.xl,
     marginHorizontal: Spacing.md,
   },
+  avatarContainer: {
+    position: 'relative',
+    marginBottom: Spacing.md,
+  },
   avatarLarge: {
     width: 58,
     height: 58,
@@ -464,6 +526,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 3,
     borderColor: 'rgba(255,255,255,0.3)',
+  },
+  cameraIconOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
   },
   avatarLargeText: {
     fontSize: 23,
