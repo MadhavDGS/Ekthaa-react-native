@@ -168,7 +168,40 @@ export default function RegisterScreen({ navigation }: any) {
                 placeholderTextColor={Colors.textTertiary}
                 value={businessName}
                 onChangeText={setBusinessName}
-                Additional Business Details Section */}
+                autoComplete="name"
+              />
+            </View>
+
+            {/* Phone Input */}
+            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
+              <Ionicons name="call" size={16} color={Colors.textTertiary} />
+              <TextInput
+                style={[styles.input, { color: Colors.textPrimary }]}
+                placeholder="Enter your mobile number"
+                placeholderTextColor={Colors.textTertiary}
+                value={phoneNumber}
+                onChangeText={setPhoneNumber}
+                keyboardType="phone-pad"
+                maxLength={10}
+                autoComplete="tel"
+              />
+            </View>
+
+            {/* Password Input */}
+            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
+              <Ionicons name="lock-closed" size={16} color={Colors.textTertiary} />
+              <TextInput
+                style={[styles.input, { color: Colors.textPrimary }]}
+                placeholder="Create a password"
+                placeholderTextColor={Colors.textTertiary}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                autoComplete="password-new"
+              />
+            </View>
+
+            {/* Additional Business Details Section */}
             <View style={styles.sectionDivider}>
               <Text style={[styles.sectionTitle, { color: Colors.textSecondary }]}>Business Details (Optional)</Text>
             </View>
