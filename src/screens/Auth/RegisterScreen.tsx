@@ -355,42 +355,6 @@ export default function RegisterScreen({ navigation }: any) {
                 value={facebook}
                 onChangeText={setFacebook}
                 keyboardType="url"
-  sectionDivider: {
-    marginTop: Spacing.space4,
-    marginBottom: Spacing.space3,
-  },
-  sectionTitle: {
-    fontSize: Typography.fontSm,
-    fontWeight: Typography.semiBold,
-    textAlign: 'center',
-  },
-  rowInputs: {
-    flexDirection: 'row',
-    gap: Spacing.space3,
-    marginBottom: Spacing.space3,
-  },
-  halfInputContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.space3,
-    paddingVertical: Spacing.space4,
-    gap: 8,
-  },
-  textAreaContainer: {
-    alignItems: 'flex-start',
-    minHeight: 80,
-  },
-  textAreaIcon: {
-    marginTop: Spacing.space1,
-  },
-  textArea: {
-    minHeight: 60,
-    textAlignVertical: 'top',
-    paddingTop: 0,
-  },
                 autoCapitalize="none"
               />
             </View>
@@ -406,39 +370,6 @@ export default function RegisterScreen({ navigation }: any) {
                 onChangeText={setInstagram}
                 keyboardType="url"
                 autoCapitalize="none"
-              />
-            </View>
-
-            {/* autoComplete="name"
-              />
-            </View>
-
-            {/* Phone Input */}
-            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-              <Ionicons name="call" size={16} color={Colors.textTertiary} />
-              <TextInput
-                style={[styles.input, { color: Colors.textPrimary }]}
-                placeholder="Enter your mobile number"
-                placeholderTextColor={Colors.textTertiary}
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
-                keyboardType="phone-pad"
-                maxLength={10}
-                autoComplete="tel"
-              />
-            </View>
-
-            {/* Password Input */}
-            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
-              <Ionicons name="lock-closed" size={16} color={Colors.textTertiary} />
-              <TextInput
-                style={[styles.input, { color: Colors.textPrimary }]}
-                placeholder="Create a password"
-                placeholderTextColor={Colors.textTertiary}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                autoComplete="password-new"
               />
             </View>
 
