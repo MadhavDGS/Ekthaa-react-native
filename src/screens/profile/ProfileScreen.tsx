@@ -100,7 +100,7 @@ export default function ProfileScreen({ navigation }: any) {
   const handleShareApp = async () => {
     try {
       const result = await Share.share({
-        message: 'Check out Ekthaa - Your Digital Business Ledger! 📊\n\nManage customers, transactions, and inventory with ease.\n\nDownload now: https://ekthaa.com/download',
+        message: 'Grow your business locally with Ekthaa\n\nGet discovered by nearby customers, manage credits, products, and daily transactions in one app.\n\nDownload: https://play.google.com/store/apps/details?id=com.ekthaa.business',
         title: 'Share Ekthaa App',
       });
 
