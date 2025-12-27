@@ -10,6 +10,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -74,8 +75,11 @@ export default function RegisterScreen({ navigation }: any) {
         >
           {/* Logo Section */}
           <View style={styles.logoSection}>
-            <View style={[styles.logoContainer, { backgroundColor: Colors.bgLightPurple }]}>
-              <Ionicons name="business" size={72} color={Colors.primary} />
+            <View style={[styles.logoContainer, { backgroundColor: 'transparent' }]}>
+              <Image
+                source={require('../../../assets/logo.png')}
+                style={{ width: 120, height: 120, resizeMode: 'contain' }}
+              />
             </View>
           </View>
 
@@ -83,8 +87,8 @@ export default function RegisterScreen({ navigation }: any) {
           <View style={[styles.registerCard, { backgroundColor: Colors.card }]}>
             {/* Header */}
             <View style={styles.cardHeader}>
-              <Text style={[styles.heading1, { color: Colors.textPrimary }]}>Create Your Business</Text>
-              <Text style={[styles.heading2, { color: Colors.primary }]}>Credit Book</Text>
+              <Text style={[styles.heading1, { color: Colors.textPrimary }]}>Register to</Text>
+              <Text style={[styles.heading2, { color: Colors.primary }]}>Ekthaa</Text>
             </View>
 
             {/* Error Message */}
