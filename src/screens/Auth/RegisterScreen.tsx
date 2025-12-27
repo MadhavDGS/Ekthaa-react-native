@@ -56,7 +56,9 @@ export default function RegisterScreen({ navigation }: any) {
         navigation.navigate('Onboarding');
       }, 1000);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      console.error('Registration error:', err);
+      console.error('Error response:', err.response?.data);
+      setError(err.response?.data?.error || err.response?.data?.message || err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }

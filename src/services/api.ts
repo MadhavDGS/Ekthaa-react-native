@@ -103,16 +103,35 @@ class ApiService {
   }
 
   async register(businessName: string, phoneNumber: string, password: string) {
-    const response = await this.api.post(API_ENDPOINTS.REGISTER, {
-      business_name: businessName,
-      phone_number: phoneNumber,
-      password,
-    });
-    if (response.data.token) {
-      await AsyncStorage.setItem('authToken', response.data.token);
-      await AsyncStorage.setItem('userData', JSON.stringify(response.data.user));
+    try {
+      const response = await this.api.post(API_ENDPOINTS.REGISTER, {
+        business_name: businessName,
+        phone_number: phoneNumber,
+        password,
+      });
+      
+      if (__DEV__) {
+        console.log('📡 API: Register response status:', response.status);
+        console.log('📡 API: Register response data:', response.data);
+      }
+      
+      if (response.data.token) {
+        await AsyncStorage.setItem('authToken', response.data.token);
+        await AsyncStorage.setItem('userData', JSON.stringify(response.data.user));
+        if (__DEV__) {
+          console.log('📡 API: Token saved to AsyncStorage');
+        }
+      }
+      return response.data;
+    } catch (error: any) {
+      if (__DEV__) {
+        console.error('📡 API: Register request failed');
+        console.error('📡 API: Error:', error.message);
+        console.error('📡 API: Error response:', error.response?.data);
+        console.error('📡 API: Error status:', error.response?.status);
+      }
+      throw error;
     }
-    return response.data;
   }
 
   async logout() {
