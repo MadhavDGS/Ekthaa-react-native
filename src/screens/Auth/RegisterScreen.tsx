@@ -32,13 +32,27 @@ export default function RegisterScreen({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  
+  // Additional business details
+  const [email, setEmail] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [pincode, setPincode] = useState('');
+  const [category, setCategory] = useState('');
+  const [businessType, setBusinessType] = useState('');
+  const [gstNumber, setGstNumber] = useState('');
+  const [description, setDescription] = useState('');
+  const [website, setWebsite] = useState('');
+  const [facebook, setFacebook] = useState('');
+  const [instagram, setInstagram] = useState('');
 
   const handleRegister = async () => {
     setError('');
     setSuccess('');
 
     if (!businessName || !phoneNumber || !password) {
-      setError('All fields are required');
+      setError('Business name, phone and password are required');
       return;
     }
 
@@ -47,9 +61,42 @@ export default function RegisterScreen({ navigation }: any) {
       return;
     }
 
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    if (pincode && pincode.length !== 6) {
+      setError('Pincode must be 6 digits');
+      return;
+    }
+
     try {
       setLoading(true);
-      await ApiService.register(businessName, phoneNumber, password);
+      
+      // Register and get the auth token
+      const response = await ApiService.register(businessName, phoneNumber, password);
+      
+      // Update business details with additional information
+      const updateData: any = {};
+      if (email) updateData.email = email;
+      if (address) updateData.address = address;
+      if (city) updateData.city = city;
+      if (state) updateData.state = state;
+      if (pincode) updateData.pincode = pincode;
+      if (category) updateData.category = category;
+      if (businessType) updateData.business_type = businessType;
+      if (gstNumber) updateData.gst_number = gstNumber;
+      if (description) updateData.description = description;
+      if (website) updateData.website = website;
+      if (facebook) updateData.facebook = facebook;
+      if (instagram) updateData.instagram = instagram;
+
+      // If we have additional details, update the profile
+      if (Object.keys(updateData).length > 0) {
+        await ApiService.updateProfile(updateData);
+      }
+
       setSuccess('Registration successful! Welcome to Ekthaa!');
       
       setTimeout(() => {
@@ -121,7 +168,215 @@ export default function RegisterScreen({ navigation }: any) {
                 placeholderTextColor={Colors.textTertiary}
                 value={businessName}
                 onChangeText={setBusinessName}
-                autoComplete="name"
+                Additional Business Details Section */}
+            <View style={styles.sectionDivider}>
+              <Text style={[styles.sectionTitle, { color: Colors.textSecondary }]}>Business Details (Optional)</Text>
+            </View>
+
+            {/* Email Input */}
+            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
+              <Ionicons name="mail" size={16} color={Colors.textTertiary} />
+              <TextInput
+                style={[styles.input, { color: Colors.textPrimary }]}
+                placeholder="Email address"
+                placeholderTextColor={Colors.textTertiary}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+              />
+            </View>
+
+            {/* Address Input */}
+            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
+              <Ionicons name="location" size={16} color={Colors.textTertiary} />
+              <TextInput
+                style={[styles.input, { color: Colors.textPrimary }]}
+                placeholder="Business address"
+                placeholderTextColor={Colors.textTertiary}
+                value={address}
+                onChangeText={setAddress}
+                autoComplete="street-address"
+              />
+            </View>
+
+            {/* City & State Row */}
+            <View style={styles.rowInputs}>
+              <View style={[styles.halfInputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
+                <Ionicons name="business" size={16} color={Colors.textTertiary} />
+                <TextInput
+                  style={[styles.input, { color: Colors.textPrimary }]}
+                  placeholder="City"
+                  placeholderTextColor={Colors.textTertiary}
+                  value={city}
+                  onChangeText={setCity}
+                />
+              </View>
+
+              <View style={[styles.halfInputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
+                <Ionicons name="map" size={16} color={Colors.textTertiary} />
+                <TextInput
+                  style={[styles.input, { color: Colors.textPrimary }]}
+                  placeholder="State"
+                  placeholderTextColor={Colors.textTertiary}
+                  value={state}
+                  onChangeText={setState}
+                />
+              </View>
+            </View>
+
+            {/* Pincode Input */}
+            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
+              <Ionicons name="pin" size={16} color={Colors.textTertiary} />
+              <TextInput
+                style={[styles.input, { color: Colors.textPrimary }]}
+                placeholder="Pincode"
+                placeholderTextColor={Colors.textTertiary}
+                value={pincode}
+                onChangeText={setPincode}
+                keyboardType="numeric"
+                maxLength={6}
+              />
+            </View>
+
+            {/* Category & Business Type Row */}
+            <View style={styles.rowInputs}>
+              <View style={[styles.halfInputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
+                <Ionicons name="grid" size={16} color={Colors.textTertiary} />
+                <TextInput
+                  style={[styles.input, { color: Colors.textPrimary }]}
+                  placeholder="Category"
+                  placeholderTextColor={Colors.textTertiary}
+                  value={category}
+                  onChangeText={setCategory}
+                />
+              </View>
+
+              <View style={[styles.halfInputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
+                <Ionicons name="briefcase" size={16} color={Colors.textTertiary} />
+                <TextInput
+                  style={[styles.input, { color: Colors.textPrimary }]}
+                  placeholder="Business Type"
+                  placeholderTextColor={Colors.textTertiary}
+                  value={businessType}
+                  onChangeText={setBusinessType}
+                />
+              </View>
+            </View>
+
+            {/* GST Number Input */}
+            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
+              <Ionicons name="document-text" size={16} color={Colors.textTertiary} />
+              <TextInput
+                style={[styles.input, { color: Colors.textPrimary }]}
+                placeholder="GST Number (optional)"
+                placeholderTextColor={Colors.textTertiary}
+                value={gstNumber}
+                onChangeText={setGstNumber}
+                autoCapitalize="characters"
+              />
+            </View>
+
+            {/* Description Input */}
+            <View style={[styles.inputContainer, styles.textAreaContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
+              <Ionicons name="document-text" size={16} color={Colors.textTertiary} style={styles.textAreaIcon} />
+              <TextInput
+                style={[styles.input, styles.textArea, { color: Colors.textPrimary }]}
+                placeholder="Business description"
+                placeholderTextColor={Colors.textTertiary}
+                value={description}
+                onChangeText={setDescription}
+                multiline
+                numberOfLines={3}
+              />
+            </View>
+
+            {/* Website Input */}
+            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
+              <Ionicons name="globe" size={16} color={Colors.textTertiary} />
+              <TextInput
+                style={[styles.input, { color: Colors.textPrimary }]}
+                placeholder="Website URL (optional)"
+                placeholderTextColor={Colors.textTertiary}
+                value={website}
+                onChangeText={setWebsite}
+                keyboardType="url"
+                autoCapitalize="none"
+                autoComplete="off"
+              />
+            </View>
+
+            {/* Social Media Section */}
+            <View style={styles.sectionDivider}>
+              <Text style={[styles.sectionTitle, { color: Colors.textSecondary }]}>Social Media (Optional)</Text>
+            </View>
+
+            {/* Facebook Input */}
+            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
+              <Ionicons name="logo-facebook" size={16} color={Colors.textTertiary} />
+              <TextInput
+                style={[styles.input, { color: Colors.textPrimary }]}
+                placeholder="Facebook profile URL"
+                placeholderTextColor={Colors.textTertiary}
+                value={facebook}
+                onChangeText={setFacebook}
+                keyboardType="url"
+  sectionDivider: {
+    marginTop: Spacing.space4,
+    marginBottom: Spacing.space3,
+  },
+  sectionTitle: {
+    fontSize: Typography.fontSm,
+    fontWeight: Typography.semiBold,
+    textAlign: 'center',
+  },
+  rowInputs: {
+    flexDirection: 'row',
+    gap: Spacing.space3,
+    marginBottom: Spacing.space3,
+  },
+  halfInputContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.space3,
+    paddingVertical: Spacing.space4,
+    gap: 8,
+  },
+  textAreaContainer: {
+    alignItems: 'flex-start',
+    minHeight: 80,
+  },
+  textAreaIcon: {
+    marginTop: Spacing.space1,
+  },
+  textArea: {
+    minHeight: 60,
+    textAlignVertical: 'top',
+    paddingTop: 0,
+  },
+                autoCapitalize="none"
+              />
+            </View>
+
+            {/* Instagram Input */}
+            <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
+              <Ionicons name="logo-instagram" size={16} color={Colors.textTertiary} />
+              <TextInput
+                style={[styles.input, { color: Colors.textPrimary }]}
+                placeholder="Instagram profile URL"
+                placeholderTextColor={Colors.textTertiary}
+                value={instagram}
+                onChangeText={setInstagram}
+                keyboardType="url"
+                autoCapitalize="none"
+              />
+            </View>
+
+            {/* autoComplete="name"
               />
             </View>
 
