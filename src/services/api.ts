@@ -113,15 +113,10 @@ class ApiService {
       if (__DEV__) {
         console.log('📡 API: Register response status:', response.status);
         console.log('📡 API: Register response data:', response.data);
+        console.log('📡 API: Token NOT saved to AsyncStorage (will be saved after onboarding)');
       }
       
-      if (response.data.token) {
-        await AsyncStorage.setItem('authToken', response.data.token);
-        await AsyncStorage.setItem('userData', JSON.stringify(response.data.user));
-        if (__DEV__) {
-          console.log('📡 API: Token saved to AsyncStorage');
-        }
-      }
+      // Don't save token here - let RegisterScreen handle it after all steps complete
       return response.data;
     } catch (error: any) {
       if (__DEV__) {

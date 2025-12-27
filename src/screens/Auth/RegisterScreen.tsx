@@ -17,6 +17,7 @@ import {
   Animated,
   Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -52,6 +53,8 @@ export default function RegisterScreen({ navigation }: any) {
   const [error, setError] = useState('');
   const fadeAnim = useState(new Animated.Value(1))[0];
   const [registered, setRegistered] = useState(false);
+  const [authToken, setAuthToken] = useState(''); // Store token temporarily
+  const [userData, setUserData] = useState<any>(null); // Store user data temporarily
 
   // Form state
   const [businessName, setBusinessName] = useState('');
@@ -434,16 +437,35 @@ export default function RegisterScreen({ navigation }: any) {
   const handleRegister = async () => {
     try {
       setLoading(true);
-      await ApiService.register(businessName, phoneNumber, password);
+      const response = await ApiService.register(businessName, phoneNumber, password);
+      
+      // Store token and user data temporarily - DON'T save to AsyncStorage yet
+      if (response.token) {
+        setAuthToken(response.token);
+        setUserData(response.user);
+      }
+      
       setRegistered(true);
-      // Move to next step automatically
+      setLoading(false);
+      
+      // Move to next step with animation after successful registration
       if (currentStepIndex < steps.length - 1) {
-        setCurrentStepIndex(currentStepIndex + 1);
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 150,
+          useNativeDriver: true,
+        }).start(() => {
+          setCurrentStepIndex(currentStepIndex + 1);
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 150,
+            useNativeDriver: true,
+          }).start();
+        });
       }
     } catch (err: any) {
       console.error('Registration error:', err);
       setError(err.response?.data?.error || err.response?.data?.message || err.message || 'Registration failed');
-    } finally {
       setLoading(false);
     }
   };
@@ -451,6 +473,15 @@ export default function RegisterScreen({ navigation }: any) {
   const handleUpdateProfile = async () => {
     try {
       setLoading(true);
+      
+      // Save auth token and user data to AsyncStorage now that all steps are complete
+      if (authToken) {
+        await AsyncStorage.setItem('authToken', authToken);
+        if (userData) {
+          await AsyncStorage.setItem('userData', JSON.stringify(userData));
+        }
+      }
+      
       const updateData: any = {};
       if (email) updateData.email = email;
       if (address) updateData.address = address;
@@ -631,18 +662,21 @@ export default function RegisterScreen({ navigation }: any) {
 
         {/* Footer Buttons */}
         <View style={[styles.footer, { borderTopColor: Colors.borderLight }]}>
-          <TouchableOpacity
-            style={[styles.skipButton, { backgroundColor: Colors.backgroundSecondary }]}
-            onPress={handleSkip}
-            disabled={loading}
-          >
-            <Text style={[styles.skipButtonText, { color: Colors.textSecondary }]}>
-              {currentStepIndex === steps.length - 1 ? 'Finish' : 'Skip'}
-            </Text>
-          </TouchableOpacity>
+          {/* Show Skip button only after password step (index >= 3) */}
+          {currentStepIndex >= 3 && (
+            <TouchableOpacity
+              style={[styles.skipButton, { backgroundColor: Colors.backgroundSecondary }]}
+              onPress={handleSkip}
+              disabled={loading}
+            >
+              <Text style={[styles.skipButtonText, { color: Colors.textSecondary }]}>
+                {currentStepIndex === steps.length - 1 ? 'Finish' : 'Skip'}
+              </Text>
+            </TouchableOpacity>
+          )}
 
           <TouchableOpacity
-            style={[styles.nextButton, { backgroundColor: Colors.primary }]}
+            style={[currentStepIndex >= 3 ? styles.nextButton : styles.nextButtonFull, { backgroundColor: Colors.primary }]}
             onPress={handleNext}
             disabled={loading}
           >
@@ -827,6 +861,15 @@ const styles = StyleSheet.create({
   },
   nextButton: {
     flex: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: Spacing.space4,
+    borderRadius: BorderRadius.md,
+  },
+  nextButtonFull: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
