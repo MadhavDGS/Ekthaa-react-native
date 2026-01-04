@@ -14,8 +14,8 @@ import {
   RefreshControl,
   Platform,
   Dimensions,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -155,7 +155,7 @@ export default function DashboardScreen({ navigation }: any) {
           locations={[0, 0.4, 0.7, 1]}
           style={styles.gradientHeader}
         >
-          <SafeAreaView>
+          <SafeAreaView edges={['top']}>
             <View style={styles.headerTitle}>
               <Text style={styles.appTitle}>Ekthaa</Text>
               <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.3)' }} />
@@ -258,7 +258,7 @@ export default function DashboardScreen({ navigation }: any) {
         style={styles.gradientHeader}
       >
         {/* Seamless Teal Header */}
-        <SafeAreaView style={Platform.OS === 'web' && { paddingTop: 0 }}>
+        <SafeAreaView edges={['top']} style={Platform.OS === 'web' && { paddingTop: 0 }}>
           <View style={styles.headerTitle}>
             <Text style={styles.appTitle}>Ekthaa</Text>
             <TouchableOpacity

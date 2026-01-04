@@ -53,10 +53,14 @@ class ApiService {
       (response) => response,
       async (error: AxiosError) => {
         if (error.response?.status === 401) {
-          // Token expired or invalid - clear auth data
-          // Note: Navigation to login handled by App.tsx auth check
-          await AsyncStorage.removeItem('authToken');
-          await AsyncStorage.removeItem('userData');
+          // Only clear token if it's actually invalid, not on first request
+          const errorMessage = error.response?.data?.error || '';
+          if (typeof errorMessage === 'string' && errorMessage.includes('invalid or expired')) {
+            // Token expired or invalid - clear auth data
+            await AsyncStorage.removeItem('authToken');
+            await AsyncStorage.removeItem('userData');
+            console.log('🔐 Token cleared due to expiration');
+          }
         }
         return Promise.reject(error);
       }

@@ -205,12 +205,8 @@ function AppContent() {
       }
     });
 
-    // Set up interval to periodically check auth
-    const interval = setInterval(checkAuth, 2000);
-
     return () => {
       subscription.remove();
-      clearInterval(interval);
     };
   }, []);
 
