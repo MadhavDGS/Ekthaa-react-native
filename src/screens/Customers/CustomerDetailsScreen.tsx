@@ -21,6 +21,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { getThemedColors, Typography, Spacing, BorderRadius } from '../../constants/theme';
 import { AvatarSizes, IconSizes } from '../../constants/scales';
 import { useTheme } from '../../context/ThemeContext';
+import { useFocusEffect } from '@react-navigation/native';
 import { SkeletonHeader, SkeletonTransaction } from '../../components/Skeletons';
 import ApiService from '../../services/api';
 import { Customer, Transaction } from '../../types';
@@ -52,12 +53,18 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
     });
   }, [navigation, customer]);
 
-  useEffect(() => {
-    loadCustomerDetails();
-  }, [customerId]);
+  // Reload data when screen comes into focus (e.g., after adding a transaction)
+  useFocusEffect(
+    React.useCallback(() => {
+      loadCustomerDetails();
+    }, [customerId])
+  );
 
   const loadCustomerDetails = async () => {
     try {
+      if (!refreshing) {
+        setLoading(true);
+      }
       const [customerData, transactionsData] = await Promise.all([
         ApiService.getCustomerDetails(customerId),
         ApiService.getTransactions(customerId),
