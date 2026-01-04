@@ -219,12 +219,12 @@ class ApiService {
         formData.append('notes', data.notes);
       }
       
-      // Add receipt image file
+      // Add receipt image file (backend expects 'bill_photo' field name)
       const filename = data.receipt_url.split('/').pop() || 'receipt.jpg';
       const match = /\.(\w+)$/.exec(filename);
       const fileType = match ? `image/${match[1]}` : 'image/jpeg';
       
-      formData.append('receipt_image', {
+      formData.append('bill_photo', {
         uri: data.receipt_url,
         name: filename,
         type: fileType,
