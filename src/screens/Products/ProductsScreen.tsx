@@ -83,7 +83,10 @@ export default function ProductsScreen({ navigation }: any) {
     let filtered = products;
 
     if (selectedCategory !== 'All') {
-      filtered = filtered.filter(p => p.category === selectedCategory);
+      // Case-insensitive category comparison
+      filtered = filtered.filter(p => 
+        p.category.toLowerCase() === selectedCategory.toLowerCase()
+      );
     }
 
     if (searchQuery.trim()) {

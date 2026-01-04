@@ -265,6 +265,40 @@ class ApiService {
     image_url?: string;
     product_image?: string;
   }) {
+    // If product_image is a local file URI, use FormData
+    if (data.product_image && data.product_image.startsWith('file://')) {
+      const formData = new FormData();
+      formData.append('name', data.name);
+      formData.append('category', data.category);
+      if (data.subcategory) formData.append('subcategory', data.subcategory);
+      if (data.description) formData.append('description', data.description);
+      formData.append('price', data.price.toString());
+      formData.append('unit', data.unit);
+      formData.append('stock_quantity', data.stock_quantity.toString());
+      if (data.low_stock_threshold !== undefined) {
+        formData.append('low_stock_threshold', data.low_stock_threshold.toString());
+      }
+      
+      // Add the image file
+      const filename = data.product_image.split('/').pop() || 'product.jpg';
+      const match = /\.(\w+)$/.exec(filename);
+      const fileType = match ? `image/${match[1]}` : 'image/jpeg';
+      
+      formData.append('product_image', {
+        uri: data.product_image,
+        name: filename,
+        type: fileType,
+      } as any);
+      
+      const response = await this.api.post(API_ENDPOINTS.ADD_PRODUCT, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    }
+    
+    // Otherwise use regular JSON
     const response = await this.api.post(API_ENDPOINTS.ADD_PRODUCT, data);
     return response.data;
   }
