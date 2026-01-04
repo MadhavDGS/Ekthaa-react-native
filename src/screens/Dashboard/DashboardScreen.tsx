@@ -47,10 +47,10 @@ export default function DashboardScreen({ navigation }: any) {
     return {
       count: todayTxns.length,
       credits: todayTxns
-        .filter(t => t.type === 'credit')
+        .filter(t => t.transaction_type === 'credit')
         .reduce((sum, t) => sum + (t.amount || 0), 0),
       payments: todayTxns
-        .filter(t => t.type === 'payment')
+        .filter(t => t.transaction_type === 'payment')
         .reduce((sum, t) => sum + (t.amount || 0), 0),
     };
   }, [recentTransactions]);
