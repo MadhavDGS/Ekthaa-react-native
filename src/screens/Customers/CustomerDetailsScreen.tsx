@@ -15,6 +15,7 @@ import {
   Platform,
   Linking,
   Alert,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -311,6 +312,15 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
                           </Text>
                         )}
 
+                        {/* Receipt Image */}
+                        {transaction.receipt_image_url && (
+                          <Image
+                            source={{ uri: transaction.receipt_image_url }}
+                            style={styles.receiptImage}
+                            resizeMode="cover"
+                          />
+                        )}
+
                         {/* Time */}
                         <Text style={[styles.time, { color: Colors.textTertiary }]}>
                           {formatTime(transaction.created_at)}
@@ -516,6 +526,13 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontXs,
     marginBottom: Spacing.xs,
     lineHeight: 18,
+  },
+  receiptImage: {
+    width: '100%',
+    height: 150,
+    borderRadius: BorderRadius.md,
+    marginTop: Spacing.xs,
+    marginBottom: Spacing.xs,
   },
   time: {
     fontSize: Typography.font3xs,
