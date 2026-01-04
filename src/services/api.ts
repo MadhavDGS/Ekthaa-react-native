@@ -207,6 +207,38 @@ class ApiService {
     receipt_url?: string;
     created_by?: string;
   }) {
+    // If receipt_url is provided and is a local file, use FormData to upload
+    if (data.receipt_url && data.receipt_url.startsWith('file://')) {
+      const formData = new FormData();
+      formData.append('customer_id', data.customer_id);
+      formData.append('type', data.type);
+      formData.append('amount', data.amount.toString());
+      formData.append('created_by', data.created_by || 'business');
+      
+      if (data.notes) {
+        formData.append('notes', data.notes);
+      }
+      
+      // Add receipt image file
+      const filename = data.receipt_url.split('/').pop() || 'receipt.jpg';
+      const match = /\.(\w+)$/.exec(filename);
+      const fileType = match ? `image/${match[1]}` : 'image/jpeg';
+      
+      formData.append('receipt_image', {
+        uri: data.receipt_url,
+        name: filename,
+        type: fileType,
+      } as any);
+      
+      const response = await this.api.post(API_ENDPOINTS.ADD_TRANSACTION, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    }
+    
+    // Otherwise use regular JSON
     const response = await this.api.post(API_ENDPOINTS.ADD_TRANSACTION, data);
     return response.data;
   }
