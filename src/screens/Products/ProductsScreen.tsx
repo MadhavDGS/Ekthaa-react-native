@@ -111,18 +111,47 @@ export default function ProductsScreen({ navigation }: any) {
     }
 
     try {
-      // Update product stock via API
+      // Optimistically update UI first
+      const updatedProducts = products.map(p => 
+        p.id === product.id ? { ...p, stock_quantity: newQuantity } : p
+      );
+      setProducts(updatedProducts);
+
+      // Update product stock via API in background
       await ApiService.updateProduct(product.id, {
         ...product,
         stock_quantity: newQuantity
       });
-
-      // Reload products to reflect changes
-      loadProducts();
     } catch (error) {
       console.error('❌ Failed to update stock:', error);
       Alert.alert('Error', 'Failed to update stock quantity. Please try again.');
+      // Revert on error
+      loadProducts();
     }
+  };
+
+  const handleDeleteProduct = (product: any) => {
+    Alert.alert(
+      'Delete Product',
+      `Are you sure you want to delete "${product.name}"?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await ApiService.deleteProduct(product.id);
+              Alert.alert('Success', 'Product deleted successfully');
+              loadProducts();
+            } catch (error) {
+              console.error('❌ Failed to delete product:', error);
+              Alert.alert('Error', 'Failed to delete product. Please try again.');
+            }
+          }
+        }
+      ]
+    );
   };
 
   const handleProductEdit = (product: any) => {
@@ -136,10 +165,8 @@ export default function ProductsScreen({ navigation }: any) {
     const isLowStock = item.stock_quantity <= (item.low_stock_threshold || 5);
 
     return (
-      <TouchableOpacity
+      <View
         style={[styles.productCard, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
-        onPress={() => handleProductEdit(item)}
-        activeOpacity={0.7}
       >
         <View style={styles.cardMain}>
           <View style={styles.productContent}>
@@ -150,6 +177,23 @@ export default function ProductsScreen({ navigation }: any) {
               <View style={styles.headerTexts}>
                 <Text style={[styles.productName, { color: Colors.textPrimary }]} numberOfLines={1}>{item.name}</Text>
                 <Text style={[styles.categoryText, { color: Colors.textSecondary }]} numberOfLines={1}>{item.category}</Text>
+              </View>
+              {/* Edit and Delete Actions */}
+              <View style={styles.productActions}>
+                <TouchableOpacity
+                  style={[styles.actionButton, { backgroundColor: Colors.backgroundSecondary }]}
+                  onPress={() => handleProductEdit(item)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="create-outline" size={18} color={Colors.primary} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.actionButton, { backgroundColor: Colors.backgroundSecondary }]}
+                  onPress={() => handleDeleteProduct(item)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="trash-outline" size={18} color={Colors.creditRed} />
+                </TouchableOpacity>
               </View>
             </View>
 
@@ -186,26 +230,22 @@ export default function ProductsScreen({ navigation }: any) {
           <View style={styles.quantityButtons}>
             <TouchableOpacity
               style={[styles.quantityButton, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
-              onPress={(e) => {
-                e.stopPropagation();
-                handleQuantityChange(item, -1);
-              }}
+              onPress={() => handleQuantityChange(item, -1)}
+              activeOpacity={0.7}
             >
               <Ionicons name="remove" size={16} color={Colors.textSecondary} />
             </TouchableOpacity>
             <Text style={[styles.quantityText, { color: Colors.textPrimary }]}>{item.stock_quantity}</Text>
             <TouchableOpacity
               style={[styles.quantityButton, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
-              onPress={(e) => {
-                e.stopPropagation();
-                handleQuantityChange(item, 1);
-              }}
+              onPress={() => handleQuantityChange(item, 1)}
+              activeOpacity={0.7}
             >
               <Ionicons name="add" size={16} color={Colors.textSecondary} />
             </TouchableOpacity>
           </View>
         </View>
-      </TouchableOpacity>
+      </View>
     );
   };
 
@@ -476,6 +516,18 @@ const styles = StyleSheet.create({
   },
   headerTexts: {
     flex: 1,
+  },
+  productActions: {
+    flexDirection: 'row',
+    gap: Spacing.xs,
+    marginLeft: Spacing.xs,
+  },
+  actionButton: {
+    width: 32,
+    height: 32,
+    borderRadius: BorderRadius.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   productName: {
     fontSize: Typography.fontBase,
