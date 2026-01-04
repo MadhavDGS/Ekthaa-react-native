@@ -155,10 +155,111 @@ export default function ProductsScreen({ navigation }: any) {
   };
 
   const handleProductEdit = (product: any) => {
-    // Navigate to edit product screen (if you have one)
-    // For now, just log
-    console.log('Edit product:', product.name);
-    // TODO: navigation.navigate('EditProduct', { productId: product.id });
+    // Show options for editing
+    Alert.alert(
+      'Edit Product',
+      `What would you like to edit for "${product.name}"?`,
+      [
+        {
+          text: 'Edit Description',
+          onPress: () => editDescription(product)
+        },
+        {
+          text: 'Edit Price',
+          onPress: () => editPrice(product)
+        },
+        {
+          text: 'Edit Stock Threshold',
+          onPress: () => editStockThreshold(product)
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        }
+      ]
+    );
+  };
+
+  const editDescription = (product: any) => {
+    Alert.prompt(
+      'Edit Description',
+      `Enter new description for ${product.name}`,
+      async (newDescription) => {
+        if (newDescription !== undefined && newDescription !== product.description) {
+          try {
+            await ApiService.updateProduct(product.id, {
+              ...product,
+              description: newDescription
+            });
+            Alert.alert('Success', 'Description updated successfully');
+            loadProducts();
+          } catch (error) {
+            console.error('❌ Failed to update description:', error);
+            Alert.alert('Error', 'Failed to update description');
+          }
+        }
+      },
+      'plain-text',
+      product.description || ''
+    );
+  };
+
+  const editPrice = (product: any) => {
+    Alert.prompt(
+      'Edit Price',
+      `Enter new price for ${product.name} (per ${product.unit})`,
+      async (newPrice) => {
+        if (newPrice !== undefined) {
+          const priceNum = parseFloat(newPrice);
+          if (isNaN(priceNum) || priceNum < 0) {
+            Alert.alert('Error', 'Please enter a valid price');
+            return;
+          }
+          try {
+            await ApiService.updateProduct(product.id, {
+              ...product,
+              price: priceNum
+            });
+            Alert.alert('Success', 'Price updated successfully');
+            loadProducts();
+          } catch (error) {
+            console.error('❌ Failed to update price:', error);
+            Alert.alert('Error', 'Failed to update price');
+          }
+        }
+      },
+      'plain-text',
+      product.price.toString()
+    );
+  };
+
+  const editStockThreshold = (product: any) => {
+    Alert.prompt(
+      'Edit Low Stock Threshold',
+      `Alert when stock falls below this number for ${product.name}`,
+      async (newThreshold) => {
+        if (newThreshold !== undefined) {
+          const thresholdNum = parseInt(newThreshold);
+          if (isNaN(thresholdNum) || thresholdNum < 0) {
+            Alert.alert('Error', 'Please enter a valid number');
+            return;
+          }
+          try {
+            await ApiService.updateProduct(product.id, {
+              ...product,
+              low_stock_threshold: thresholdNum
+            });
+            Alert.alert('Success', 'Stock threshold updated successfully');
+            loadProducts();
+          } catch (error) {
+            console.error('❌ Failed to update threshold:', error);
+            Alert.alert('Error', 'Failed to update threshold');
+          }
+        }
+      },
+      'plain-text',
+      (product.low_stock_threshold || 5).toString()
+    );
   };
 
   const renderProduct = ({ item }: any) => {
