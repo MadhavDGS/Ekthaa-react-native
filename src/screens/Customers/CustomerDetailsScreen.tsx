@@ -313,9 +313,9 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
                         )}
 
                         {/* Receipt Image */}
-                        {transaction.receipt_image_url && (
+                        {(transaction.receipt_image_url || transaction.receipt_url) && (
                           <Image
-                            source={{ uri: transaction.receipt_image_url }}
+                            source={{ uri: transaction.receipt_image_url || transaction.receipt_url }}
                             style={styles.receiptImage}
                             resizeMode="cover"
                           />
