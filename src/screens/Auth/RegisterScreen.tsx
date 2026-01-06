@@ -472,11 +472,8 @@ export default function RegisterScreen({ navigation }: any) {
         }).start();
       });
     } else {
-      // Finished - go to main app
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Main' }],
-      });
+      // Finished - navigate back to login which will auto-redirect to Main
+      navigation.replace('Login');
     }
   };
 
@@ -581,18 +578,13 @@ export default function RegisterScreen({ navigation }: any) {
         await ApiService.updateProfile(updateData);
       }
 
-      // Navigate to main app
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Main' }],
-      });
+      // Profile updated successfully - navigate back to Login
+      // Login screen will detect auth token and auto-redirect to Main
+      navigation.replace('Login');
     } catch (err: any) {
       console.error('Update profile error:', err);
-      // Even if update fails, navigate to app
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Main' }],
-      });
+      // Even if profile update fails, token is saved so navigate to Login
+      navigation.replace('Login');
     } finally {
       setLoading(false);
     }

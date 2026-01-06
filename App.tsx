@@ -232,7 +232,14 @@ function AppContent() {
   }
 
   return (
-    <NavigationContainer theme={navigationTheme}>
+    <NavigationContainer 
+      theme={navigationTheme}
+      onStateChange={() => {
+        // Re-check auth on navigation state change
+        // This ensures auth is checked after login/register completes
+        checkAuth();
+      }}
+    >
       <StatusBar 
         style={isDark ? 'light' : 'light'} 
         backgroundColor="#5A9A8E"
