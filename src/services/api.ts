@@ -134,7 +134,13 @@ class ApiService {
   }
 
   async logout() {
-    await this.api.post(API_ENDPOINTS.LOGOUT);
+    try {
+      await this.api.post(API_ENDPOINTS.LOGOUT);
+    } catch (error) {
+      // Ignore logout errors - clear local data anyway
+      console.log('Logout API call failed (ignored):', error);
+    }
+    // Always clear local auth data regardless of API response
     await AsyncStorage.removeItem('authToken');
     await AsyncStorage.removeItem('userData');
   }
