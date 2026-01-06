@@ -16,6 +16,8 @@ import {
   ActivityIndicator,
   Animated,
   Alert,
+  ScrollView,
+  Modal,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -26,6 +28,42 @@ import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../
 import { AvatarSizes } from '../../constants/scales';
 import { useTheme } from '../../context/ThemeContext';
 import ApiService from '../../services/api';
+
+// Business Categories with Subcategories
+const BUSINESS_CATEGORIES = [
+  {
+    name: 'Retail',
+    subcategories: ['Grocery Store', 'Supermarket', 'Convenience Store', 'Clothing Store', 'Electronics Store', 'Hardware Store', 'Pharmacy', 'Other Retail']
+  },
+  {
+    name: 'Food & Restaurant',
+    subcategories: ['Restaurant', 'Fast Food', 'Cafe', 'Bakery', 'Sweet Shop', 'Ice Cream Parlor', 'Cloud Kitchen', 'Catering']
+  },
+  {
+    name: 'Services',
+    subcategories: ['Salon & Spa', 'Laundry', 'Repair Services', 'Consulting', 'Photography', 'Event Planning', 'Cleaning Services', 'Other Services']
+  },
+  {
+    name: 'Healthcare',
+    subcategories: ['Clinic', 'Hospital', 'Diagnostic Center', 'Dental Clinic', 'Veterinary', 'Medical Store', 'Pharmacy']
+  },
+  {
+    name: 'Education',
+    subcategories: ['School', 'Coaching Classes', 'Training Institute', 'Language Classes', 'Music Classes', 'Dance Academy', 'Sports Academy']
+  },
+  {
+    name: 'Automobile',
+    subcategories: ['Car Showroom', 'Bike Showroom', 'Service Center', 'Spare Parts', 'Car Wash', 'Tyre Shop']
+  },
+  {
+    name: 'Real Estate',
+    subcategories: ['Property Dealer', 'Construction', 'Interior Designer', 'Architect']
+  },
+  {
+    name: 'Other',
+    subcategories: ['Manufacturing', 'Wholesale', 'Distribution', 'Logistics', 'Other Business']
+  }
+];
 
 interface Step {
   id: string;
@@ -42,7 +80,7 @@ interface Step {
   secureTextEntry?: boolean;
   validation?: (value: string) => string | null;
   required?: boolean;
-  isSpecial?: 'profile-photo' | 'location';
+  isSpecial?: 'profile-photo' | 'location' | 'category' | 'subcategory' | 'operating-hours';
 }
 
 export default function RegisterScreen({ navigation }: any) {
@@ -73,6 +111,10 @@ export default function RegisterScreen({ navigation }: any) {
   const [website, setWebsite] = useState('');
   const [facebook, setFacebook] = useState('');
   const [instagram, setInstagram] = useState('');
+  const [subcategory, setSubcategory] = useState('');
+  const [operatingHours, setOperatingHours] = useState('9 AM - 9 PM');
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [showSubcategoryModal, setShowSubcategoryModal] = useState(false);
 
   const steps: Step[] = [
     {
@@ -198,9 +240,29 @@ export default function RegisterScreen({ navigation }: any) {
       title: 'Business category?',
       subtitle: 'What type of business do you run?',
       icon: 'grid',
-      placeholder: 'e.g., Retail, Restaurant',
+      placeholder: 'Select category',
       value: category,
       setValue: setCategory,
+      isSpecial: 'category',
+    },
+    {
+      id: 'subcategory',
+      title: 'Business subcategory?',
+      subtitle: 'More specific type of business',
+      icon: 'apps',
+      placeholder: 'Select subcategory',
+      value: subcategory,
+      setValue: setSubcategory,
+      isSpecial: 'subcategory',
+    },
+    {
+      id: 'operatingHours',
+      title: 'Operating hours?',
+      subtitle: 'When is your business open?',
+      icon: 'time',
+      placeholder: 'e.g., 9 AM - 9 PM',
+      value: operatingHours,
+      setValue: setOperatingHours,
     },
     {
       id: 'businessType',
@@ -283,6 +345,8 @@ export default function RegisterScreen({ navigation }: any) {
       state: setState,
       pincode: setPincode,
       category: setCategory,
+      subcategory: setSubcategory,
+      operatingHours: setOperatingHours,
       businessType: setBusinessType,
       gst: setGstNumber,
       description: setDescription,
@@ -489,6 +553,8 @@ export default function RegisterScreen({ navigation }: any) {
       if (state) updateData.state = state;
       if (pincode) updateData.pincode = pincode;
       if (category) updateData.category = category;
+      if (subcategory) updateData.subcategory = subcategory;
+      if (operatingHours) updateData.operating_hours = operatingHours;
       if (businessType) updateData.business_type = businessType;
       if (gstNumber) updateData.gst_number = gstNumber;
       if (description) updateData.description = description;
@@ -647,6 +713,38 @@ export default function RegisterScreen({ navigation }: any) {
                   </Text>
                 ) : null}
               </View>
+            ) : currentStep.isSpecial === 'category' ? (
+              /* Special Input: Category Picker */
+              <View style={styles.specialInputContainer}>
+                <TouchableOpacity
+                  style={[styles.pickerButton, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}
+                  onPress={() => setShowCategoryModal(true)}
+                >
+                  <Text style={[styles.pickerButtonText, category ? { color: Colors.textPrimary } : { color: Colors.textTertiary }]}>
+                    {category || 'Select category'}
+                  </Text>
+                  <Ionicons name="chevron-down" size={20} color={Colors.textSecondary} />
+                </TouchableOpacity>
+              </View>
+            ) : currentStep.isSpecial === 'subcategory' ? (
+              /* Special Input: Subcategory Picker */
+              <View style={styles.specialInputContainer}>
+                <TouchableOpacity
+                  style={[styles.pickerButton, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}
+                  onPress={() => {
+                    if (!category) {
+                      Alert.alert('Select Category First', 'Please select a business category before choosing subcategory');
+                    } else {
+                      setShowSubcategoryModal(true);
+                    }
+                  }}
+                >
+                  <Text style={[styles.pickerButtonText, subcategory ? { color: Colors.textPrimary } : { color: Colors.textTertiary }]}>
+                    {subcategory || 'Select subcategory'}
+                  </Text>
+                  <Ionicons name="chevron-down" size={20} color={Colors.textSecondary} />
+                </TouchableOpacity>
+              </View>
             ) : (
               /* Regular Text Input */
               <View style={[styles.inputWrapper, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
@@ -715,6 +813,79 @@ export default function RegisterScreen({ navigation }: any) {
             )}
           </TouchableOpacity>
         </View>
+
+        {/* Category Modal */}
+        <Modal
+          visible={showCategoryModal}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setShowCategoryModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalContent, { backgroundColor: Colors.card }]}>
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: Colors.textPrimary }]}>Select Category</Text>
+                <TouchableOpacity onPress={() => setShowCategoryModal(false)}>
+                  <Ionicons name="close" size={24} color={Colors.textSecondary} />
+                </TouchableOpacity>
+              </View>
+              <ScrollView style={styles.modalScroll}>
+                {BUSINESS_CATEGORIES.map((cat) => (
+                  <TouchableOpacity
+                    key={cat.name}
+                    style={[styles.modalOption, category === cat.name && { backgroundColor: Colors.primary + '15' }]}
+                    onPress={() => {
+                      setCategory(cat.name);
+                      setSubcategory(''); // Reset subcategory when category changes
+                      setShowCategoryModal(false);
+                    }}
+                  >
+                    <Text style={[styles.modalOptionText, { color: category === cat.name ? Colors.primary : Colors.textPrimary }]}>
+                      {cat.name}
+                    </Text>
+                    {category === cat.name && <Ionicons name="checkmark" size={20} color={Colors.primary} />}
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Subcategory Modal */}
+        <Modal
+          visible={showSubcategoryModal}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setShowSubcategoryModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalContent, { backgroundColor: Colors.card }]}>
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: Colors.textPrimary }]}>Select Subcategory</Text>
+                <TouchableOpacity onPress={() => setShowSubcategoryModal(false)}>
+                  <Ionicons name="close" size={24} color={Colors.textSecondary} />
+                </TouchableOpacity>
+              </View>
+              <ScrollView style={styles.modalScroll}>
+                {BUSINESS_CATEGORIES.find(c => c.name === category)?.subcategories.map((sub) => (
+                  <TouchableOpacity
+                    key={sub}
+                    style={[styles.modalOption, subcategory === sub && { backgroundColor: Colors.primary + '15' }]}
+                    onPress={() => {
+                      setSubcategory(sub);
+                      setShowSubcategoryModal(false);
+                    }}
+                  >
+                    <Text style={[styles.modalOptionText, { color: subcategory === sub ? Colors.primary : Colors.textPrimary }]}>
+                      {sub}
+                    </Text>
+                    {subcategory === sub && <Ionicons name="checkmark" size={20} color={Colors.primary} />}
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -900,5 +1071,54 @@ const styles = StyleSheet.create({
   nextButtonText: {
     fontSize: Typography.fontBase,
     fontWeight: Typography.bold,
+  },
+  pickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: Spacing.space4,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+  },
+  pickerButtonText: {
+    fontSize: Typography.fontBase,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    borderTopLeftRadius: BorderRadius.xl,
+    borderTopRightRadius: BorderRadius.xl,
+    maxHeight: '70%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.space4,
+    paddingVertical: Spacing.space3,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+  },
+  modalTitle: {
+    fontSize: Typography.fontLg,
+    fontWeight: Typography.semiBold,
+  },
+  modalScroll: {
+    maxHeight: 400,
+  },
+  modalOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.space4,
+    paddingVertical: Spacing.space4,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.05)',
+  },
+  modalOptionText: {
+    fontSize: Typography.fontBase,
   },
 });

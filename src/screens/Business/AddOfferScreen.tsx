@@ -15,6 +15,7 @@ import {
     ScrollView,
     ActivityIndicator,
     Alert,
+    Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -347,15 +348,6 @@ export default function AddOfferScreen({ navigation, route }: any) {
                                         <Ionicons name="calendar-outline" size={20} color={Colors.primary} />
                                     </View>
                                 </TouchableOpacity>
-                                {showStartDatePicker && (
-                                    <DateTimePicker
-                                        value={formData.startDate ? new Date(formData.startDate) : new Date()}
-                                        mode="date"
-                                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                                        onChange={onStartDateChange}
-                                        minimumDate={new Date()}
-                                    />
-                                )}
                             </View>
 
                             <View style={styles.halfInput}>
@@ -375,15 +367,6 @@ export default function AddOfferScreen({ navigation, route }: any) {
                                         <Ionicons name="calendar-outline" size={20} color={Colors.primary} />
                                     </View>
                                 </TouchableOpacity>
-                                {showEndDatePicker && (
-                                    <DateTimePicker
-                                        value={formData.endDate ? new Date(formData.endDate) : new Date()}
-                                        mode="date"
-                                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                                        onChange={onEndDateChange}
-                                        minimumDate={formData.startDate ? new Date(formData.startDate) : new Date()}
-                                    />
-                                )}
                             </View>
                         </View>
                     </View>
@@ -391,6 +374,89 @@ export default function AddOfferScreen({ navigation, route }: any) {
                     <View style={{ height: 100 }} />
                 </ScrollView>
             </KeyboardAvoidingView>
+
+            {/* Date Pickers in Modal for proper display */}
+            {showStartDatePicker && Platform.OS === 'ios' && (
+                <Modal
+                    transparent={true}
+                    animationType="slide"
+                    visible={showStartDatePicker}
+                    onRequestClose={() => setShowStartDatePicker(false)}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={[styles.modalContent, { backgroundColor: Colors.card }]}>
+                            <View style={styles.modalHeader}>
+                                <TouchableOpacity onPress={() => setShowStartDatePicker(false)}>
+                                    <Text style={[styles.modalButton, { color: Colors.primary }]}>Cancel</Text>
+                                </TouchableOpacity>
+                                <Text style={[styles.modalTitle, { color: Colors.textPrimary }]}>Select Start Date</Text>
+                                <TouchableOpacity onPress={() => setShowStartDatePicker(false)}>
+                                    <Text style={[styles.modalButton, { color: Colors.primary }]}>Done</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <DateTimePicker
+                                value={formData.startDate ? new Date(formData.startDate) : new Date()}
+                                mode="date"
+                                display="spinner"
+                                onChange={onStartDateChange}
+                                minimumDate={new Date()}
+                                textColor={Colors.textPrimary}
+                                themeVariant={isDark ? 'dark' : 'light'}
+                            />
+                        </View>
+                    </View>
+                </Modal>
+            )}
+            {showStartDatePicker && Platform.OS === 'android' && (
+                <DateTimePicker
+                    value={formData.startDate ? new Date(formData.startDate) : new Date()}
+                    mode="date"
+                    display="default"
+                    onChange={onStartDateChange}
+                    minimumDate={new Date()}
+                />
+            )}
+
+            {showEndDatePicker && Platform.OS === 'ios' && (
+                <Modal
+                    transparent={true}
+                    animationType="slide"
+                    visible={showEndDatePicker}
+                    onRequestClose={() => setShowEndDatePicker(false)}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={[styles.modalContent, { backgroundColor: Colors.card }]}>
+                            <View style={styles.modalHeader}>
+                                <TouchableOpacity onPress={() => setShowEndDatePicker(false)}>
+                                    <Text style={[styles.modalButton, { color: Colors.primary }]}>Cancel</Text>
+                                </TouchableOpacity>
+                                <Text style={[styles.modalTitle, { color: Colors.textPrimary }]}>Select End Date</Text>
+                                <TouchableOpacity onPress={() => setShowEndDatePicker(false)}>
+                                    <Text style={[styles.modalButton, { color: Colors.primary }]}>Done</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <DateTimePicker
+                                value={formData.endDate ? new Date(formData.endDate) : new Date()}
+                                mode="date"
+                                display="spinner"
+                                onChange={onEndDateChange}
+                                minimumDate={formData.startDate ? new Date(formData.startDate) : new Date()}
+                                textColor={Colors.textPrimary}
+                                themeVariant={isDark ? 'dark' : 'light'}
+                            />
+                        </View>
+                    </View>
+                </Modal>
+            )}
+            {showEndDatePicker && Platform.OS === 'android' && (
+                <DateTimePicker
+                    value={formData.endDate ? new Date(formData.endDate) : new Date()}
+                    mode="date"
+                    display="default"
+                    onChange={onEndDateChange}
+                    minimumDate={formData.startDate ? new Date(formData.startDate) : new Date()}
+                />
+            )}
 
             {/* Bottom Button */}
             <View style={[styles.bottomBar, {
@@ -517,5 +583,34 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: Typography.fontMd,
         fontFamily: Typography.fonts.bold,
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'flex-end',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        borderTopLeftRadius: BorderRadius.xl,
+        borderTopRightRadius: BorderRadius.xl,
+        paddingBottom: Platform.OS === 'ios' ? 34 : Spacing.md,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: Spacing.lg,
+        paddingVertical: Spacing.md,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.1)',
+    },
+    modalTitle: {
+        fontSize: Typography.fontMd,
+        fontFamily: Typography.fonts.semiBold,
+    },
+    modalButton: {
+        fontSize: Typography.fontSm,
+        fontFamily: Typography.fonts.semiBold,
+        paddingVertical: Spacing.xs,
+        paddingHorizontal: Spacing.sm,
     },
 });
