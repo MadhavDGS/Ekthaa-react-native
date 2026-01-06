@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ApiService from '../../services/api';
 import { getThemedColors, AvatarColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
 import { AvatarSizes, IconSizes, TextScale, SpacingScale } from '../../constants/scales';
@@ -30,6 +31,7 @@ const { width } = Dimensions.get('window');
 
 export default function CustomersScreen({ navigation }: any) {
   const { isDark } = useTheme();
+  const insets = useSafeAreaInsets();
   const Colors = getThemedColors(isDark);
   const [customers, setCustomers] = useState<any[]>([]);
   const [filteredCustomers, setFilteredCustomers] = useState<any[]>([]);
@@ -198,7 +200,13 @@ export default function CustomersScreen({ navigation }: any) {
       />
 
       <TouchableOpacity
-        style={[styles.fab, { backgroundColor: Colors.primary }]}
+        style={[
+          styles.fab,
+          {
+            backgroundColor: Colors.primary,
+            bottom: 22 + Math.max(insets.bottom, 0)
+          }
+        ]}
         onPress={() => navigation.navigate('AddCustomer')}
         activeOpacity={0.8}
       >
@@ -246,7 +254,7 @@ const styles = StyleSheet.create({
   emptyText: { fontSize: Typography.fontXs, textAlign: 'center' },
   fab: {
     position: 'absolute',
-    bottom: 22,
+    // bottom set dynamically
     right: 22,
     width: 50,
     height: 50,

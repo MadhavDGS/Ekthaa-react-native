@@ -442,27 +442,57 @@ export default function EditProfileScreen({ navigation, route }: any) {
                             <TouchableOpacity
                                 style={[styles.locationButton, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3', borderColor: Colors.primary }]}
                                 onPress={async () => {
+                                    console.log('🗺️ GPS button pressed');
+                                    let loadingStarted = false;
                                     try {
+                                        // Request location permission
+                                        console.log('📍 Requesting location permission...');
                                         const { status } = await Location.requestForegroundPermissionsAsync();
+                                        console.log('📍 Permission status:', status);
+                                        
                                         if (status !== 'granted') {
-                                            Alert.alert('Permission Denied', 'Location permission is required');
+                                            Alert.alert('Permission Denied', 'Location permission is required to use GPS. Please enable it in your device settings.');
                                             return;
                                         }
 
                                         setLoading(true);
-                                        const currentLocation = await Location.getCurrentPositionAsync({});
+                                        loadingStarted = true;
+
+                                        // Get current location with timeout
+                                        console.log('📍 Getting current position...');
+                                        const currentLocation = await Promise.race([
+                                            Location.getCurrentPositionAsync({
+                                                accuracy: Location.Accuracy.Balanced,
+                                            }),
+                                            new Promise((_, reject) => 
+                                                setTimeout(() => reject(new Error('Location timeout - please try again')), 15000)
+                                            )
+                                        ]) as Location.LocationObject;
+                                        
+                                        console.log('📍 Location obtained:', currentLocation.coords.latitude, currentLocation.coords.longitude);
+                                        
                                         const newLocation = {
                                             latitude: currentLocation.coords.latitude,
                                             longitude: currentLocation.coords.longitude
                                         };
+                                        
+                                        // Update location state first (so user sees it immediately)
                                         setLocation(newLocation);
+                                        
+                                        // Update location on backend
+                                        console.log('📍 Updating location on backend...');
                                         await ApiService.updateLocation(newLocation.latitude, newLocation.longitude);
+                                        console.log('📍 Location updated successfully');
 
-                                        Alert.alert('Success', 'Location updated using GPS');
+                                        Alert.alert('Success', 'GPS location updated successfully');
                                     } catch (error: any) {
-                                        Alert.alert('Error', error.message || 'Failed to get GPS location');
+                                        console.error('❌ GPS location error:', error);
+                                        const errorMessage = error.message || 'Failed to get GPS location. Please make sure location services are enabled in your device settings.';
+                                        Alert.alert('Error', errorMessage);
                                     } finally {
-                                        setLoading(false);
+                                        if (loadingStarted) {
+                                            setLoading(false);
+                                        }
                                     }
                                 }}
                                 disabled={loading}

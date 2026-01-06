@@ -12,7 +12,7 @@ if (Platform.OS === 'android') {
     UIManager.setLayoutAnimationEnabledExperimental(true);
   }
 }
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
@@ -59,6 +59,7 @@ const Tab = createBottomTabNavigator();
 function MainTabs() {
   const { isDark } = useTheme();
   const Colors = getThemedColors(isDark);
+  const insets = useSafeAreaInsets();
 
   return (
     <Tab.Navigator
@@ -96,8 +97,8 @@ function MainTabs() {
           backgroundColor: Colors.card,
           borderTopColor: Colors.borderLight,
           borderTopWidth: 1,
-          paddingBottom: Platform.OS === 'ios' ? 20 : 8,
-          height: Platform.OS === 'ios' ? 68 : 52,
+          paddingBottom: Platform.OS === 'ios' ? 20 : Math.max(insets.bottom, 8),
+          height: Platform.OS === 'ios' ? 68 : 52 + Math.max(insets.bottom, 8),
         },
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textTertiary,

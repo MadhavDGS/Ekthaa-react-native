@@ -15,7 +15,7 @@ import {
   Platform,
   Dimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -28,6 +28,7 @@ const { width } = Dimensions.get('window');
 
 export default function DashboardScreen({ navigation }: any) {
   const { isDark } = useTheme();
+  const insets = useSafeAreaInsets();
   const Colors = getThemedColors(isDark);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -442,14 +443,6 @@ export default function DashboardScreen({ navigation }: any) {
         )}
       </ScrollView>
 
-      {/* Floating Action Button */}
-      <TouchableOpacity
-        style={[styles.fab, { backgroundColor: Colors.primary }]}
-        onPress={() => navigation.navigate('Customers')}
-        activeOpacity={0.9}
-      >
-        <Ionicons name="add" size={28} color="#fff" />
-      </TouchableOpacity>
     </View>
   );
 }
@@ -733,27 +726,5 @@ const styles = StyleSheet.create({
   },
   transactionType: {
     fontSize: Typography.fontXs,
-  },
-  // FAB Styles
-  fab: {
-    position: 'absolute',
-    right: Spacing.lg,
-    bottom: Spacing.xl,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
   },
 });

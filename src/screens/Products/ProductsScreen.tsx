@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ApiService from '../../services/api';
 import { Spacing, Typography, BorderRadius } from '../../constants/theme';
 import { AvatarSizes, IconSizes, TextScale, SpacingScale } from '../../constants/scales';
@@ -28,6 +29,7 @@ import { SkeletonCard } from '../../components/Skeletons';
 
 export default function ProductsScreen({ navigation }: any) {
   const { isDark } = useTheme();
+  const insets = useSafeAreaInsets();
   const Colors = getThemedColors(isDark);
   const [products, setProducts] = useState<any[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
@@ -51,15 +53,43 @@ export default function ProductsScreen({ navigation }: any) {
   );
 
   useEffect(() => {
-    filterProducts();
+    console.log('⚡ useEffect triggered - products length:', products.length, 'searchQuery:', searchQuery, 'category:', selectedCategory);
+    if (products.length > 0) {
+      filterProducts();
+    } else {
+      setFilteredProducts([]);
+    }
   }, [searchQuery, selectedCategory, products]);
 
   const loadProducts = async () => {
     try {
       setLoading(true);
+      console.log('📋 Loading products...');
       const data = await ApiService.getProducts();
       console.log('📋 Products loaded:', data.products?.length || 0);
-      setProducts(data.products || []);
+      
+      if (!data.products || data.products.length === 0) {
+        console.warn('⚠️ No products in response');
+        setProducts([]);
+        setFilteredProducts([]);
+      } else {
+        console.log('✅ Setting products state with', data.products.length, 'items');
+        const productsArray = [...data.products];
+        setProducts(productsArray);
+        
+        // Filter products immediately after setting them
+        console.log('🔍 Filtering products immediately - Total:', productsArray.length);
+        let filtered = productsArray;
+        if (selectedCategory !== 'All') {
+          filtered = filtered.filter(p => p.category.toLowerCase() === selectedCategory.toLowerCase());
+        }
+        if (searchQuery.trim()) {
+          filtered = filtered.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
+        }
+        console.log('🔍 Immediate filter result:', filtered.length);
+        setFilteredProducts(filtered);
+      }
+      
       setLastFetch(Date.now());
 
       // Extract unique categories
@@ -73,6 +103,8 @@ export default function ProductsScreen({ navigation }: any) {
       setStats({ totalValue, lowStock });
     } catch (error) {
       console.error('❌ Load products error:', error);
+      Alert.alert('Error', 'Failed to load products. Please check your connection.', 'error');
+      setProducts([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -80,6 +112,7 @@ export default function ProductsScreen({ navigation }: any) {
   };
 
   const filterProducts = () => {
+    console.log('🔍 Filtering products - Total:', products.length, 'Category:', selectedCategory, 'Search:', searchQuery);
     let filtered = products;
 
     if (selectedCategory !== 'All') {
@@ -87,14 +120,17 @@ export default function ProductsScreen({ navigation }: any) {
       filtered = filtered.filter(p => 
         p.category.toLowerCase() === selectedCategory.toLowerCase()
       );
+      console.log('🔍 After category filter:', filtered.length);
     }
 
     if (searchQuery.trim()) {
       filtered = filtered.filter(p =>
         p.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
+      console.log('🔍 After search filter:', filtered.length);
     }
 
+    console.log('🔍 Final filtered products:', filtered.length);
     setFilteredProducts(filtered);
   };
 
@@ -117,14 +153,15 @@ export default function ProductsScreen({ navigation }: any) {
       );
       setProducts(updatedProducts);
 
-      // Update product stock via API in background
+      // Update product stock via API - only send the stock_quantity field
       await ApiService.updateProduct(product.id, {
-        ...product,
         stock_quantity: newQuantity
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Failed to update stock:', error);
-      Alert.alert('Error', 'Failed to update stock quantity. Please try again.');
+      console.error('❌ Error details:', error.response?.data);
+      const errorMessage = error.response?.data?.error || 'Failed to update stock quantity. Please try again.';
+      Alert.alert('Error', errorMessage);
       // Revert on error
       loadProducts();
     }
@@ -142,7 +179,6 @@ export default function ProductsScreen({ navigation }: any) {
           onPress: async () => {
             try {
               await ApiService.deleteProduct(product.id);
-              Alert.alert('Success', 'Product deleted successfully');
               loadProducts();
             } catch (error) {
               console.error('❌ Failed to delete product:', error);
@@ -155,27 +191,14 @@ export default function ProductsScreen({ navigation }: any) {
   };
 
   const handleProductEdit = (product: any) => {
-    // Show options for editing
     Alert.alert(
       'Edit Product',
       `What would you like to edit for "${product.name}"?`,
       [
-        {
-          text: 'Edit Description',
-          onPress: () => editDescription(product)
-        },
-        {
-          text: 'Edit Price',
-          onPress: () => editPrice(product)
-        },
-        {
-          text: 'Edit Stock Threshold',
-          onPress: () => editStockThreshold(product)
-        },
-        {
-          text: 'Cancel',
-          style: 'cancel'
-        }
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Edit Description', onPress: () => editDescription(product) },
+        { text: 'Edit Price', onPress: () => editPrice(product) },
+        { text: 'Edit Stock Threshold', onPress: () => editStockThreshold(product) },
       ]
     );
   };
@@ -185,13 +208,11 @@ export default function ProductsScreen({ navigation }: any) {
       'Edit Description',
       `Enter new description for ${product.name}`,
       async (newDescription) => {
-        if (newDescription !== undefined && newDescription !== product.description) {
+        if (newDescription && newDescription !== product.description) {
           try {
             await ApiService.updateProduct(product.id, {
-              ...product,
               description: newDescription
             });
-            Alert.alert('Success', 'Description updated successfully');
             loadProducts();
           } catch (error) {
             console.error('❌ Failed to update description:', error);
@@ -209,18 +230,16 @@ export default function ProductsScreen({ navigation }: any) {
       'Edit Price',
       `Enter new price for ${product.name} (per ${product.unit})`,
       async (newPrice) => {
-        if (newPrice !== undefined) {
+        if (newPrice) {
           const priceNum = parseFloat(newPrice);
           if (isNaN(priceNum) || priceNum < 0) {
-            Alert.alert('Error', 'Please enter a valid price');
+            Alert.alert('Invalid Price', 'Please enter a valid price');
             return;
           }
           try {
             await ApiService.updateProduct(product.id, {
-              ...product,
               price: priceNum
             });
-            Alert.alert('Success', 'Price updated successfully');
             loadProducts();
           } catch (error) {
             console.error('❌ Failed to update price:', error);
@@ -229,7 +248,7 @@ export default function ProductsScreen({ navigation }: any) {
         }
       },
       'plain-text',
-      product.price.toString()
+      product.price?.toString() || ''
     );
   };
 
@@ -238,18 +257,16 @@ export default function ProductsScreen({ navigation }: any) {
       'Edit Low Stock Threshold',
       `Alert when stock falls below this number for ${product.name}`,
       async (newThreshold) => {
-        if (newThreshold !== undefined) {
+        if (newThreshold) {
           const thresholdNum = parseInt(newThreshold);
           if (isNaN(thresholdNum) || thresholdNum < 0) {
-            Alert.alert('Error', 'Please enter a valid number');
+            Alert.alert('Invalid Input', 'Please enter a valid number');
             return;
           }
           try {
             await ApiService.updateProduct(product.id, {
-              ...product,
               low_stock_threshold: thresholdNum
             });
-            Alert.alert('Success', 'Stock threshold updated successfully');
             loadProducts();
           } catch (error) {
             console.error('❌ Failed to update threshold:', error);
@@ -489,7 +506,14 @@ export default function ProductsScreen({ navigation }: any) {
 
       {/* FAB */}
       <TouchableOpacity
-        style={[styles.fab, { backgroundColor: Colors.primary, ...Platform.select({ ios: { shadowColor: Colors.primary }, android: {} }) }]}
+        style={[
+          styles.fab,
+          {
+            backgroundColor: Colors.primary,
+            bottom: Platform.OS === 'ios' ? 86 : 70 + Math.max(insets.bottom, 0),
+            ...Platform.select({ ios: { shadowColor: Colors.primary }, android: {} })
+          }
+        ]}
         onPress={() => navigation.navigate('AddProduct')}
         activeOpacity={0.8}
       >
@@ -535,14 +559,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: Spacing.sm,
     paddingHorizontal: Spacing.sm,
-    height: 32,
+    height: 40,
+    paddingVertical: Spacing.xs,
   },
   searchInput: {
     flex: 1,
-    fontSize: Typography.fontXs,
+    fontSize: Typography.fontSm,
     marginLeft: Spacing.xs,
     fontFamily: Typography.fonts.medium,
-    height: 32,
+    height: '100%',
+    paddingVertical: 0,
   },
   categoriesWrapper: {
     borderBottomWidth: 1,
@@ -763,7 +789,7 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 16,
-    bottom: Platform.OS === 'ios' ? 86 : 70,
+    // bottom set dynamically in component
     width: IconSizes.xlarge + 10,
     height: IconSizes.xlarge + 10,
     borderRadius: (IconSizes.xlarge + 10) / 2,

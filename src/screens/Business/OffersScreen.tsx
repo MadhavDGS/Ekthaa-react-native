@@ -15,7 +15,7 @@ import {
     Alert,
     Platform,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { getThemedColors, Typography, Spacing, BorderRadius } from '../../constants/theme';
@@ -25,6 +25,7 @@ import ApiService from '../../services/api';
 
 export default function OffersScreen({ navigation }: any) {
     const { isDark } = useTheme();
+    const insets = useSafeAreaInsets();
     const Colors = getThemedColors(isDark);
     const [activeTab, setActiveTab] = useState('offers');
     const [offers, setOffers] = useState<any[]>([]);
@@ -318,7 +319,13 @@ export default function OffersScreen({ navigation }: any) {
 
             {/* FAB */}
             <TouchableOpacity
-                style={[styles.fab, { backgroundColor: Colors.primary }]}
+                style={[
+                    styles.fab,
+                    {
+                        backgroundColor: Colors.primary,
+                        bottom: 22 + Math.max(insets.bottom, 0)
+                    }
+                ]}
                 onPress={() => navigation.navigate('AddOffer', { type: activeTab })}
             >
                 <Ionicons name="add" size={28} color="#fff" />
@@ -452,7 +459,7 @@ const styles = StyleSheet.create({
     fab: {
         position: 'absolute',
         right: Spacing.lg,
-        bottom: Spacing.lg,
+        // bottom set dynamically
         width: 56,
         height: 56,
         borderRadius: 28,
