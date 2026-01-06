@@ -18,6 +18,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { getThemedColors, Typography, Spacing, BorderRadius } from '../../constants/theme';
 import { useTheme } from '../../context/ThemeContext';
 import ApiService from '../../services/api';
@@ -29,6 +30,8 @@ export default function AddOfferScreen({ navigation, route }: any) {
     const isOffer = type === 'offers';
 
     const [loading, setLoading] = useState(false);
+    const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+    const [showEndDatePicker, setShowEndDatePicker] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -47,6 +50,22 @@ export default function AddOfferScreen({ navigation, route }: any) {
 
     const handleInputChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const onStartDateChange = (event: any, selectedDate?: Date) => {
+        setShowStartDatePicker(Platform.OS === 'ios');
+        if (selectedDate) {
+            const dateStr = selectedDate.toISOString().split('T')[0];
+            handleInputChange('startDate', dateStr);
+        }
+    };
+
+    const onEndDateChange = (event: any, selectedDate?: Date) => {
+        setShowEndDatePicker(Platform.OS === 'ios');
+        if (selectedDate) {
+            const dateStr = selectedDate.toISOString().split('T')[0];
+            handleInputChange('endDate', dateStr);
+        }
     };
 
     const handleSubmit = async () => {
@@ -297,32 +316,58 @@ export default function AddOfferScreen({ navigation, route }: any) {
                                 <TextInput
                                     style={[styles.input, {
                                         backgroundColor: isDark ? '#2a2a2a' : '#f5f5f5',
-                                        color: Colors.textPrimary,
-                                        borderColor: Colors.borderLight
-                                    }]}
-                                    placeholder="1000"
-                                    placeholderTextColor={Colors.textTertiary}
-                                    value={formData.maxDiscount}
-                                    onChangeText={(text) => handleInputChange('maxDiscount', text)}
-                                    keyboardType="numeric"
-                                />
-                            </View>
-                        </View>
-
-                        {/* Dates */}
-                        <View style={styles.row}>
-                            <View style={styles.halfInput}>
-                                <Text style={[styles.label, { color: Colors.textSecondary }]}>Start Date *</Text>
-                                <TextInput
+                                  ouchableOpacity
                                     style={[styles.input, {
                                         backgroundColor: isDark ? '#2a2a2a' : '#f5f5f5',
-                                        color: Colors.textPrimary,
-                                        borderColor: Colors.borderLight
+                                        borderColor: Colors.borderLight,
+                                        justifyContent: 'center',
                                     }]}
-                                    placeholder="YYYY-MM-DD"
-                                    placeholderTextColor={Colors.textTertiary}
-                                    value={formData.startDate}
-                                    onChangeText={(text) => handleInputChange('startDate', text)}
+                                    onPress={() => setShowStartDatePicker(true)}
+                                >
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <Text style={[{ color: formData.startDate ? Colors.textPrimary : Colors.textTertiary }]}>
+                                            {formData.startDate || 'Select date'}
+                                        </Text>
+                                        <Ionicons name="calendar-outline" size={20} color={Colors.primary} />
+                                    </View>
+                                </TouchableOpacity>
+                                {showStartDatePicker && (
+                                    <DateTimePicker
+                                        value={formData.startDate ? new Date(formData.startDate) : new Date()}
+                                        mode="date"
+                                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                        onChange={onStartDateChange}
+                                        minimumDate={new Date()}
+                                    />
+                                )}
+                            </View>
+
+                            <View style={styles.halfInput}>
+                                <Text style={[styles.label, { color: Colors.textSecondary }]}>End Date *</Text>
+                                <TouchableOpacity
+                                    style={[styles.input, {
+                                        backgroundColor: isDark ? '#2a2a2a' : '#f5f5f5',
+                                        borderColor: Colors.borderLight,
+                                        justifyContent: 'center',
+                                    }]}
+                                    onPress={() => setShowEndDatePicker(true)}
+                                >
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <Text style={[{ color: formData.endDate ? Colors.textPrimary : Colors.textTertiary }]}>
+                                            {formData.endDate || 'Select date'}
+                                        </Text>
+                                        <Ionicons name="calendar-outline" size={20} color={Colors.primary} />
+                                    </View>
+                                </TouchableOpacity>
+                                {showEndDatePicker && (
+                                    <DateTimePicker
+                                        value={formData.endDate ? new Date(formData.endDate) : new Date()}
+                                        mode="date"
+                                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                        onChange={onEndDateChange}
+                                        minimumDate={formData.startDate ? new Date(formData.startDate) : new Date()}
+                                    />
+                                )}  onChangeText={(text) => handleInputChange('startDate', text)}
                                 />
                             </View>
 
