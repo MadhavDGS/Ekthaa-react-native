@@ -316,7 +316,23 @@ export default function AddOfferScreen({ navigation, route }: any) {
                                 <TextInput
                                     style={[styles.input, {
                                         backgroundColor: isDark ? '#2a2a2a' : '#f5f5f5',
-                                  ouchableOpacity
+                                        color: Colors.textPrimary,
+                                        borderColor: Colors.borderLight
+                                    }]}
+                                    placeholder="200"
+                                    placeholderTextColor={Colors.textTertiary}
+                                    value={formData.maxDiscount}
+                                    onChangeText={(text) => handleInputChange('maxDiscount', text)}
+                                    keyboardType="numeric"
+                                />
+                            </View>
+                        </View>
+
+                        {/* Dates */}
+                        <View style={styles.row}>
+                            <View style={styles.halfInput}>
+                                <Text style={[styles.label, { color: Colors.textSecondary }]}>Start Date *</Text>
+                                <TouchableOpacity
                                     style={[styles.input, {
                                         backgroundColor: isDark ? '#2a2a2a' : '#f5f5f5',
                                         borderColor: Colors.borderLight,
@@ -367,23 +383,7 @@ export default function AddOfferScreen({ navigation, route }: any) {
                                         onChange={onEndDateChange}
                                         minimumDate={formData.startDate ? new Date(formData.startDate) : new Date()}
                                     />
-                                )}  onChangeText={(text) => handleInputChange('startDate', text)}
-                                />
-                            </View>
-
-                            <View style={styles.halfInput}>
-                                <Text style={[styles.label, { color: Colors.textSecondary }]}>End Date *</Text>
-                                <TextInput
-                                    style={[styles.input, {
-                                        backgroundColor: isDark ? '#2a2a2a' : '#f5f5f5',
-                                        color: Colors.textPrimary,
-                                        borderColor: Colors.borderLight
-                                    }]}
-                                    placeholder="YYYY-MM-DD"
-                                    placeholderTextColor={Colors.textTertiary}
-                                    value={formData.endDate}
-                                    onChangeText={(text) => handleInputChange('endDate', text)}
-                                />
+                                )}
                             </View>
                         </View>
                     </View>

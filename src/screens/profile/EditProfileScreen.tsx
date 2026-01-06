@@ -22,11 +22,19 @@ import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
-import MapView, { Marker } from 'react-native-maps';
 import { getThemedColors, Typography, Spacing, BorderRadius } from '../../constants/theme';
 import { useTheme } from '../../context/ThemeContext';
 import ApiService from '../../services/api';
 import { User } from '../../types';
+
+// Conditionally import MapView only for native platforms
+let MapView: any = null;
+let Marker: any = null;
+if (Platform.OS !== 'web') {
+    const MapViewModule = require('react-native-maps');
+    MapView = MapViewModule.default;
+    Marker = MapViewModule.Marker;
+}
 
 export default function EditProfileScreen({ navigation, route }: any) {
     const { isDark } = useTheme();
@@ -409,7 +417,7 @@ export default function EditProfileScreen({ navigation, route }: any) {
                         </Text>
 
                         {/* Map Preview */}
-                        {location && (
+                        {location && Platform.OS !== 'web' && MapView && (
                             <View style={styles.mapPreviewContainer}>
                                 <MapView
                                     style={styles.mapPreview}
@@ -425,6 +433,17 @@ export default function EditProfileScreen({ navigation, route }: any) {
                                 >
                                     <Marker coordinate={location} />
                                 </MapView>
+                                <Text style={[styles.locationCoords, { color: Colors.textSecondary }]}>
+                                    {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
+                                </Text>
+                            </View>
+                        )}
+
+                        {location && Platform.OS === 'web' && (
+                            <View style={styles.mapPreviewContainer}>
+                                <View style={[styles.mapPreview, { backgroundColor: Colors.card, justifyContent: 'center', alignItems: 'center' }]}>
+                                    <Ionicons name="location" size={40} color={Colors.primary} />
+                                </View>
                                 <Text style={[styles.locationCoords, { color: Colors.textSecondary }]}>
                                     {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
                                 </Text>
@@ -518,7 +537,7 @@ export default function EditProfileScreen({ navigation, route }: any) {
             </KeyboardAvoidingView>
 
             {/* Map Picker Modal */}
-            {showMap && (
+            {showMap && Platform.OS !== 'web' && MapView && (
                 <View style={styles.mapModal}>
                     <MapView
                         style={styles.fullMap}
