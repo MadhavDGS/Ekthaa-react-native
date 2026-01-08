@@ -829,3 +829,23 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingVertical: Spacing.space12,
     },
+    emptyText: {
+        fontSize: 16,
+        marginTop: Spacing.space3,
+    },
+    previewNote: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: Spacing.space4,
+        marginHorizontal: Spacing.space4,
+        marginTop: Spacing.space4,
+        borderRadius: BorderRadius.md,
+        borderWidth: 1,
+        gap: Spacing.space2,
+    },
+    previewNoteText: {
+        flex: 1,
+        fontSize: 13,
+        lineHeight: 18,
+    },
+});
