@@ -319,6 +319,17 @@ export default function ProfileScreen({ navigation }: any) {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Business Tools</Text>
 
+          <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]} onPress={() => navigation.navigate('PreviewBusiness')}>
+            <View style={[styles.settingIcon, { backgroundColor: isDark ? 'rgba(139, 92, 246, 0.2)' : 'rgba(139, 92, 246, 0.1)' }]}>
+              <Ionicons name="eye" size={17} color="#8b5cf6" />
+            </View>
+            <View style={styles.menuContent}>
+              <Text style={[styles.settingText, { color: Colors.textPrimary }]}>Preview My Business</Text>
+              <Text style={[styles.menuSubtitle, { color: Colors.textSecondary }]}>See how customers view your profile</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={14} color={Colors.textTertiary} />
+          </TouchableOpacity>
+
           <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]} onPress={() => navigation.navigate('QRCode')}>
             <View style={[styles.settingIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.2)' : 'rgba(90, 154, 142, 0.1)' }]}>
               <Ionicons name="qr-code" size={17} color={Colors.primary} />

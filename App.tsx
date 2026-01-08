@@ -45,6 +45,7 @@ import AddOfferScreen from './src/screens/Business/AddOfferScreen';
 import AnalyticsScreen from './src/screens/Business/AnalyticsScreen';
 import ProfileScreen from './src/screens/profile/ProfileScreen';
 import EditProfileScreen from './src/screens/profile/EditProfileScreen';
+import PreviewBusinessScreen from './src/screens/profile/PreviewBusinessScreen';
 import PrivacySecurityScreen from './src/screens/profile/PrivacySecurityScreen';
 import PrivacyPolicyScreen from './src/screens/profile/PrivacyPolicyScreen';
 import TermsOfServiceScreen from './src/screens/profile/TermsOfServiceScreen';
@@ -336,6 +337,14 @@ function AppContent() {
               component={EditProfileScreen}
               options={{
                 headerTitle: 'Edit Profile',
+                animation: 'slide_from_right',
+              }}
+            />
+            <Stack.Screen
+              name="PreviewBusiness"
+              component={PreviewBusinessScreen}
+              options={{
+                headerTitle: 'Preview Business Profile',
                 animation: 'slide_from_right',
               }}
             />
