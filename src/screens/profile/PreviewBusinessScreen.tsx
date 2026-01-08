@@ -27,6 +27,8 @@ export default function PreviewBusinessScreen({ navigation }: any) {
     const [loading, setLoading] = useState(true);
     const [profile, setProfile] = useState<any>(null);
     const [products, setProducts] = useState<any[]>([]);
+    const [offers, setOffers] = useState<any[]>([]);
+    const [activeTab, setActiveTab] = useState<'products' | 'vouchers' | 'offers'>('products');
 
     useEffect(() => {
         loadPreview();
@@ -46,6 +48,15 @@ export default function PreviewBusinessScreen({ navigation }: any) {
             } catch (error) {
                 console.log('No products found');
                 setProducts([]);
+            }
+
+            // Load offers
+            try {
+                const offersData = await ApiService.getOffers();
+                setOffers(offersData.offers || []);
+            } catch (error) {
+                console.log('No offers found');
+                setOffers([]);
             }
         } catch (error) {
             console.error('❌ Error loading preview:', error);
@@ -236,6 +247,165 @@ export default function PreviewBusinessScreen({ navigation }: any) {
                     )}
                 </View>
 
+                {/* Tabs Section */}
+                <View style={[styles.tabsContainer, { backgroundColor: Colors.background, borderBottomColor: Colors.borderLight }]}>
+                    <TouchableOpacity
+                        style={[styles.tab, activeTab === 'products' && styles.activeTab]}
+                        onPress={() => setActiveTab('products')}
+                    >
+                        <Text style={[styles.tabText, { color: activeTab === 'products' ? Colors.primary : Colors.textSecondary }]}>
+                            Products
+                        </Text>
+                        {activeTab === 'products' && <View style={[styles.tabIndicator, { backgroundColor: Colors.primary }]} />}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.tab, activeTab === 'vouchers' && styles.activeTab]}
+                        onPress={() => setActiveTab('vouchers')}
+                    >
+                        <Text style={[styles.tabText, { color: activeTab === 'vouchers' ? Colors.primary : Colors.textSecondary }]}>
+                            Vouchers
+                        </Text>
+                        {activeTab === 'vouchers' && <View style={[styles.tabIndicator, { backgroundColor: Colors.primary }]} />}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.tab, activeTab === 'offers' && styles.activeTab]}
+                        onPress={() => setActiveTab('offers')}
+                    >
+                        <Text style={[styles.tabText, { color: activeTab === 'offers' ? Colors.primary : Colors.textSecondary }]}>
+                            Offers
+                        </Text>
+                        {activeTab === 'offers' && <View style={[styles.tabIndicator, { backgroundColor: Colors.primary }]} />}
+                    </TouchableOpacity>
+                </View>
+
+                {/* Tab Content */}
+                {activeTab === 'products' && (
+                    products.length > 0 ? (
+                        <View style={[styles.section, { backgroundColor: Colors.background }]}>
+                            <View style={styles.productsGrid}>
+                                {products.map((product: any) => (
+                                    <View
+                                        key={product.id}
+                                        style={[styles.productCard, { backgroundColor: Colors.card }]}
+                                    >
+                                        {product.product_image_url ? (
+                                            <Image
+                                                source={{ uri: product.product_image_url }}
+                                                style={styles.productImage}
+                                            />
+                                        ) : (
+                                            <View style={[styles.productImage, styles.productImagePlaceholder, { backgroundColor: Colors.backgroundSecondary }]}>
+                                                <Ionicons name="cube-outline" size={32} color={Colors.textTertiary} />
+                                            </View>
+                                        )}
+                                        <View style={styles.productInfo}>
+                                            <Text style={[styles.productName, { color: Colors.textPrimary }]} numberOfLines={1}>
+                                                {product.product_name}
+                                            </Text>
+                                            <Text style={[styles.productPrice, { color: Colors.primary }]}>
+                                                {formatCurrency(product.price)}
+                                            </Text>
+                                            {product.quantity !== undefined && (
+                                                <View style={[styles.stockBadge, { backgroundColor: product.quantity > 0 ? Colors.bgLightGreen : Colors.bgLightRed }]}>
+                                                    <Text style={[styles.stockText, { color: product.quantity > 0 ? Colors.paymentGreen : Colors.creditRed }]}>
+                                                        {product.quantity > 0 ? 'Available in-store' : 'Out of stock'}
+                                                    </Text>
+                                                </View>
+                                            )}
+                                        </View>
+                                    </View>
+                                ))}
+                            </View>
+                        </View>
+                    ) : (
+                        <View style={[styles.emptyContainer, { backgroundColor: Colors.background }]}>
+                            <Ionicons name="cube-outline" size={64} color={Colors.textTertiary} />
+                            <Text style={[styles.emptyText, { color: Colors.textSecondary }]}>
+                                No products available
+                            </Text>
+                        </View>
+                    )
+                )}
+
+                {activeTab === 'vouchers' && (
+                    offers.filter((offer: any) => offer.offer_type === 'voucher').length > 0 ? (
+                        <View style={[styles.section, { backgroundColor: Colors.background }]}>
+                            {offers.filter((offer: any) => offer.offer_type === 'voucher').map((voucher: any) => (
+                                <View
+                                    key={voucher.id}
+                                    style={[styles.voucherCard, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
+                                >
+                                    <Text style={[styles.voucherTitle, { color: Colors.textPrimary }]}>
+                                        ₹{voucher.discount_amount} Store Voucher
+                                    </Text>
+                                    {voucher.ekthaa_cash_required && (
+                                        <Text style={[styles.voucherCash, { color: Colors.textSecondary }]}>
+                                            Buy with <Text style={{ color: '#f97316', fontWeight: '700' }}>{voucher.ekthaa_cash_required} Ekthaa Cash</Text>
+                                        </Text>
+                                    )}
+                                    {voucher.min_purchase_amount && (
+                                        <Text style={[styles.voucherCondition, { color: Colors.textSecondary }]}>
+                                            Applicable on minimum purchase of ₹{voucher.min_purchase_amount}
+                                        </Text>
+                                    )}
+                                    <Text style={[styles.voucherDiscount, { color: Colors.paymentGreen }]}>
+                                        ₹{voucher.discount_amount} OFF
+                                    </Text>
+                                    <View style={[styles.voucherBadge, { backgroundColor: Colors.backgroundSecondary }]}>
+                                        <Text style={[styles.voucherBadgeText, { color: Colors.primary }]}>Added by business</Text>
+                                    </View>
+                                </View>
+                            ))}
+                        </View>
+                    ) : (
+                        <View style={[styles.emptyContainer, { backgroundColor: Colors.background }]}>
+                            <Ionicons name="ticket-outline" size={64} color={Colors.textTertiary} />
+                            <Text style={[styles.emptyText, { color: Colors.textSecondary }]}>
+                                No vouchers available
+                            </Text>
+                        </View>
+                    )
+                )}
+
+                {activeTab === 'offers' && (
+                    offers.filter((offer: any) => offer.offer_type === 'offer').length > 0 ? (
+                        <View style={[styles.section, { backgroundColor: Colors.background }]}>
+                            {offers.filter((offer: any) => offer.offer_type === 'offer').map((offer: any) => (
+                                <View
+                                    key={offer.id}
+                                    style={[styles.offerCard, { backgroundColor: Colors.card }]}
+                                >
+                                    <Text style={[styles.offerTitle, { color: Colors.textPrimary }]}>
+                                        {offer.offer_name || `Flat ${offer.discount_percentage}% Off`}
+                                    </Text>
+                                    {offer.description && (
+                                        <Text style={[styles.offerDescription, { color: Colors.textSecondary }]}>
+                                            {offer.description}
+                                        </Text>
+                                    )}
+                                    {offer.validity && (
+                                        <View style={[styles.offerValidityBadge, { backgroundColor: Colors.backgroundSecondary }]}>
+                                            <Ionicons name="time-outline" size={14} color={Colors.primary} />
+                                            <Text style={[styles.offerValidityText, { color: Colors.primary }]}>
+                                                {offer.validity}
+                                            </Text>
+                                        </View>
+                                    )}
+                                </View>
+                            ))}
+                        </View>
+                    ) : (
+                        <View style={[styles.emptyContainer, { backgroundColor: Colors.background }]}>
+                            <Ionicons name="pricetag-outline" size={64} color={Colors.textTertiary} />
+                            <Text style={[styles.emptyText, { color: Colors.textSecondary }]}>
+                                No offers available
+                            </Text>
+                        </View>
+                    )
+                )}
+
                 {/* Location Map Section */}
                 {profile.latitude && profile.longitude && (
                     <View style={[styles.section, { backgroundColor: Colors.background }]}>
@@ -270,66 +440,6 @@ export default function PreviewBusinessScreen({ navigation }: any) {
                                 {profile.location}
                             </Text>
                         )}
-                    </View>
-                )}
-
-                {/* Products Section */}
-                {products.length > 0 ? (
-                    <View style={[styles.section, { backgroundColor: Colors.background }]}>
-                        <View style={styles.sectionHeader}>
-                            <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>
-                                Products ({products.length})
-                            </Text>
-                        </View>
-
-                        <View style={styles.productsGrid}>
-                            {products.slice(0, 6).map((product: any) => (
-                                <View
-                                    key={product.id}
-                                    style={[styles.productCard, { backgroundColor: Colors.backgroundSecondary }]}
-                                >
-                                    {product.product_image_url ? (
-                                        <Image
-                                            source={{ uri: product.product_image_url }}
-                                            style={styles.productImage}
-                                        />
-                                    ) : (
-                                        <View style={[styles.productImage, styles.productImagePlaceholder, { backgroundColor: Colors.borderLight }]}>
-                                            <Ionicons name="cube-outline" size={32} color={Colors.textTertiary} />
-                                        </View>
-                                    )}
-                                    <View style={styles.productInfo}>
-                                        <Text style={[styles.productName, { color: Colors.textPrimary }]} numberOfLines={1}>
-                                            {product.product_name}
-                                        </Text>
-                                        <Text style={[styles.productPrice, { color: Colors.primary }]}>
-                                            {formatCurrency(product.price)}
-                                        </Text>
-                                        {product.quantity !== undefined && (
-                                            <Text style={[styles.productStock, { color: Colors.textSecondary }]}>
-                                                Stock: {product.quantity}
-                                            </Text>
-                                        )}
-                                    </View>
-                                </View>
-                            ))}
-                        </View>
-
-                        {products.length > 6 && (
-                            <Text style={[styles.moreProducts, { color: Colors.textSecondary }]}>
-                                + {products.length - 6} more products
-                            </Text>
-                        )}
-                    </View>
-                ) : (
-                    <View style={[styles.section, { backgroundColor: Colors.background }]}>
-                        <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Products</Text>
-                        <View style={styles.emptyProducts}>
-                            <Ionicons name="cube-outline" size={48} color={Colors.textTertiary} />
-                            <Text style={[styles.emptyText, { color: Colors.textSecondary }]}>
-                                No products available
-                            </Text>
-                        </View>
                     </View>
                 )}
 
@@ -579,8 +689,142 @@ const styles = StyleSheet.create({
         gap: Spacing.space2,
     },
     previewNoteText: {
-        flex: 1,
-        fontSize: 13,
-        lineHeight: 18,
+    tabsContainer: {
+        flexDirection: 'row',
+        borderBottomWidth: 1,
+        paddingHorizontal: Spacing.space4,
     },
-});
+    tab: {
+        flex: 1,
+        paddingVertical: Spacing.space4,
+        alignItems: 'center',
+        position: 'relative',
+    },
+    activeTab: {
+        // Active tab styling handled by indicator
+    },
+    tabText: {
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    tabIndicator: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 3,
+        borderTopLeftRadius: 3,
+        borderTopRightRadius: 3,
+    },
+    productsGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        padding: Spacing.space2,
+    },
+    productCard: {
+        width: '48%',
+        margin: '1%',
+        borderRadius: BorderRadius.md,
+        overflow: 'hidden',
+        ...Shadows.sm,
+    },
+    productImage: {
+        width: '100%',
+        height: 140,
+    },
+    productImagePlaceholder: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    productInfo: {
+        padding: Spacing.space3,
+    },
+    productName: {
+        fontSize: 15,
+        fontWeight: '600',
+        marginBottom: 6,
+    },
+    productPrice: {
+        fontSize: 18,
+        fontWeight: '700',
+        marginBottom: 6,
+    },
+    stockBadge: {
+        paddingHorizontal: Spacing.space2,
+        paddingVertical: 4,
+        borderRadius: BorderRadius.sm,
+        alignSelf: 'flex-start',
+    },
+    stockText: {
+        fontSize: 11,
+        fontWeight: '600',
+    },
+    voucherCard: {
+        padding: Spacing.space4,
+        marginHorizontal: Spacing.space4,
+        marginVertical: Spacing.space2,
+        borderRadius: BorderRadius.lg,
+        borderWidth: 1,
+    },
+    voucherTitle: {
+        fontSize: 20,
+        fontWeight: '700',
+        marginBottom: Spacing.space2,
+    },
+    voucherCash: {
+        fontSize: 14,
+        marginBottom: Spacing.space1,
+    },
+    voucherCondition: {
+        fontSize: 13,
+        marginBottom: Spacing.space3,
+    },
+    voucherDiscount: {
+        fontSize: 24,
+        fontWeight: '700',
+        marginBottom: Spacing.space2,
+    },
+    voucherBadge: {
+        paddingHorizontal: Spacing.space3,
+        paddingVertical: Spacing.space2,
+        borderRadius: BorderRadius.sm,
+        alignSelf: 'flex-start',
+    },
+    voucherBadgeText: {
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    offerCard: {
+        padding: Spacing.space4,
+        marginHorizontal: Spacing.space4,
+        marginVertical: Spacing.space2,
+        borderRadius: BorderRadius.lg,
+        ...Shadows.sm,
+    },
+    offerTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        marginBottom: Spacing.space2,
+    },
+    offerDescription: {
+        fontSize: 14,
+        lineHeight: 20,
+        marginBottom: Spacing.space3,
+    },
+    offerValidityBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: Spacing.space3,
+        paddingVertical: Spacing.space2,
+        borderRadius: BorderRadius.sm,
+        alignSelf: 'flex-start',
+        gap: 4,
+    },
+    offerValidityText: {
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    emptyContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: Spacing.space12
