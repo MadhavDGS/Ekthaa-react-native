@@ -149,7 +149,7 @@ export default function PreviewBusinessScreen({ navigation }: any) {
                             disabled={!profile.phone_number}
                         >
                             <Ionicons name="call" size={20} color="#fff" />
-                            <Text style={styles.actionText}>Call</Text>
+                            <Text style={[styles.actionText, { marginLeft: 8 }]}>Call</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={styles.actionButton}
@@ -157,7 +157,7 @@ export default function PreviewBusinessScreen({ navigation }: any) {
                             disabled={!profile.latitude || !profile.longitude}
                         >
                             <Ionicons name="navigate" size={20} color="#fff" />
-                            <Text style={styles.actionText}>Directions</Text>
+                            <Text style={[styles.actionText, { marginLeft: 8 }]}>Directions</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -388,7 +388,7 @@ export default function PreviewBusinessScreen({ navigation }: any) {
                                     {offer.validity && (
                                         <View style={[styles.offerValidityBadge, { backgroundColor: Colors.backgroundSecondary }]}>
                                             <Ionicons name="time-outline" size={14} color={Colors.primary} />
-                                            <Text style={[styles.offerValidityText, { color: Colors.primary }]}>
+                                            <Text style={[styles.offerValidityText, { color: Colors.primary, marginLeft: 4 }]}>
                                                 {offer.validity}
                                             </Text>
                                         </View>
@@ -536,8 +536,9 @@ const styles = StyleSheet.create({
     },
     quickActions: {
         flexDirection: 'row',
-        gap: Spacing.space3,
+        justifyContent: 'space-between',
         marginTop: Spacing.space4,
+        paddingHorizontal: Spacing.space2,
     },
     actionButton: {
         flex: 1,
@@ -547,7 +548,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.2)',
         paddingVertical: Spacing.space3,
         borderRadius: BorderRadius.md,
-        gap: Spacing.space2,
+        marginHorizontal: Spacing.space2,
     },
     actionText: {
         color: '#fff',
@@ -598,7 +599,6 @@ const styles = StyleSheet.create({
     viewMapButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
     },
     viewMapText: {
         fontSize: 14,
@@ -686,9 +686,13 @@ const styles = StyleSheet.create({
         marginTop: Spacing.space4,
         borderRadius: BorderRadius.md,
         borderWidth: 1,
-        gap: Spacing.space2,
     },
     previewNoteText: {
+        flex: 1,
+        fontSize: 13,
+        lineHeight: 18,
+        marginLeft: Spacing.space2,
+    },
     tabsContainer: {
         flexDirection: 'row',
         borderBottomWidth: 1,
@@ -818,7 +822,6 @@ const styles = StyleSheet.create({
         paddingVertical: Spacing.space2,
         borderRadius: BorderRadius.sm,
         alignSelf: 'flex-start',
-        gap: 4,
     },
     offerValidityText: {
         fontSize: 12,
@@ -832,20 +835,5 @@ const styles = StyleSheet.create({
     emptyText: {
         fontSize: 16,
         marginTop: Spacing.space3,
-    },
-    previewNote: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: Spacing.space4,
-        marginHorizontal: Spacing.space4,
-        marginTop: Spacing.space4,
-        borderRadius: BorderRadius.md,
-        borderWidth: 1,
-        gap: Spacing.space2,
-    },
-    previewNoteText: {
-        flex: 1,
-        fontSize: 13,
-        lineHeight: 18,
     },
 });
