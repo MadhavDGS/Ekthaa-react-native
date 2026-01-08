@@ -84,13 +84,18 @@ export default function ProfileScreen({ navigation }: any) {
         onPress: async () => {
           try {
             await ApiService.logout();
-            // Clear auth token - the app will automatically redirect to Login
-            await AsyncStorage.removeItem('authToken');
-            // The App.tsx checkAuth will detect the missing token and show Login screen
           } catch (error) {
             console.error('Logout error:', error);
-            // Even if logout API fails, clear local token
+            // Continue even if API call fails
+          } finally {
+            // Clear auth token and navigate to Login
             await AsyncStorage.removeItem('authToken');
+            await AsyncStorage.removeItem('userData');
+            console.log('🚪 Logged out, navigating to Login');
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Login' }],
+            });
           }
         },
       },

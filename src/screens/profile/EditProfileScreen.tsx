@@ -22,19 +22,11 @@ import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
+import { MapView, Marker, isMapSupported } from '../../components/MapViewWrapper';
 import { getThemedColors, Typography, Spacing, BorderRadius } from '../../constants/theme';
 import { useTheme } from '../../context/ThemeContext';
 import ApiService from '../../services/api';
 import { User } from '../../types';
-
-// Conditionally import MapView only for native platforms
-let MapView: any = null;
-let Marker: any = null;
-if (Platform.OS !== 'web') {
-    const MapViewModule = require('react-native-maps');
-    MapView = MapViewModule.default;
-    Marker = MapViewModule.Marker;
-}
 
 export default function EditProfileScreen({ navigation, route }: any) {
     const { isDark } = useTheme();
@@ -472,7 +464,7 @@ export default function EditProfileScreen({ navigation, route }: any) {
                         </Text>
 
                         {/* Map Preview */}
-                        {location && Platform.OS !== 'web' && MapView && (
+                        {location && isMapSupported && (
                             <View style={styles.mapPreviewContainer}>
                                 <MapView
                                     style={styles.mapPreview}
@@ -494,7 +486,7 @@ export default function EditProfileScreen({ navigation, route }: any) {
                             </View>
                         )}
 
-                        {location && Platform.OS === 'web' && (
+                        {location && !isMapSupported && (
                             <View style={styles.mapPreviewContainer}>
                                 <View style={[styles.mapPreview, { backgroundColor: Colors.card, justifyContent: 'center', alignItems: 'center' }]}>
                                     <Ionicons name="location" size={40} color={Colors.primary} />
@@ -516,19 +508,23 @@ export default function EditProfileScreen({ navigation, route }: any) {
                             <TouchableOpacity
                                 style={[styles.locationButton, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3', borderColor: Colors.primary }]}
                                 onPress={handleGetGPSLocation}
-                                disabled={loading}
+                                disabled={loading || !isMapSupported}
                             >
                                 <Ionicons name="navigate" size={18} color={Colors.primary} />
-                                <Text style={[styles.locationButtonText, { color: Colors.primary }]}>Use GPS</Text>
+                                <Text style={[styles.locationButtonText, { color: Colors.primary }]}>
+                                    {isMapSupported ? 'Use GPS' : 'GPS Not Available'}
+                                </Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity
                                 style={[styles.locationButton, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3', borderColor: Colors.primary }]}
                                 onPress={() => setShowMap(true)}
-                                disabled={loading}
+                                disabled={loading || !isMapSupported}
                             >
                                 <Ionicons name="map" size={18} color={Colors.primary} />
-                                <Text style={[styles.locationButtonText, { color: Colors.primary }]}>Pick on Map</Text>
+                                <Text style={[styles.locationButtonText, { color: Colors.primary }]}>
+                                    {isMapSupported ? 'Pick on Map' : 'Map Not Available'}
+                                </Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -539,7 +535,7 @@ export default function EditProfileScreen({ navigation, route }: any) {
             </KeyboardAvoidingView>
 
             {/* Map Picker Modal */}
-            {showMap && Platform.OS !== 'web' && MapView && (
+            {showMap && isMapSupported && (
                 <View style={styles.mapModal}>
                     <MapView
                         style={styles.fullMap}

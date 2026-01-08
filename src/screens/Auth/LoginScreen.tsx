@@ -3,7 +3,7 @@
  * Clean modern design matching web app
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
 import { AvatarSizes, IconSizes } from '../../constants/scales';
 import { useTheme } from '../../context/ThemeContext';
@@ -32,6 +33,23 @@ export default function LoginScreen({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // Check if already authenticated on mount
+  useEffect(() => {
+    const checkExistingAuth = async () => {
+      try {
+        const token = await AsyncStorage.getItem('authToken');
+        if (token) {
+          console.log('✅ Already authenticated, navigating to Main');
+          // User is already logged in, navigate to Main
+          navigation.replace('Main');
+        }
+      } catch (err) {
+        console.error('Auth check error:', err);
+      }
+    };
+    checkExistingAuth();
+  }, []);
 
   const handleLogin = async () => {
     setError('');
@@ -54,10 +72,11 @@ export default function LoginScreen({ navigation }: any) {
       console.log('✅ Login successful!', response);
       setSuccess('Login successful! Redirecting...');
 
-      // Small delay to show success message, then trigger re-render
+      // Small delay to show success message, then navigate to Main
       setTimeout(() => {
         setLoading(false);
-        // The App.tsx will automatically navigate to Main when it detects the token
+        console.log('🚀 Navigating to Main screen');
+        navigation.replace('Main');
       }, 500);
     } catch (err: any) {
       console.error('❌ Login error:', err);
