@@ -1,9 +1,10 @@
 /**
  * API Configuration
- * Backend deployed at: https://kathape-react-business.onrender.com
+ * Backend deployed at: Google Cloud Run (europe-west1)
+ * Previous: https://kathape-react-business.onrender.com
  */
 
-export const API_BASE_URL = 'https://kathape-react-business.onrender.com';
+export const API_BASE_URL = 'https://ekthaabusiness-955272392528.europe-west1.run.app';
 
 export const API_ENDPOINTS = {
   // Authentication
