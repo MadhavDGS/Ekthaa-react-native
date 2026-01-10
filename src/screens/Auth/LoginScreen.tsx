@@ -72,11 +72,12 @@ export default function LoginScreen({ navigation }: any) {
       console.log('✅ Login successful!', response);
       setSuccess('Login successful! Redirecting...');
 
-      // Small delay to show success message, then navigate to Main
+      // Auth token is already saved by ApiService.login
+      // App.tsx will detect the token and automatically show Main screen
+      // No need to navigate manually - just wait a moment for the user to see success message
       setTimeout(() => {
         setLoading(false);
-        console.log('🚀 Navigating to Main screen');
-        navigation.replace('Main');
+        console.log('🚀 Login complete, App.tsx will handle navigation');
       }, 500);
     } catch (err: any) {
       console.error('❌ Login error:', err);

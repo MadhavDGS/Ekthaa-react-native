@@ -473,7 +473,7 @@ export default function RegisterScreen({ navigation }: any) {
     }
   };
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
     setError('');
     if (currentStepIndex < steps.length - 1) {
       Animated.timing(fadeAnim, {
@@ -489,8 +489,14 @@ export default function RegisterScreen({ navigation }: any) {
         }).start();
       });
     } else {
-      // Finished - navigate back to login which will auto-redirect to Main
-      navigation.replace('Login');
+      // Last step skipped - save auth token and let App.tsx handle navigation
+      if (authToken) {
+        await AsyncStorage.setItem('authToken', authToken);
+        if (userData) {
+          await AsyncStorage.setItem('userData', JSON.stringify(userData));
+        }
+        console.log('✅ Registration complete, auth saved, App.tsx will navigate');
+      }
     }
   };
 
@@ -595,9 +601,9 @@ export default function RegisterScreen({ navigation }: any) {
         await ApiService.updateProfile(updateData);
       }
 
-      // Profile updated successfully - navigate back to Login
-      // Login screen will detect auth token and auto-redirect to Main
-      navigation.replace('Login');
+      // Profile updated successfully - auth already saved above
+      // App.tsx will detect token and automatically navigate to Main
+      console.log('✅ Profile updated, App.tsx will navigate to Main');
     } catch (err: any) {
       console.error('Update profile error:', err);
       // Even if profile update fails, token is saved so navigate to Login
