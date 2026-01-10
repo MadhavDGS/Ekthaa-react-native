@@ -17,6 +17,7 @@ import {
   Image,
   Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -64,7 +65,25 @@ export default function ProductsScreen({ navigation }: any) {
   const loadProducts = async () => {
     try {
       setLoading(true);
-      console.log('📋 Loading products...');
+      
+      // Load cached products first for instant display
+      const cached = await AsyncStorage.getItem('products_cache');
+      if (cached && products.length === 0) {
+        const cachedData = JSON.parse(cached);
+        console.log('📋 Loaded cached products:', cachedData.length);
+        setProducts(cachedData);
+        
+        // Calculate stats from cache
+        const uniqueCategories = ['All', ...new Set(cachedData.map((p: any) => p.category))];
+        setCategories(uniqueCategories as string[]);
+        const totalValue = cachedData.reduce((sum: number, p: any) => sum + (p.price * p.stock_quantity), 0);
+        const lowStock = cachedData.filter((p: any) => p.stock_quantity < 10).length;
+        setStats({ total: cachedData.length, totalValue, lowStock });
+        
+        setLoading(false); // Show cached data immediately
+      }
+      
+      console.log('📋 Loading fresh products...');
       const data = await ApiService.getProducts();
       console.log('📋 Products loaded:', data.products?.length || 0);
       
@@ -76,6 +95,9 @@ export default function ProductsScreen({ navigation }: any) {
         console.log('✅ Setting products state with', data.products.length, 'items');
         const productsArray = [...data.products];
         setProducts(productsArray);
+        
+        // Cache products
+        await AsyncStorage.setItem('products_cache', JSON.stringify(productsArray));
         
         // Filter products immediately after setting them
         console.log('🔍 Filtering products immediately - Total:', productsArray.length);

@@ -17,6 +17,7 @@ import {
   Dimensions,
   Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -71,10 +72,24 @@ export default function CustomersScreen({ navigation }: any) {
   const loadCustomers = async () => {
     try {
       setLoading(true);
+      
+      // Load cached customers first for instant display
+      const cached = await AsyncStorage.getItem('customers_cache');
+      if (cached && customers.length === 0) {
+        const cachedCustomers = JSON.parse(cached);
+        console.log('📋 Loaded cached customers:', cachedCustomers.length);
+        setCustomers(cachedCustomers);
+        setLoading(false); // Show cached data immediately
+      }
+      
       const data = await ApiService.getCustomers();
       console.log('📋 Customers loaded:', data.customers?.length || 0);
       console.log('🔍 Sample customer balance:', data.customers?.[0]?.name, 'Balance:', data.customers?.[0]?.balance);
       setCustomers(data.customers || []);
+      
+      // Cache customers
+      await AsyncStorage.setItem('customers_cache', JSON.stringify(data.customers || []));
+      
       setLastFetch(Date.now());
     } catch (error) {
       console.error('❌ Load customers error:', error);

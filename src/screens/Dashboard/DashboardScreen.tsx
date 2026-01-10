@@ -66,8 +66,10 @@ export default function DashboardScreen({ navigation }: any) {
 
     const loadData = async () => {
       if (isMounted) {
+        // Load cached data first for instant display
+        await loadCachedData();
+        // Then load fresh data in parallel
         await loadDashboard();
-        await loadBusinessName();
       }
     };
 
@@ -78,63 +80,104 @@ export default function DashboardScreen({ navigation }: any) {
     };
   }, []);
 
-  const loadBusinessName = async () => {
+  const loadCachedData = async () => {
     try {
-      // First try to get from stored userData
+      // Load cached dashboard data for instant display
+      const cachedDashboard = await AsyncStorage.getItem('dashboard_cache');
+      const cachedTransactions = await AsyncStorage.getItem('transactions_cache');
       const userData = await AsyncStorage.getItem('userData');
-      if (userData) {
-        const user = JSON.parse(userData);
-        console.log('📊 User data:', user);
-        setBusinessName(user?.business_name || user?.name || 'Business Account');
+
+      if (cachedDashboard) {
+        const data = JSON.parse(cachedDashboard);
+        setSummary(data);
+        if (data?.business?.name) {
+          setBusinessName(data.business.name);
+        } else if (data?.summary?.business_name) {
+          setBusinessName(data.summary.business_name);
+        }
       }
 
-      // Then fetch fresh data from profile API
-      try {
-        const profileData = await ApiService.getProfile();
-        if (profileData?.user?.business_name || profileData?.user?.name) {
-          const name = profileData.user.business_name || profileData.user.name;
+      if (cachedTransactions) {
+        const transactions = JSON.parse(cachedTransactions);
+        setRecentTransactions(transactions.slice(0, 5));
+      }
+
+      if (userData) {
+        const user = JSON.parse(userData);
+        if (user?.business_name || user?.name) {
+          setBusinessName(user.business_name || user.name);
+        }
+      }
+
+      // If we have cached data, show it and mark as not loading
+      if (cachedDashboard || cachedTransactions) {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.log('Could not load cached data:', error);
+    }
+  };
+
+  const loadDashboard = async () => {
+    try {
+      // If this is a refresh (not initial load), show loading
+      if (!loading) {
+        setLoading(true);
+      }
+
+      // Make all API calls in PARALLEL (much faster!)
+      const [dashboardData, profileData, transactionsData] = await Promise.allSettled([
+        ApiService.getDashboard(),
+        ApiService.getProfile(),
+        ApiService.getTransactions()
+      ]);
+
+      // Process dashboard data
+      if (dashboardData.status === 'fulfilled') {
+        const data = dashboardData.value;
+        console.log('📊 Dashboard data:', data);
+        setSummary(data);
+
+        // Cache dashboard data
+        await AsyncStorage.setItem('dashboard_cache', JSON.stringify(data));
+
+        // Set business name from dashboard
+        if (data?.business?.name) {
+          setBusinessName(data.business.name);
+        } else if (data?.summary?.business_name) {
+          setBusinessName(data.summary.business_name);
+        }
+      }
+
+      // Process profile data
+      if (profileData.status === 'fulfilled') {
+        const profile = profileData.value;
+        if (profile?.user?.business_name || profile?.user?.name) {
+          const name = profile.user.business_name || profile.user.name;
           setBusinessName(name);
-          // Update stored userData
+          
+          // Update cached userData
+          const userData = await AsyncStorage.getItem('userData');
           if (userData) {
             const user = JSON.parse(userData);
             user.business_name = name;
             await AsyncStorage.setItem('userData', JSON.stringify(user));
           }
         }
-      } catch (error) {
-        console.log('📊 Could not fetch fresh profile data');
-      }
-    } catch (error) {
-      console.error('❌ Error loading business name:', error);
-    }
-  };
-
-  const loadDashboard = async () => {
-    try {
-      setLoading(true);
-      const data = await ApiService.getDashboard();
-      console.log('📊 Dashboard data:', data);
-      console.log('📊 Business name:', data?.business?.name || data?.summary?.business_name);
-      setSummary(data);
-
-      // Set business name from response
-      if (data?.business?.name) {
-        setBusinessName(data.business.name);
-      } else if (data?.summary?.business_name) {
-        setBusinessName(data.summary.business_name);
       }
 
-      // Fetch recent transactions
-      try {
-        const transactionsData = await ApiService.getTransactions();
-        if (transactionsData?.transactions) {
-          // Get last 5 transactions
-          const recent = transactionsData.transactions.slice(0, 5);
+      // Process transactions data
+      if (transactionsData.status === 'fulfilled') {
+        const txns = transactionsData.value;
+        if (txns?.transactions) {
+          const recent = txns.transactions.slice(0, 5);
           setRecentTransactions(recent);
+          
+          // Cache transactions
+          await AsyncStorage.setItem('transactions_cache', JSON.stringify(txns.transactions));
         }
-      } catch (error) {
-        console.log('Could not fetch recent transactions:', error);
       }
+
     } catch (error) {
       console.error('❌ Dashboard error:', error);
       setError('Failed to load dashboard. Please try again.');
