@@ -3,7 +3,7 @@
  * Step-by-step business registration with Next/Skip options
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import {
   Alert,
   ScrollView,
   Modal,
+  Keyboard,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -93,6 +94,22 @@ export default function RegisterScreen({ navigation }: any) {
   const [registered, setRegistered] = useState(false);
   const [authToken, setAuthToken] = useState(''); // Store token temporarily
   const [userData, setUserData] = useState<any>(null); // Store user data temporarily
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  // Keyboard visibility listeners
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   // Form state
   const [businessName, setBusinessName] = useState('');
@@ -628,8 +645,8 @@ export default function RegisterScreen({ navigation }: any) {
 
         {/* Content */}
         <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
-          {/* Logo - Only on first step */}
-          {currentStepIndex === 0 && (
+          {/* Logo - Only on first step and when keyboard is hidden */}
+          {currentStepIndex === 0 && !keyboardVisible && (
             <View style={styles.logoContainer}>
               <Image
                 source={require('../../../assets/logo.png')}
