@@ -83,19 +83,28 @@ export default function ProfileScreen({ navigation }: any) {
         style: 'destructive',
         onPress: async () => {
           try {
-            await ApiService.logout();
+            // Call logout API (optional, continue even if fails)
+            try {
+              await ApiService.logout();
+            } catch (error) {
+              console.error('Logout API error:', error);
+              // Continue logout process even if API call fails
+            }
+
+            // Clear all stored data
+            console.log('🚪 Clearing auth data...');
+            await AsyncStorage.multiRemove(['authToken', 'userData', 'dashboard_cache', 'products_cache', 'customers_cache', 'transactions_cache']);
+            console.log('🚪 Auth data cleared');
+
+            // Force navigation to reset by navigating to root
+            // This triggers the App.tsx onStateChange which re-checks auth
+            // Since authToken is now cleared, isAuthenticated will become false
+            // and the navigation will automatically show Login screen
+            navigation.navigate('Main' as never);
+            
           } catch (error) {
-            console.error('Logout error:', error);
-            // Continue even if API call fails
-          } finally {
-            // Clear auth token and navigate to Login
-            await AsyncStorage.removeItem('authToken');
-            await AsyncStorage.removeItem('userData');
-            console.log('🚪 Logged out, navigating to Login');
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Login' }],
-            });
+            console.error('❌ Logout error:', error);
+            Alert.alert('Error', 'Failed to logout. Please try again.');
           }
         },
       },
