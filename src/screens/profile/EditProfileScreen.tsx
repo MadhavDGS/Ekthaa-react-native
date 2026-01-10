@@ -153,7 +153,6 @@ export default function EditProfileScreen({ navigation, route }: any) {
 
     const handleGetGPSLocation = async () => {
         console.log('🗺️ GPS button pressed');
-        let loadingStarted = false;
         try {
             // Request location permission
             console.log('📍 Requesting location permission...');
@@ -166,7 +165,6 @@ export default function EditProfileScreen({ navigation, route }: any) {
             }
 
             setLoading(true);
-            loadingStarted = true;
 
             // Get current location with timeout
             console.log('📍 Getting current position...');
@@ -189,20 +187,34 @@ export default function EditProfileScreen({ navigation, route }: any) {
             // Update location state first (so user sees it immediately)
             setLocation(newLocation);
             
-            // Update location on backend
-            console.log('📍 Updating location on backend...');
-            await ApiService.updateLocation(newLocation.latitude, newLocation.longitude);
-            console.log('📍 Location updated successfully');
-
-            Alert.alert('Success', 'GPS location updated successfully');
+            try {
+                // Update location on backend
+                console.log('📍 Updating location on backend...');
+                await ApiService.updateLocation(newLocation.latitude, newLocation.longitude);
+                console.log('📍 Location updated successfully');
+                Alert.alert('Success', 'GPS location updated successfully');
+            } catch (apiError: any) {
+                console.error('❌ Backend update error:', apiError);
+                // Keep the location in state even if backend fails
+                Alert.alert('Partial Success', 'Location captured but not saved to server. Please save changes manually.');
+            }
         } catch (error: any) {
             console.error('❌ GPS location error:', error);
-            const errorMessage = error.message || 'Failed to get GPS location. Please make sure location services are enabled in your device settings.';
+            let errorMessage = 'Failed to get GPS location.';
+            
+            if (error.message?.includes('timeout')) {
+                errorMessage = 'Location request timed out. Please try again.';
+            } else if (error.message?.includes('Location services')) {
+                errorMessage = 'Please enable location services in your device settings and try again.';
+            } else if (error.code === 'E_LOCATION_UNAVAILABLE') {
+                errorMessage = 'Location is currently unavailable. Please check your GPS settings.';
+            } else {
+                errorMessage = error.message || 'Failed to get GPS location.';
+            }
+            
             Alert.alert('Error', errorMessage);
         } finally {
-            if (loadingStarted) {
-                setLoading(false);
-            }
+            setLoading(false);
         }
     };
 
