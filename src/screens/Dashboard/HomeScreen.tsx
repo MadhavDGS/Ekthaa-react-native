@@ -494,8 +494,6 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
     borderRadius: 100,
     backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: '#5a9a8e',
     overflow: 'hidden',
   },
   addProductButton: {
@@ -505,7 +503,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: Spacing.sm,
     gap: Spacing.xs,
-    backgroundColor: 'transparent',
+    backgroundColor: '#d1f0e8',
     borderTopLeftRadius: 100,
     borderBottomLeftRadius: 100,
   },
@@ -515,8 +513,7 @@ const styles = StyleSheet.create({
     color: '#5a9a8e',
   },
   actionsDivider: {
-    width: 1.5,
-    backgroundColor: '#5a9a8e',
+    width: 0,
   },
   viewAllButton: {
     flex: 1,
