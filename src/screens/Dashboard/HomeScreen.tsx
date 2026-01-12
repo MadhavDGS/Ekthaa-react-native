@@ -523,8 +523,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
     backgroundColor: '#5a9a8e',
     gap: Spacing.xs,
-    borderTopRightRadius: 100,
-    borderBottomRightRadius: 100,
+    borderRadius: 100,
   },
   viewAllButtonText: {
     color: '#fff',
