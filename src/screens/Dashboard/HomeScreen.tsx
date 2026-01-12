@@ -504,8 +504,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
     gap: Spacing.xs,
     backgroundColor: '#d1f0e8',
-    borderTopLeftRadius: 100,
-    borderBottomLeftRadius: 100,
+    borderRadius: 100,
   },
   addProductText: {
     fontSize: Typography.fontXs,
