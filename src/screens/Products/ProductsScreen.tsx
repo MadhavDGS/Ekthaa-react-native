@@ -27,6 +27,7 @@ import { AvatarSizes, IconSizes, TextScale, SpacingScale } from '../../constants
 import { getThemedColors } from '../../constants/theme';
 import { useTheme } from '../../context/ThemeContext';
 import { SkeletonCard } from '../../components/Skeletons';
+import Illustration from '../../components/Illustration';
 
 export default function ProductsScreen({ navigation }: any) {
   const { isDark } = useTheme();
@@ -413,7 +414,7 @@ export default function ProductsScreen({ navigation }: any) {
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <Ionicons name="cube-outline" size={64} color={Colors.textTertiary} />
+      <Illustration name="noData" width={200} height={200} />
       <Text style={[styles.emptyTitle, { color: Colors.textPrimary }]}>No Products</Text>
       <Text style={[styles.emptyText, { color: Colors.textSecondary }]}>
         {searchQuery ? 'No products match your search' : 'Add products to your inventory'}

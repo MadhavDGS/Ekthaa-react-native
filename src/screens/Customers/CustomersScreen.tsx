@@ -26,6 +26,7 @@ import { getThemedColors, AvatarColors, Typography, Spacing, BorderRadius, Shado
 import { AvatarSizes, IconSizes, TextScale, SpacingScale } from '../../constants/scales';
 import { listStyles, avatarStyles, searchBarStyles } from '../../styles/commonStyles';
 import { useTheme } from '../../context/ThemeContext';
+import Illustration from '../../components/Illustration';
 import { SkeletonCard } from '../../components/Skeletons';
 
 const { width } = Dimensions.get('window');
@@ -205,7 +206,7 @@ export default function CustomersScreen({ navigation }: any) {
         initialNumToRender={15}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Ionicons name="people-outline" size={46} color={Colors.textTertiary} />
+            <Illustration name="emptyCustomers" width={180} height={180} />
             <Text style={[styles.emptyTitle, { color: Colors.textPrimary }]}>No Customers</Text>
             <Text style={[styles.emptyText, { color: Colors.textSecondary }]}>
               {searchQuery ? 'No matches found' : 'Add your first customer'}

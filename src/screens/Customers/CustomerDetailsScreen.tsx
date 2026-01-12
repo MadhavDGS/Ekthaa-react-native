@@ -26,6 +26,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { SkeletonHeader, SkeletonTransaction } from '../../components/Skeletons';
 import ApiService from '../../services/api';
 import { Customer, Transaction } from '../../types';
+import Illustration from '../../components/Illustration';
 
 export default function CustomerDetailsScreen({ route, navigation }: any) {
   const { isDark } = useTheme();
@@ -334,7 +335,7 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
           </View>
         ) : (
           <View style={[styles.emptyState, { backgroundColor: Colors.card }]}>
-            <Ionicons name="receipt-outline" size={48} color={Colors.textTertiary} />
+            <Illustration name="financialData" width={150} height={150} />
             <Text style={[styles.emptyText, { color: Colors.textSecondary }]}>No transactions yet</Text>
           </View>
         )}
@@ -560,7 +561,7 @@ const styles = StyleSheet.create({
   },
   bottomActions: {
     padding: Spacing.md,
-    paddingBottom: Platform.OS === 'ios' ? Spacing.xl : Spacing.md,
+    paddingBottom: Platform.OS === 'ios' ? 90 : 70, // Extra space for bottom nav bar
     borderTopWidth: 1,
     ...Platform.select({
       ios: {

@@ -21,6 +21,7 @@ import { getThemedColors, Typography, Spacing, BorderRadius } from '../../consta
 import { useTheme } from '../../context/ThemeContext';
 import { SkeletonStats, SkeletonCard } from '../../components/Skeletons';
 import ApiService from '../../services/api';
+import SvgIcon from '../../components/SvgIcon';
 
 export default function AnalyticsScreen({ navigation }: any) {
     const { isDark } = useTheme();
@@ -84,7 +85,7 @@ export default function AnalyticsScreen({ navigation }: any) {
 
                     <View style={styles.metricsGrid}>
                         <View style={[styles.metricCard, { backgroundColor: Colors.primary + '15', borderColor: Colors.primary + '30' }]}>
-                            <Ionicons name="people" size={24} color={Colors.primary} />
+                            <SvgIcon name="customerService" size={24} color={Colors.primary} />
                             <Text style={[styles.metricValue, { color: Colors.primary }]}>
                                 {summary.total_customers || 0}
                             </Text>
@@ -92,7 +93,7 @@ export default function AnalyticsScreen({ navigation }: any) {
                         </View>
 
                         <View style={[styles.metricCard, { backgroundColor: Colors.creditGreen + '15', borderColor: Colors.creditGreen + '30' }]}>
-                            <Ionicons name="receipt" size={24} color={Colors.creditGreen} />
+                            <SvgIcon name="transactionRecord" size={24} color={Colors.creditGreen} />
                             <Text style={[styles.metricValue, { color: Colors.creditGreen }]}>
                                 {summary.total_transactions || 0}
                             </Text>
@@ -100,7 +101,7 @@ export default function AnalyticsScreen({ navigation }: any) {
                         </View>
 
                         <View style={[styles.metricCard, { backgroundColor: Colors.orange + '15', borderColor: Colors.orange + '30' }]}>
-                            <Ionicons name="cube" size={24} color={Colors.orange} />
+                            <SvgIcon name="handbag" size={24} color={Colors.orange} />
                             <Text style={[styles.metricValue, { color: Colors.orange }]}>
                                 {summary.total_products || 0}
                             </Text>
@@ -108,7 +109,7 @@ export default function AnalyticsScreen({ navigation }: any) {
                         </View>
 
                         <View style={[styles.metricCard, { backgroundColor: Colors.creditRed + '15', borderColor: Colors.creditRed + '30' }]}>
-                            <Ionicons name="alert-circle" size={24} color={Colors.creditRed} />
+                            <SvgIcon name="riskAssessment" size={24} color={Colors.creditRed} />
                             <Text style={[styles.metricValue, { color: Colors.creditRed }]}>
                                 {summary.low_stock_count || 0}
                             </Text>
@@ -145,7 +146,7 @@ export default function AnalyticsScreen({ navigation }: any) {
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
                             <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Top Customers</Text>
-                            <TouchableOpacity onPress={() => navigation.navigate('Customers')}>
+                            <TouchableOpacity onPress={() => navigation.navigate('More')}>
                                 <Text style={[styles.viewAllText, { color: Colors.primary }]}>View All</Text>
                             </TouchableOpacity>
                         </View>

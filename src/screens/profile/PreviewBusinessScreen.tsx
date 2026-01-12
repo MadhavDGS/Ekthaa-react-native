@@ -15,6 +15,7 @@ import {
     Linking,
     Platform,
     Alert,
+    ActionSheetIOS,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
@@ -66,17 +67,76 @@ export default function PreviewBusinessScreen({ navigation }: any) {
         }
     };
 
-    const openLocation = () => {
-        if (profile?.latitude && profile?.longitude) {
-            const scheme = Platform.select({
-                ios: 'maps:',
-                android: 'geo:',
-            });
-            const url = Platform.select({
-                ios: `${scheme}${profile.latitude},${profile.longitude}?q=${encodeURIComponent(profile.name)}`,
-                android: `${scheme}${profile.latitude},${profile.longitude}?q=${encodeURIComponent(profile.name)}`,
-            });
-            Linking.openURL(url || '');
+    const openLocation = async () => {
+        if (!profile?.latitude || !profile?.longitude) {
+            Alert.alert('Location Not Set', 'This business has not set their location yet.');
+            return;
+        }
+
+        const lat = profile.latitude;
+        const lng = profile.longitude;
+        const label = encodeURIComponent(profile.name || 'Business Location');
+
+        // Map app URLs
+        const googleMapsUrl = Platform.select({
+            ios: `comgooglemaps://?q=${lat},${lng}&center=${lat},${lng}&zoom=14`,
+            android: `geo:${lat},${lng}?q=${lat},${lng}(${label})`,
+        });
+        const appleMapsUrl = `maps:${lat},${lng}?q=${label}`;
+        const wazeUrl = `waze://?ll=${lat},${lng}&navigate=yes`;
+        const googleMapsWeb = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+
+        try {
+            if (Platform.OS === 'ios') {
+                // iOS: Show ActionSheet with available map apps
+                const options = ['Apple Maps', 'Google Maps', 'Waze', 'Cancel'];
+                const urls = [appleMapsUrl, googleMapsUrl, wazeUrl];
+
+                ActionSheetIOS.showActionSheetWithOptions(
+                    {
+                        options,
+                        cancelButtonIndex: 3,
+                        title: 'Open location in:',
+                    },
+                    async (buttonIndex) => {
+                        if (buttonIndex < 3) {
+                            const url = urls[buttonIndex];
+                            const canOpen = await Linking.canOpenURL(url || '');
+                            if (canOpen && url) {
+                                await Linking.openURL(url);
+                            } else {
+                                // Fallback to Google Maps web
+                                await Linking.openURL(googleMapsWeb);
+                            }
+                        }
+                    }
+                );
+            } else {
+                // Android: Try opening map apps in order of preference
+                const tryOpenUrl = async (url: string | undefined) => {
+                    if (!url) return false;
+                    try {
+                        const canOpen = await Linking.canOpenURL(url);
+                        if (canOpen) {
+                            await Linking.openURL(url);
+                            return true;
+                        }
+                    } catch (e) {
+                        return false;
+                    }
+                    return false;
+                };
+
+                // Try Google Maps app first (most common on Android)
+                const opened = await tryOpenUrl(googleMapsUrl);
+                if (!opened) {
+                    // Fallback to web
+                    await Linking.openURL(googleMapsWeb);
+                }
+            }
+        } catch (error) {
+            console.error('❌ Error opening location:', error);
+            Alert.alert('Error', 'Unable to open maps. Please try again.');
         }
     };
 
@@ -154,7 +214,6 @@ export default function PreviewBusinessScreen({ navigation }: any) {
                         <TouchableOpacity
                             style={styles.actionButton}
                             onPress={openLocation}
-                            disabled={!profile.latitude || !profile.longitude}
                         >
                             <Ionicons name="navigate" size={20} color="#fff" />
                             <Text style={[styles.actionText, { marginLeft: 8 }]}>Directions</Text>

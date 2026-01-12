@@ -29,7 +29,9 @@ import LoginScreen from './src/screens/Auth/LoginScreen';
 import RegisterScreen from './src/screens/Auth/RegisterScreen';
 import BusinessDetailsScreen from './src/screens/Auth/BusinessDetailsScreen';
 import OnboardingScreen from './src/screens/Auth/OnboardingScreen';
+import HomeScreen from './src/screens/Dashboard/HomeScreen';
 import DashboardScreen from './src/screens/Dashboard/DashboardScreen';
+import KhataScreen from './src/screens/Dashboard/KhataScreen';
 import CustomersScreen from './src/screens/Customers/CustomersScreen';
 import CustomerDetailsScreen from './src/screens/Customers/CustomerDetailsScreen';
 import AddCustomerScreen from './src/screens/Customers/AddCustomerScreen';
@@ -112,20 +114,20 @@ function MainTabs() {
           let iconName: any;
 
           switch (route.name) {
+            case 'Khata':
+              iconName = focused ? 'book' : 'book-outline';
+              break;
+            case 'Products':
+              iconName = focused ? 'cube' : 'cube-outline';
+              break;
             case 'Home':
               iconName = focused ? 'home' : 'home-outline';
               break;
             case 'Customers':
               iconName = focused ? 'people' : 'people-outline';
               break;
-            case 'Products':
-              iconName = focused ? 'cube' : 'cube-outline';
-              break;
-            case 'Transactions':
+            case 'Invoice':
               iconName = focused ? 'receipt' : 'receipt-outline';
-              break;
-            case 'Offers':
-              iconName = focused ? 'pricetag' : 'pricetag-outline';
               break;
           }
 
@@ -133,16 +135,29 @@ function MainTabs() {
         },
       })}
     >
-      <Tab.Screen name="Customers" component={CustomersScreen} />
-      <Tab.Screen name="Products" component={ProductsScreen} />
-      <Tab.Screen
-        name="Home"
-        component={DashboardScreen}
+      <Tab.Screen 
+        name="Khata" 
+        component={KhataScreen}
+        options={{ headerShown: false }}
       />
-      <Tab.Screen name="Transactions" component={TransactionsScreen} />
-      <Tab.Screen
-        name="Offers"
-        component={OffersScreen}
+      <Tab.Screen 
+        name="Products" 
+        component={ProductsScreen}
+        options={{ title: 'Products' }}
+      />
+      <Tab.Screen 
+        name="Home" 
+        component={HomeScreen}
+        options={{ headerShown: false }}
+      />
+      <Tab.Screen 
+        name="Customers"
+        component={CustomersScreen}
+        options={{ title: 'Customers' }}
+      />
+      <Tab.Screen 
+        name="Invoice" 
+        component={InvoiceGeneratorScreen}
       />
     </Tab.Navigator>
   );
