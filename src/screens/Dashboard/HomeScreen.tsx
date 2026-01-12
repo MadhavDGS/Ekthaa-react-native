@@ -85,7 +85,7 @@ export default function HomeScreen({ navigation }: any) {
 
   const QuickActionButton = ({ svgIcon, icon, label, color, onPress }: any) => (
     <TouchableOpacity
-      style={styles.quickActionCard}
+      style={[styles.quickActionCard, { backgroundColor: Colors.card }]}
       onPress={onPress}
       activeOpacity={0.7}
     >
@@ -96,7 +96,7 @@ export default function HomeScreen({ navigation }: any) {
           <Ionicons name={icon} size={36} color={color} />
         )}
       </View>
-      <Text style={styles.quickActionLabel} numberOfLines={2}>{label}</Text>
+      <Text style={[styles.quickActionLabel, { color: Colors.textPrimary }]} numberOfLines={2}>{label}</Text>
     </TouchableOpacity>
   );
 
@@ -133,22 +133,22 @@ export default function HomeScreen({ navigation }: any) {
       >
           {/* Profile Completion Card */}
         {profileCompletion < 100 && (
-          <View style={styles.card}>
+          <View style={[styles.card, { backgroundColor: Colors.card }]}>
             {/* Icon positioned at top-right */}
-            <View style={styles.completionIconLarge}>
+            <View style={[styles.completionIconLarge, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.2)' : '#e8f5f3' }]}>
               <Ionicons name="document-text" size={32} color="#5a9a8e" />
             </View>
 
             <View style={styles.completionContent}>
-              <Text style={styles.completionTitle}>
+              <Text style={[styles.completionTitle, { color: Colors.textPrimary }]}>
                 Complete your business profile
               </Text>
-              <Text style={styles.completionSubtitle}>
+              <Text style={[styles.completionSubtitle, { color: Colors.textSecondary }]}>
                 to get more customers
               </Text>
               
               {/* Progress Bar */}
-              <View style={styles.progressBarWrapper}>
+              <View style={[styles.progressBarWrapper, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)' }]}>
                 <LinearGradient
                   colors={
                     profileCompletion < 30 
@@ -166,7 +166,7 @@ export default function HomeScreen({ navigation }: any) {
                 />
               </View>
               
-              <Text style={styles.progressText}>
+              <Text style={[styles.progressText, { color: Colors.textSecondary }]}>
                 {profileCompletion}% complete
               </Text>
             </View>
@@ -183,9 +183,9 @@ export default function HomeScreen({ navigation }: any) {
         )}
 
         {/* My Products Section */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: Colors.card }]}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>My Products</Text>
+            <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>My Products</Text>
             <TouchableOpacity onPress={() => navigation.navigate('Products')}>
               <Text style={styles.viewAllText}>View All →</Text>
             </TouchableOpacity>
@@ -213,7 +213,7 @@ export default function HomeScreen({ navigation }: any) {
                   return (
                     <TouchableOpacity
                       key={product.$id || product.id || `product-${Math.random()}`}
-                      style={[styles.productCard, { backgroundColor: Colors.backgroundSecondary }]}
+                      style={[styles.productCard, { backgroundColor: Colors.card }]}
                       onPress={() => navigation.navigate('Products')}
                       activeOpacity={0.8}
                     >
@@ -233,7 +233,7 @@ export default function HomeScreen({ navigation }: any) {
                 })}
               </ScrollView>
 
-              <View style={styles.productsActionsCapsule}>
+              <View style={[styles.productsActionsCapsule, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.2)' : '#d1f0e8' }]}>
                 <TouchableOpacity
                   style={styles.addProductButton}
                   onPress={() => navigation.navigate('AddProduct')}
@@ -360,10 +360,9 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
     padding: SpacingScale.cardPadding,
     borderRadius: RadiusScale.card,
-    backgroundColor: Colors.card,
     position: 'relative',
     ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: isDark ? 0.3 : 0.1, shadowRadius: 8 },
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8 },
       android: { elevation: 3 },
     }),
   },
@@ -374,7 +373,6 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: RadiusScale.card,
-    backgroundColor: isDark ? 'rgba(90, 154, 142, 0.2)' : '#e8f5f3',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
@@ -385,19 +383,16 @@ const styles = StyleSheet.create({
   completionTitle: {
     fontSize: 17,
     fontWeight: '700',
-    color: Colors.textPrimary,
     lineHeight: 22,
     marginBottom: 4,
   },
   completionSubtitle: {
     fontSize: 14,
-    color: Colors.textSecondary,
     marginBottom: Spacing.md,
   },
   progressBarWrapper: {
     height: 10,
     borderRadius: RadiusScale.input,
-    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
     overflow: 'hidden',
     marginBottom: Spacing.xs,
   },
@@ -407,7 +402,6 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: Typography.fontXs,
-    color: Colors.textSecondary,
     fontWeight: Typography.medium,
     marginBottom: Spacing.md,
   },
@@ -436,7 +430,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: Typography.fontMd,
     fontWeight: Typography.bold,
-    color: Colors.textPrimary,
   },
   viewAllText: {
     fontSize: Typography.fontSm,
@@ -456,9 +449,8 @@ const styles = StyleSheet.create({
     marginRight: Spacing.sm,
     padding: Spacing.sm,
     borderRadius: RadiusScale.card,
-    backgroundColor: Colors.card,
     ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: isDark ? 0.3 : 0.08, shadowRadius: 6 },
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6 },
       android: { elevation: 2 },
     }),
   },
@@ -475,7 +467,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.xs,
-    backgroundColor: Colors.borderLight,
   },
   productName: {
     fontSize: Typography.fontSm,
@@ -493,7 +484,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: Spacing.md,
     borderRadius: 100,
-    backgroundColor: isDark ? 'rgba(90, 154, 142, 0.2)' : '#d1f0e8',
     overflow: 'hidden',
     gap: Spacing.xs,
     paddingLeft: Spacing.md,
@@ -565,9 +555,8 @@ const styles = StyleSheet.create({
     padding: Spacing.xs,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.card,
     ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: isDark ? 0.3 : 0.08, shadowRadius: 4 },
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 4 },
       android: { elevation: 3 },
     }),
   },
@@ -584,6 +573,5 @@ const styles = StyleSheet.create({
     fontWeight: Typography.semiBold,
     textAlign: 'center',
     lineHeight: 13,
-    color: Colors.textPrimary,
   },
 });
