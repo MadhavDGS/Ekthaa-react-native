@@ -493,8 +493,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: Spacing.md,
     borderRadius: 100,
-    backgroundColor: 'transparent',
+    backgroundColor: '#d1f0e8',
     overflow: 'hidden',
+    gap: Spacing.xs,
+    paddingLeft: Spacing.md,
   },
   addProductButton: {
     flex: 1.5,
@@ -503,8 +505,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: Spacing.sm,
     gap: Spacing.xs,
-    backgroundColor: '#d1f0e8',
-    borderRadius: 100,
+    backgroundColor: 'transparent',
   },
   addProductText: {
     fontSize: Typography.fontXs,
