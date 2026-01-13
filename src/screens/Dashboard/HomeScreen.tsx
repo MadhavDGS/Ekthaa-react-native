@@ -302,10 +302,10 @@ export default function HomeScreen({ navigation }: any) {
             onPress={() => navigation.navigate('Products')}
           />
           <QuickActionButton
-            icon="ellipsis-horizontal"
-            label="View More"
+            icon="eye-outline"
+            label="View as Customer"
             color="#6b7280"
-            onPress={() => navigation.navigate('Customers')}
+            onPress={() => navigation.navigate('BusinessPreview')}
           />
         </View>
       </ScrollView>
