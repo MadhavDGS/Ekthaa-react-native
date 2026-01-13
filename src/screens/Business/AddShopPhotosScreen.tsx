@@ -18,6 +18,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { useFocusEffect } from '@react-navigation/native';
 import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
 import { IconSizes, SpacingScale, RadiusScale } from '../../constants/scales';
 import { useTheme } from '../../context/ThemeContext';
@@ -39,12 +40,23 @@ export default function AddShopPhotosScreen({ navigation }: any) {
     loadShopPhotos();
   }, []);
 
+  // Reload photos when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadShopPhotos();
+    }, [])
+  );
+
   const loadShopPhotos = async () => {
     try {
       setLoading(true);
       const response = await ApiService.getProfile();
+      console.log('📸 Profile response:', JSON.stringify(response, null, 2));
       const business = response.business || response; // Handle both response formats
-      setShopPhotos(business.shop_photos || []);
+      console.log('📸 Business data:', JSON.stringify(business, null, 2));
+      const photos = business.shop_photos || [];
+      console.log('📸 Loaded shop photos:', photos);
+      setShopPhotos(photos);
     } catch (error) {
       console.error('Error loading shop photos:', error);
     } finally {
@@ -118,20 +130,29 @@ export default function AddShopPhotosScreen({ navigation }: any) {
       setUploading(true);
       
       // First upload the image to server to get the URL
+      console.log('📸 Uploading photo...');
       const uploadResult = await ApiService.uploadShopPhoto(imageUri);
       const photoUrl = uploadResult.photo_url;
+      console.log('📸 Photo uploaded, URL:', photoUrl);
       
       // Then add the URL to the shop_photos array
       const updatedPhotos = [...shopPhotos, photoUrl];
+      console.log('📸 Updated photos array:', updatedPhotos);
       
-      await ApiService.updateProfile({
+      const updateResponse = await ApiService.updateProfile({
         shop_photos: updatedPhotos,
       });
+      console.log('📸 Profile update response:', updateResponse);
 
       setShopPhotos(updatedPhotos);
+      
+      // Reload photos to verify they were saved
+      await loadShopPhotos();
+      
       Alert.alert('Success', 'Photo added successfully!');
     } catch (error: any) {
-      Alert.alert('Error', error.response?.data?.message || 'Failed to upload photo');
+      console.error('📸 Upload error:', error);
+      Alert.alert('Error', error.response?.data?.error || error.message || 'Failed to upload photo');
     } finally {
       setUploading(false);
     }
