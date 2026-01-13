@@ -145,6 +145,7 @@ export default function SvgIcon({ name, size = 24, color = '#5A9A8E', style }: S
     <IconComponent
       width={size}
       height={size}
+      stroke={color}
       fill={color}
       style={style}
     />
