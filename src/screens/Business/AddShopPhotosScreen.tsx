@@ -42,8 +42,9 @@ export default function AddShopPhotosScreen({ navigation }: any) {
   const loadShopPhotos = async () => {
     try {
       setLoading(true);
-      const profile = await ApiService.getProfile();
-      setShopPhotos(profile.shop_photos || []);
+      const response = await ApiService.getProfile();
+      const business = response.business || response; // Handle both response formats
+      setShopPhotos(business.shop_photos || []);
     } catch (error) {
       console.error('Error loading shop photos:', error);
     } finally {

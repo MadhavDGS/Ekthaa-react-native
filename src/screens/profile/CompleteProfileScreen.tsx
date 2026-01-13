@@ -30,6 +30,7 @@ import { AvatarSizes } from '../../constants/scales';
 import { useTheme } from '../../context/ThemeContext';
 import ApiService from '../../services/api';
 import Illustration from '../../components/Illustration';
+import MapComponent from '../../components/MapComponent';
 
 // Business Categories with Subcategories
 const BUSINESS_CATEGORIES = [
