@@ -140,17 +140,21 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                 activeOpacity={0.8}
               >
                 <View style={[
-                  tabBarStyles.centerTab,
-                  { 
-                    backgroundColor: Colors.primary,
-                    shadowColor: Colors.primary,
-                  }
+                  tabBarStyles.centerTabBorder,
+                  { backgroundColor: Colors.card }
                 ]}>
-                  <SvgIcon 
-                    name={icon as any}
-                    size={28} 
-                    color="#fff" 
-                  />
+                  <View style={[
+                    tabBarStyles.centerTab,
+                    { 
+                      backgroundColor: Colors.primary,
+                    }
+                  ]}>
+                    <SvgIcon 
+                      name={icon as any}
+                      size={28} 
+                      color="#fff" 
+                    />
+                  </View>
                 </View>
               </TouchableOpacity>
             );
@@ -239,6 +243,13 @@ const tabBarStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: -22,
+  },
+  centerTabBorder: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   centerTab: {
     width: 56,
