@@ -422,7 +422,7 @@ export default function KhataScreen({ navigation }: any) {
         <View style={[styles.section, { backgroundColor: Colors.card }]}>
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Recent Transactions</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Customers')}>
+            <TouchableOpacity onPress={() => navigation.navigate('Transactions')}>
               <Text style={[styles.viewAllText, { color: Colors.primary }]}>View All →</Text>
             </TouchableOpacity>
           </View>

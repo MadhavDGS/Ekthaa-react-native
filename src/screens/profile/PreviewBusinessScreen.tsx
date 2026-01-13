@@ -477,43 +477,6 @@ export default function PreviewBusinessScreen({ navigation }: any) {
                     )
                 )}
 
-                {/* Location Map Section */}
-                {profile.latitude && profile.longitude && (
-                    <View style={[styles.section, { backgroundColor: Colors.background }]}>
-                        <View style={styles.sectionHeader}>
-                            <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Location</Text>
-                            <TouchableOpacity onPress={openLocation} style={styles.viewMapButton}>
-                                <Text style={[styles.viewMapText, { color: Colors.primary }]}>Open in Maps</Text>
-                                <Ionicons name="arrow-forward" size={16} color={Colors.primary} />
-                            </TouchableOpacity>
-                        </View>
-                        
-                        <TouchableOpacity
-                            style={[styles.mapPreview, { backgroundColor: Colors.backgroundSecondary }]}
-                            onPress={openLocation}
-                            activeOpacity={0.7}
-                        >
-                            <Image
-                                source={{
-                                    uri: `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-l-shop+5A9A8E(${profile.longitude},${profile.latitude})/${profile.longitude},${profile.latitude},14,0/600x300@2x?access_token=pk.eyJ1IjoibWFkaGF2ZGdzIiwiYSI6ImNtNWFtZTBsdzBiNXoya3M4MnYwYXB6cGoifQ.Km3YB7X0aCrOBN0dABHXMg`
-                                }}
-                                style={styles.mapImage}
-                                resizeMode="cover"
-                            />
-                            <View style={[styles.mapOverlay, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
-                                <Ionicons name="navigate" size={24} color="#fff" />
-                                <Text style={styles.mapOverlayText}>Tap to open directions</Text>
-                            </View>
-                        </TouchableOpacity>
-
-                        {profile.location && (
-                            <Text style={[styles.locationText, { color: Colors.textSecondary }]}>
-                                {profile.location}
-                            </Text>
-                        )}
-                    </View>
-                )}
-
                 {/* Preview Note */}
                 <View style={[styles.previewNote, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
                     <Ionicons name="information-circle" size={20} color={Colors.primary} />
