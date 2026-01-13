@@ -113,6 +113,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;
           const { icon, label, useSvg } = getTabConfig(route.name, isFocused);
+          const isHome = route.name === 'Home';
 
           const onPress = () => {
             const event = navigation.emit({
@@ -125,6 +126,35 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
               navigation.navigate(route.name);
             }
           };
+
+          // Elevated center home button
+          if (isHome) {
+            return (
+              <TouchableOpacity
+                key={route.key}
+                accessibilityRole="button"
+                accessibilityState={isFocused ? { selected: true } : {}}
+                accessibilityLabel={options.tabBarAccessibilityLabel}
+                onPress={onPress}
+                style={tabBarStyles.centerTabWrapper}
+                activeOpacity={0.8}
+              >
+                <View style={[
+                  tabBarStyles.centerTab,
+                  { 
+                    backgroundColor: Colors.primary,
+                    shadowColor: Colors.primary,
+                  }
+                ]}>
+                  <SvgIcon 
+                    name={icon as any}
+                    size={28} 
+                    color="#fff" 
+                  />
+                </View>
+              </TouchableOpacity>
+            );
+          }
 
           return (
             <TouchableOpacity
@@ -177,6 +207,7 @@ const tabBarStyles = StyleSheet.create({
     flexDirection: 'row',
     paddingTop: 8,
     paddingHorizontal: 4,
+    alignItems: 'center',
   },
   tab: {
     flex: 1,
@@ -202,6 +233,29 @@ const tabBarStyles = StyleSheet.create({
   },
   labelActive: {
     fontWeight: '600',
+  },
+  centerTabWrapper: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: -28,
+  },
+  centerTab: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Platform.select({
+      ios: {
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
 });
 
