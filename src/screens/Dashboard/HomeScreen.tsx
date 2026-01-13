@@ -230,21 +230,6 @@ export default function HomeScreen({ navigation }: any) {
         <View style={styles.header}>
           <Text style={styles.businessName}>{profile?.name || 'Your Business'}</Text>
         </View>
-
-        {/* Quick Stats Bar */}
-        {dashboardStats && (
-          <View style={styles.headerStats}>
-            <TouchableOpacity style={styles.headerStatItem} onPress={() => navigation.navigate('Customers')}>
-              <Text style={styles.headerStatValue}>{dashboardStats.total_customers || 0}</Text>
-              <Text style={styles.headerStatLabel}>Customers</Text>
-            </TouchableOpacity>
-            <View style={styles.headerStatDivider} />
-            <TouchableOpacity style={styles.headerStatItem} onPress={() => navigation.navigate('Inventory')}>
-              <Text style={styles.headerStatValue}>{products.length}</Text>
-              <Text style={styles.headerStatLabel}>Products</Text>
-            </TouchableOpacity>
-          </View>
-        )}
       </SafeAreaView>
 
       <ScrollView
