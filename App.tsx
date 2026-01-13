@@ -139,15 +139,11 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                 style={tabBarStyles.centerTabWrapper}
                 activeOpacity={0.8}
               >
-                {/* Blending background notch */}
-                <View style={[
-                  tabBarStyles.notchBackground,
-                  { backgroundColor: Colors.card }
-                ]} />
                 <View style={[
                   tabBarStyles.centerTab,
                   { 
                     backgroundColor: Colors.primary,
+                    shadowColor: Colors.primary,
                   }
                 ]}>
                   <SvgIcon 
@@ -243,14 +239,6 @@ const tabBarStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: -22,
-  },
-  notchBackground: {
-    position: 'absolute',
-    bottom: 0,
-    width: 70,
-    height: 30,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
   },
   centerTab: {
     width: 56,
