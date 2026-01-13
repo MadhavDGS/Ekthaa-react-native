@@ -29,6 +29,7 @@ import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../
 import { AvatarSizes } from '../../constants/scales';
 import { useTheme } from '../../context/ThemeContext';
 import ApiService from '../../services/api';
+import Illustration from '../../components/Illustration';
 
 // Business Categories with Subcategories
 const BUSINESS_CATEGORIES = [
@@ -136,6 +137,54 @@ export default function CompleteProfileScreen({ navigation }: any) {
   const [operatingHours, setOperatingHours] = useState('9 AM - 9 PM');
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showSubcategoryModal, setShowSubcategoryModal] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  // Load existing profile data and calculate starting step
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const data = await ApiService.getProfile();
+        if (data.business) {
+          const profile = data.business;
+          
+          // Set existing values
+          if (profile.profile_photo_url) setProfilePhoto(profile.profile_photo_url);
+          if (profile.email) setEmail(profile.email);
+          if (profile.address) setAddress(profile.address);
+          if (profile.city) setCity(profile.city);
+          if (profile.state) setState(profile.state);
+          if (profile.pincode) setPincode(profile.pincode);
+          if (profile.category) setCategory(profile.category);
+          if (profile.business_type) setBusinessType(profile.business_type);
+          if (profile.gst_number) setGstNumber(profile.gst_number);
+          if (profile.description) setDescription(profile.description);
+          if (profile.website) setWebsite(profile.website);
+          if (profile.facebook) setFacebook(profile.facebook);
+          if (profile.instagram) setInstagram(profile.instagram);
+          if (profile.subcategory) setSubcategory(profile.subcategory);
+          if (profile.operating_hours) setOperatingHours(profile.operating_hours);
+          
+          // Calculate starting step - find first incomplete step
+          let startStep = 0;
+          if (profile.profile_photo_url) startStep = 1;
+          if (profile.city && profile.state && profile.pincode) startStep = 2;
+          if (profile.email && profile.address) startStep = 3;
+          if (profile.category) startStep = 4;
+          if (profile.subcategory) startStep = 5;
+          if (profile.operating_hours && profile.operating_hours !== '9 AM - 9 PM') startStep = 6;
+          if (profile.gst_number) startStep = 7;
+          if (profile.description) startStep = 8;
+          
+          setCurrentStepIndex(startStep);
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    loadProfile();
+  }, []);
 
   const steps: Step[] = [
     // Step 1: Profile Photo
@@ -386,29 +435,43 @@ export default function CompleteProfileScreen({ navigation }: any) {
         photoUrl = photoResponse.photo_url;
       }
 
-      // Update profile with all collected data
-      await ApiService.updateProfile({
-        email: email || undefined,
-        address: address || undefined,
-        city: city || undefined,
-        state: state || undefined,
-        pincode: pincode || undefined,
-        category: category || undefined,
-        subcategory: subcategory || undefined,
-        business_type: businessType || undefined,
-        gst_number: gstNumber || undefined,
-        description: description || undefined,
-        website: website || undefined,
-        facebook: facebook || undefined,
-        instagram: instagram || undefined,
-        operating_hours: operatingHours || undefined,
-        profile_photo_url: photoUrl || undefined,
-      });
+      // Update profile with all collected data (filter out empty values)
+      const profileData: any = {};
+      if (email) profileData.email = email;
+      if (address) profileData.address = address;
+      if (city) profileData.city = city;
+      if (state) profileData.state = state;
+      if (pincode) profileData.pincode = pincode;
+      if (category) profileData.category = category;
+      if (subcategory) profileData.subcategory = subcategory;
+      if (businessType) profileData.business_type = businessType;
+      if (gstNumber) profileData.gst_number = gstNumber;
+      if (description) profileData.description = description;
+      if (website) profileData.website = website;
+      if (facebook) profileData.facebook = facebook;
+      if (instagram) profileData.instagram = instagram;
+      if (operatingHours && operatingHours !== '9 AM - 9 PM') profileData.operating_hours = operatingHours;
+      if (photoUrl) profileData.profile_photo_url = photoUrl;
+
+      await ApiService.updateProfile(profileData);
 
       Alert.alert(
-        'Success!',
-        'Your profile has been updated successfully!',
-        [{ text: 'OK', onPress: () => navigation.goBack() }]
+        '🎉 Profile Complete!',
+        'Your business profile is now complete. Customers can now find and connect with you easily!',
+        [
+          { 
+            text: 'View Profile', 
+            onPress: () => {
+              navigation.goBack();
+              setTimeout(() => navigation.navigate('Profile'), 100);
+            }
+          },
+          { 
+            text: 'Done', 
+            onPress: () => navigation.goBack(),
+            style: 'cancel'
+          }
+        ]
       );
     } catch (err: any) {
       console.error('Profile update error:', err);
@@ -498,13 +561,20 @@ export default function CompleteProfileScreen({ navigation }: any) {
               <Image source={{ uri: profilePhoto }} style={styles.photoImage} />
             ) : (
               <>
-                <Ionicons name="camera" size={48} color={Colors.textTertiary} />
+                <Illustration name="profileSetup" size={100} />
                 <Text style={[styles.photoPlaceholderText, { color: Colors.textSecondary }]}>
-                  Tap to upload photo
+                  Tap to upload logo
                 </Text>
               </>
             )}
           </TouchableOpacity>
+          
+          <View style={[styles.tipCard, { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.1)' : '#f0fdf4' }]}>
+            <Ionicons name="bulb" size={16} color="#10b981" />
+            <Text style={[styles.tipText, { color: isDark ? '#6ee7b7' : '#059669' }]}>
+              A clear logo helps customers recognize your business
+            </Text>
+          </View>
         </View>
       );
     }
@@ -531,20 +601,37 @@ export default function CompleteProfileScreen({ navigation }: any) {
             </View>
           ))}
           {currentStep.id === 'location' && (
-            <TouchableOpacity
-              style={[styles.locationButton, { backgroundColor: Colors.primary }]}
-              onPress={handleLocationPick}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <>
-                  <Ionicons name="navigate" size={20} color="#fff" />
-                  <Text style={styles.locationButtonText}>Get Current Location</Text>
-                </>
-              )}
-            </TouchableOpacity>
+            <>
+              <View style={styles.locationActionsRow}>
+                <TouchableOpacity
+                  style={[styles.locationButton, { backgroundColor: Colors.primary, flex: 1 }]}
+                  onPress={handleLocationPick}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <>
+                      <Ionicons name="navigate" size={20} color="#fff" />
+                      <Text style={styles.locationButtonText}>Use Current</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                  style={[styles.locationButton, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', flex: 1, borderWidth: 1, borderColor: Colors.borderLight }]}
+                  onPress={() => Alert.alert('Coming Soon', 'Map selection will be available soon!')}
+                >
+                  <Ionicons name="map" size={20} color={Colors.primary} />
+                  <Text style={[styles.locationButtonText, { color: Colors.primary }]}>Pick on Map</Text>
+                </TouchableOpacity>
+              </View>
+              
+              <View style={[styles.infoBox, { backgroundColor: isDark ? 'rgba(99, 102, 241, 0.1)' : '#eef2ff' }]}>
+                <Ionicons name="information-circle" size={16} color="#6366f1" />
+                <Text style={[styles.infoBoxText, { color: isDark ? '#c7d2fe' : '#6366f1' }]}>Your location helps customers find you easily</Text>
+              </View>
+            </>
           )}
         </View>
       );
@@ -552,16 +639,25 @@ export default function CompleteProfileScreen({ navigation }: any) {
 
     if (currentStep.isSpecial === 'category') {
       return (
-        <TouchableOpacity
-          style={[styles.selectButton, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
-          onPress={() => setShowCategoryModal(true)}
-        >
-          <Ionicons name={currentStep.icon} size={20} color={Colors.textTertiary} style={styles.inputIcon} />
-          <Text style={[styles.selectButtonText, { color: category ? Colors.textPrimary : Colors.textTertiary }]}>
-            {category || currentStep.placeholder}
-          </Text>
-          <Ionicons name="chevron-forward" size={20} color={Colors.textTertiary} />
-        </TouchableOpacity>
+        <View>
+          <TouchableOpacity
+            style={[styles.selectButton, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}
+            onPress={() => setShowCategoryModal(true)}
+          >
+            <Ionicons name={currentStep.icon} size={20} color={Colors.textTertiary} style={styles.inputIcon} />
+            <Text style={[styles.selectButtonText, { color: category ? Colors.textPrimary : Colors.textTertiary }]}>
+              {category || currentStep.placeholder}
+            </Text>
+            <Ionicons name="chevron-forward" size={20} color={Colors.textTertiary} />
+          </TouchableOpacity>
+          
+          <View style={[styles.tipCard, { backgroundColor: isDark ? 'rgba(99, 102, 241, 0.1)' : '#eef2ff', marginTop: Spacing.space3 }]}>
+            <Ionicons name="information-circle" size={16} color="#6366f1" />
+            <Text style={[styles.tipText, { color: isDark ? '#c7d2fe' : '#6366f1' }]}>
+              Choose the category that best describes your business
+            </Text>
+          </View>
+        </View>
       );
     }
 
@@ -610,6 +706,17 @@ export default function CompleteProfileScreen({ navigation }: any) {
     );
   };
 
+  if (initialLoading) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: Colors.background }]} edges={['top']}>
+        <View style={[styles.container, styles.center]}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={[styles.loadingText, { color: Colors.textSecondary }]}>Loading your profile...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: Colors.background }]} edges={['top']}>
       <KeyboardAvoidingView
@@ -623,9 +730,14 @@ export default function CompleteProfileScreen({ navigation }: any) {
           </TouchableOpacity>
           
           <View style={styles.headerProgress}>
-            <Text style={[styles.stepText, { color: Colors.textSecondary }]}>
-              Step {currentStepIndex + 1} of {steps.length}
-            </Text>
+            <View style={styles.stepIndicatorRow}>
+              <Text style={[styles.stepText, { color: Colors.textSecondary }]}>
+                Step {currentStepIndex + 1} of {steps.length}
+              </Text>
+              <Text style={[styles.progressPercent, { color: Colors.primary }]}>
+                {Math.round(progress)}%
+              </Text>
+            </View>
             <View style={[styles.progressBar, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }]}>
               <View style={[styles.progressFill, { width: `${progress}%`, backgroundColor: Colors.primary }]} />
             </View>
@@ -700,6 +812,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: Spacing.space3,
+    fontSize: 14,
+  },
   keyboardView: {
     flex: 1,
   },
@@ -721,18 +841,28 @@ const styles = StyleSheet.create({
   headerProgress: {
     flex: 1,
   },
-  stepText: {
-    fontSize: 13,
+  stepIndicatorRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: Spacing.space2,
   },
+  stepText: {
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  progressPercent: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
   progressBar: {
-    height: 4,
-    borderRadius: 2,
+    height: 6,
+    borderRadius: 3,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    borderRadius: 2,
+    borderRadius: 3,
   },
   content: {
     paddingHorizontal: Spacing.space6,
@@ -799,6 +929,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  locationActionsRow: {
+    flexDirection: 'row',
+    gap: Spacing.space2,
+    marginTop: Spacing.space2,
+  },
   locationButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -806,12 +941,24 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.space3,
     borderRadius: BorderRadius.lg,
     gap: Spacing.space2,
-    marginTop: Spacing.space2,
   },
   locationButtonText: {
     color: '#fff',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
+  },
+  infoBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.space3,
+    borderRadius: BorderRadius.md,
+    gap: Spacing.space2,
+    marginTop: Spacing.space3,
+  },
+  infoBoxText: {
+    flex: 1,
+    fontSize: 12,
+    lineHeight: 16,
   },
   selectButton: {
     flexDirection: 'row',
@@ -835,6 +982,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
+    borderWidth: 3,
+    borderColor: '#5a9a8e20',
+    borderStyle: 'dashed',
   },
   photoImage: {
     width: '100%',
@@ -842,7 +992,22 @@ const styles = StyleSheet.create({
   },
   photoPlaceholderText: {
     marginTop: Spacing.space2,
-    fontSize: 14,
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  tipCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.space3,
+    borderRadius: BorderRadius.md,
+    gap: Spacing.space2,
+    marginTop: Spacing.space4,
+  },
+  tipText: {
+    flex: 1,
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '500',
   },
   warningBox: {
     flexDirection: 'row',
