@@ -347,7 +347,7 @@ export default function DashboardScreen({ navigation }: any) {
         <View style={styles.actionCards}>
           <TouchableOpacity
             style={styles.actionCard}
-            onPress={() => navigation.navigate('More')}
+            onPress={() => navigation.navigate('Profile')}
             activeOpacity={0.7}
           >
             <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3' }]}>
@@ -391,7 +391,7 @@ export default function DashboardScreen({ navigation }: any) {
 
           <TouchableOpacity
             style={styles.actionCard}
-            onPress={() => navigation.navigate('InvoiceGenerator')}
+            onPress={() => navigation.navigate('Profile')}
             activeOpacity={0.7}
           >
             <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3' }]}>
@@ -453,7 +453,7 @@ export default function DashboardScreen({ navigation }: any) {
           <View style={styles.section}>
             <View style={styles.sectionHead}>
               <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Recent Activity</Text>
-              <TouchableOpacity onPress={() => navigation.navigate('More')}>
+              <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
                 <Text style={[styles.viewAll, { color: Colors.primary }]}>View All</Text>
               </TouchableOpacity>
             </View>

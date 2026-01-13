@@ -137,6 +137,9 @@ export default function CompleteProfileScreen({ navigation }: any) {
   const [operatingHours, setOperatingHours] = useState('9 AM - 9 PM');
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showSubcategoryModal, setShowSubcategoryModal] = useState(false);
+  const [showMapPicker, setShowMapPicker] = useState(false);
+  const [tempLatitude, setTempLatitude] = useState(0);
+  const [tempLongitude, setTempLongitude] = useState(0);
   const [initialLoading, setInitialLoading] = useState(true);
 
   // Load existing profile data and calculate starting step
@@ -175,7 +178,10 @@ export default function CompleteProfileScreen({ navigation }: any) {
           if (profile.gst_number) startStep = 7;
           if (profile.description) startStep = 8;
           
-          setCurrentStepIndex(startStep);
+          // If profile is complete (startStep >= 8), show last step
+          // Otherwise use the calculated startStep (max 7 since array has 8 items with indices 0-7)
+          const safeStartStep = Math.min(startStep, 7);
+          setCurrentStepIndex(safeStartStep);
         }
       } catch (error) {
         console.error('Error loading profile:', error);
@@ -327,6 +333,13 @@ export default function CompleteProfileScreen({ navigation }: any) {
   const currentStep = steps[currentStepIndex];
   const progress = ((currentStepIndex + 1) / steps.length) * 100;
 
+  // Safety check - if currentStep is undefined, reset to first step
+  useEffect(() => {
+    if (!currentStep && !initialLoading) {
+      setCurrentStepIndex(0);
+    }
+  }, [currentStep, initialLoading]);
+
   const handleProfilePhotoPick = async () => {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -377,6 +390,49 @@ export default function CompleteProfileScreen({ navigation }: any) {
     } catch (error) {
       console.error('Location error:', error);
       Alert.alert('Error', 'Failed to get location');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMapPick = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission needed', 'Please grant location permissions');
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+      setTempLatitude(location.coords.latitude);
+      setTempLongitude(location.coords.longitude);
+      setShowMapPicker(true);
+    } catch (error) {
+      console.error('Location error:', error);
+      Alert.alert('Error', 'Failed to get current location');
+    }
+  };
+
+  const handleMapLocationConfirm = async (lat: number, lng: number) => {
+    try {
+      setLoading(true);
+      const reverseGeocode = await Location.reverseGeocodeAsync({
+        latitude: lat,
+        longitude: lng,
+      });
+
+      if (reverseGeocode[0]) {
+        const loc = reverseGeocode[0];
+        const fullAddress = `${loc.street || ''} ${loc.name || ''}, ${loc.city || ''}, ${loc.region || ''} ${loc.postalCode || ''}`.trim();
+        setAddress(fullAddress);
+        if (loc.city) setCity(loc.city);
+        if (loc.region) setState(loc.region);
+        if (loc.postalCode) setPincode(loc.postalCode);
+      }
+      setShowMapPicker(false);
+    } catch (error) {
+      console.error('Location error:', error);
+      Alert.alert('Error', 'Failed to get address from location');
     } finally {
       setLoading(false);
     }
@@ -481,6 +537,46 @@ export default function CompleteProfileScreen({ navigation }: any) {
     }
   };
 
+  const renderMapPickerModal = () => (
+    <Modal
+      visible={showMapPicker}
+      animationType="slide"
+      transparent={false}
+      onRequestClose={() => setShowMapPicker(false)}
+    >
+      <SafeAreaView style={[styles.mapModalContainer, { backgroundColor: Colors.background }]} edges={['top']}>
+        <View style={[styles.mapModalHeader, { backgroundColor: Colors.card, borderBottomColor: Colors.borderLight }]}>
+          <TouchableOpacity onPress={() => setShowMapPicker(false)} style={styles.mapModalCloseButton}>
+            <Ionicons name="close" size={28} color={Colors.textPrimary} />
+          </TouchableOpacity>
+          <Text style={[styles.mapModalTitle, { color: Colors.textPrimary }]}>Select Location</Text>
+          <TouchableOpacity
+            onPress={() => handleMapLocationConfirm(tempLatitude, tempLongitude)}
+            style={[styles.mapModalDoneButton, { backgroundColor: Colors.primary }]}
+          >
+            <Text style={styles.mapModalDoneText}>Confirm</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={{ flex: 1 }}>
+          <MapComponent
+            latitude={tempLatitude}
+            longitude={tempLongitude}
+            editable={true}
+            onLocationChange={(lat, lng) => {
+              setTempLatitude(lat);
+              setTempLongitude(lng);
+            }}
+            style={{ flex: 1 }}
+          />
+        </View>
+        <View style={[styles.mapHint, { backgroundColor: Colors.card }]}>
+          <Ionicons name="information-circle" size={20} color={Colors.primary} />
+          <Text style={[styles.mapHintText, { color: Colors.textSecondary }]}>Tap on the map to select your business location</Text>
+        </View>
+      </SafeAreaView>
+    </Modal>
+  );
+
   const renderCategoryModal = () => (
     <Modal visible={showCategoryModal} animationType="slide" transparent={true}>
       <View style={styles.modalContainer}>
@@ -550,6 +646,9 @@ export default function CompleteProfileScreen({ navigation }: any) {
   };
 
   const renderStepContent = () => {
+    // Safety check
+    if (!currentStep) return null;
+    
     if (currentStep.isSpecial === 'profile-photo') {
       return (
         <View style={styles.photoContainer}>
@@ -620,7 +719,7 @@ export default function CompleteProfileScreen({ navigation }: any) {
                 
                 <TouchableOpacity
                   style={[styles.locationButton, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', flex: 1, borderWidth: 1, borderColor: Colors.borderLight }]}
-                  onPress={() => Alert.alert('Coming Soon', 'Map selection will be available soon!')}
+                  onPress={handleMapPick}
                 >
                   <Ionicons name="map" size={20} color={Colors.primary} />
                   <Text style={[styles.locationButtonText, { color: Colors.primary }]}>Pick on Map</Text>
@@ -717,6 +816,24 @@ export default function CompleteProfileScreen({ navigation }: any) {
     );
   }
 
+  // Safety check - if currentStep is undefined, show error
+  if (!currentStep) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: Colors.background }]} edges={['top']}>
+        <View style={[styles.container, styles.center]}>
+          <Ionicons name="alert-circle" size={48} color={Colors.textTertiary} />
+          <Text style={[styles.loadingText, { color: Colors.textSecondary }]}>Error loading profile steps</Text>
+          <TouchableOpacity
+            style={[styles.nextButton, { backgroundColor: Colors.primary, marginTop: Spacing.space4, paddingHorizontal: Spacing.space6 }]}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.nextButtonText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: Colors.background }]} edges={['top']}>
       <KeyboardAvoidingView
@@ -801,6 +918,7 @@ export default function CompleteProfileScreen({ navigation }: any) {
           </View>
         )}
 
+        {renderMapPickerModal()}
         {renderCategoryModal()}
         {renderSubcategoryModal()}
       </KeyboardAvoidingView>
@@ -1084,5 +1202,42 @@ const styles = StyleSheet.create({
   },
   categoryOptionText: {
     fontSize: 16,
+  },
+  mapModalContainer: {
+    flex: 1,
+  },
+  mapModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: Spacing.space4,
+    borderBottomWidth: 1,
+  },
+  mapModalCloseButton: {
+    padding: Spacing.space2,
+  },
+  mapModalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  mapModalDoneButton: {
+    paddingHorizontal: Spacing.space5,
+    paddingVertical: Spacing.space2,
+    borderRadius: 8,
+  },
+  mapModalDoneText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  mapHint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.space4,
+    gap: Spacing.space2,
+  },
+  mapHintText: {
+    flex: 1,
+    fontSize: 14,
   },
 });

@@ -216,7 +216,7 @@ export default function HomeScreen({ navigation }: any) {
           <QuickActionButton icon="document-text" label="Create Invoice" color="#0891b2" onPress={() => navigation.navigate('Invoice')} />
           <QuickActionButton icon="wallet" label="Khata" color="#ea580c" onPress={() => navigation.navigate('Khata')} />
           <QuickActionButton icon="cube" label="Inventory" color="#16a34a" onPress={() => navigation.navigate('Inventory')} />
-          <QuickActionButton icon="ellipsis-horizontal" label="View More" color="#6b7280" onPress={() => navigation.navigate('More')} />
+          <QuickActionButton icon="ellipsis-horizontal" label="View More" color="#6b7280" onPress={() => navigation.navigate('Profile')} />
         </View>
       </ScrollView>
     </SafeAreaView>

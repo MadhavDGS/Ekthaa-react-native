@@ -323,7 +323,7 @@ export default function KhataScreen({ navigation }: any) {
         <View style={styles.quickStatsGrid}>
           <TouchableOpacity
             style={[styles.quickStatCard, { backgroundColor: Colors.card }]}
-            onPress={() => navigation.navigate('More')}
+            onPress={() => navigation.navigate('Profile')}
             activeOpacity={0.7}
           >
             <SvgIcon name="customerService" size={32} color={Colors.primary} />
@@ -335,7 +335,7 @@ export default function KhataScreen({ navigation }: any) {
 
           <TouchableOpacity
             style={[styles.quickStatCard, { backgroundColor: Colors.card }]}
-            onPress={() => navigation.navigate('More')}
+            onPress={() => navigation.navigate('Profile')}
             activeOpacity={0.7}
           >
             <SvgIcon name="record" size={32} color="#8b5cf6" />
@@ -371,7 +371,7 @@ export default function KhataScreen({ navigation }: any) {
             <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>
               {searchQuery ? 'Search Results' : 'Customers Who Owe You'}
             </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('More')}>
+            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
               <Text style={[styles.viewAllText, { color: Colors.primary }]}>View All →</Text>
             </TouchableOpacity>
           </View>

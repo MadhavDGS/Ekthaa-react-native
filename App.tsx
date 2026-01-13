@@ -339,6 +339,11 @@ function AppContent() {
               component={AddTransactionScreen}
             />
             <Stack.Screen
+              name="Transactions"
+              component={TransactionsScreen}
+              options={{ headerTitle: 'Transactions' }}
+            />
+            <Stack.Screen
               name="InvoiceGenerator"
               component={InvoiceGeneratorScreen}
               options={{ headerTitle: 'Generate Invoice' }}

@@ -146,7 +146,7 @@ export default function AnalyticsScreen({ navigation }: any) {
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
                             <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Top Customers</Text>
-                            <TouchableOpacity onPress={() => navigation.navigate('More')}>
+                            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
                                 <Text style={[styles.viewAllText, { color: Colors.primary }]}>View All</Text>
                             </TouchableOpacity>
                         </View>
