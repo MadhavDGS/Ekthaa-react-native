@@ -34,23 +34,6 @@ export default function LoginScreen({ navigation }: any) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Check if already authenticated on mount
-  useEffect(() => {
-    const checkExistingAuth = async () => {
-      try {
-        const token = await AsyncStorage.getItem('authToken');
-        if (token) {
-          console.log('✅ Already authenticated, navigating to Main');
-          // User is already logged in, navigate to Main
-          navigation.replace('Main');
-        }
-      } catch (err) {
-        console.error('Auth check error:', err);
-      }
-    };
-    checkExistingAuth();
-  }, []);
-
   const handleLogin = async () => {
     setError('');
     setSuccess('');
@@ -70,19 +53,20 @@ export default function LoginScreen({ navigation }: any) {
       console.log('🔐 Attempting login with phone:', phoneNumber);
       const response = await ApiService.login(phoneNumber, password);
       console.log('✅ Login successful!', response);
-      setSuccess('Login successful! Redirecting...');
-
-      // Navigate to Main immediately after successful login
+      
+      // Show success message briefly
+      setSuccess('Login successful!');
+      
+      // The App.tsx will automatically detect the token and navigate
+      // Give it a moment to update the auth state
       setTimeout(() => {
         setLoading(false);
-        console.log('🚀 Navigating to Main screen');
-        navigation.replace('Main');
-      }, 500);
+      }, 300);
     } catch (err: any) {
       console.error('❌ Login error:', err);
       setError(err.message || 'Login failed. Please check your credentials.');
       setLoading(false);
-      // Ensure UI is unlocked on error
+      // Clear error after 5 seconds
       setTimeout(() => setError(''), 5000);
     }
   };

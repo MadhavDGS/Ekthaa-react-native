@@ -223,8 +223,14 @@ function AppContent() {
       }
     });
 
+    // Poll auth state more frequently to detect login
+    const authCheckInterval = setInterval(() => {
+      checkAuth();
+    }, 500); // Check every 500ms
+
     return () => {
       subscription.remove();
+      clearInterval(authCheckInterval);
     };
   }, []);
 
