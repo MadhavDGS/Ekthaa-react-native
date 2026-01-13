@@ -391,6 +391,28 @@ class ApiService {
     return response.data;
   }
 
+  async uploadShopPhoto(photoUri: string) {
+    const formData = new FormData();
+    
+    // Create file object from URI
+    const filename = photoUri.split('/').pop() || 'shop.jpg';
+    const match = /\.(\w+)$/.exec(filename);
+    const type = match ? `image/${match[1]}` : 'image/jpeg';
+    
+    formData.append('shop_photo', {
+      uri: photoUri,
+      name: filename,
+      type: type,
+    } as any);
+    
+    const response = await this.api.post(API_ENDPOINTS.UPLOAD_SHOP_PHOTO, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  }
+
 
   // Invoice Generation
   async generateInvoice(data: any): Promise<string> {

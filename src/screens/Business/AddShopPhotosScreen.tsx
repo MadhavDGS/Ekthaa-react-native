@@ -65,7 +65,7 @@ export default function AddShopPhotosScreen({ navigation }: any) {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [4, 3],
       quality: 0.8,
@@ -115,7 +115,13 @@ export default function AddShopPhotosScreen({ navigation }: any) {
   const uploadPhoto = async (imageUri: string) => {
     try {
       setUploading(true);
-      const updatedPhotos = [...shopPhotos, imageUri];
+      
+      // First upload the image to server to get the URL
+      const uploadResult = await ApiService.uploadShopPhoto(imageUri);
+      const photoUrl = uploadResult.photo_url;
+      
+      // Then add the URL to the shop_photos array
+      const updatedPhotos = [...shopPhotos, photoUrl];
       
       await ApiService.updateProfile({
         shop_photos: updatedPhotos,

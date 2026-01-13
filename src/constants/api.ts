@@ -44,6 +44,7 @@ export const API_ENDPOINTS = {
   REGENERATE_PIN: '/api/profile/regenerate-pin',
   UPLOAD_LOGO: '/api/profile/upload-logo',
   UPLOAD_PROFILE_PHOTO: '/api/profile/upload-photo',
+  UPLOAD_SHOP_PHOTO: '/api/profile/upload-shop-photo',
 
   // Location
   LOCATION: '/api/location',

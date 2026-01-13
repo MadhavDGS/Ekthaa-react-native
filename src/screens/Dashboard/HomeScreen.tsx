@@ -305,7 +305,7 @@ export default function HomeScreen({ navigation }: any) {
             icon="eye-outline"
             label="View as Customer"
             color="#6b7280"
-            onPress={() => navigation.navigate('BusinessPreview')}
+            onPress={() => navigation.navigate('PreviewBusiness')}
           />
         </View>
       </ScrollView>
