@@ -202,9 +202,6 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
 const tabBarStyles = StyleSheet.create({
   container: {
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    overflow: 'hidden',
   },
   tabBar: {
     flexDirection: 'row',
