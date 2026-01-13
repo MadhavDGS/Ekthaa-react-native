@@ -150,7 +150,7 @@ export default function TransactionsScreen({ navigation }: any) {
             </Text>
             <View style={[styles.typeBadge, { backgroundColor: isCredit ? (isDark ? '#7f1d1d' : '#fee2e2') : (isDark ? '#064e3b' : '#d1fae5') }]}>
               <Text style={[styles.typeBadgeText, { color: isCredit ? (isDark ? '#fca5a5' : '#dc2626') : (isDark ? '#6ee7b7' : '#059669') }]}>
-                {isCredit ? 'Received' : 'Given'}
+                {isCredit ? 'Given' : 'Received'}
               </Text>
             </View>
           </View>
@@ -194,18 +194,18 @@ export default function TransactionsScreen({ navigation }: any) {
         </View>
 
         <View style={styles.statsChips}>
-          <View style={[styles.statChip, { backgroundColor: isDark ? '#064e3b' : '#d1fae5' }]}>
-            <Ionicons name="arrow-down-circle" size={14} color={isDark ? '#6ee7b7' : '#059669'} style={{ marginRight: Spacing.xs }} />
-            <View>
-              <Text style={[styles.chipLabel, { color: isDark ? '#6ee7b7' : '#047857' }]}>Received</Text>
-              <Text style={[styles.chipValue, { color: isDark ? '#6ee7b7' : '#059669' }]}>{formatCurrency(stats.totalCredit)}</Text>
-            </View>
-          </View>
           <View style={[styles.statChip, { backgroundColor: isDark ? '#7f1d1d' : '#fee2e2' }]}>
             <Ionicons name="arrow-up-circle" size={14} color={isDark ? '#fca5a5' : '#dc2626'} style={{ marginRight: Spacing.xs }} />
             <View>
               <Text style={[styles.chipLabel, { color: isDark ? '#fca5a5' : '#b91c1c' }]}>Given</Text>
-              <Text style={[styles.chipValue, { color: isDark ? '#fca5a5' : '#dc2626' }]}>{formatCurrency(stats.totalDebit)}</Text>
+              <Text style={[styles.chipValue, { color: isDark ? '#fca5a5' : '#dc2626' }]}>{formatCurrency(stats.totalCredit)}</Text>
+            </View>
+          </View>
+          <View style={[styles.statChip, { backgroundColor: isDark ? '#064e3b' : '#d1fae5' }]}>
+            <Ionicons name="arrow-down-circle" size={14} color={isDark ? '#6ee7b7' : '#059669'} style={{ marginRight: Spacing.xs }} />
+            <View>
+              <Text style={[styles.chipLabel, { color: isDark ? '#6ee7b7' : '#047857' }]}>Received</Text>
+              <Text style={[styles.chipValue, { color: isDark ? '#6ee7b7' : '#059669' }]}>{formatCurrency(stats.totalDebit)}</Text>
             </View>
           </View>
         </View>
@@ -254,7 +254,7 @@ export default function TransactionsScreen({ navigation }: any) {
               { color: filterType === type ? '#fff' : Colors.textPrimary },
               filterType === type && { fontFamily: Typography.fonts.bold }
             ]}>
-              {type === 'all' ? 'All' : type === 'credit' ? 'Received' : 'Given'}
+              {type === 'all' ? 'All' : type === 'credit' ? 'Given' : 'Received'}
             </Text>
           </TouchableOpacity>
         ))}
