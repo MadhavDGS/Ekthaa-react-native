@@ -37,6 +37,7 @@ import CustomerDetailsScreen from './src/screens/Customers/CustomerDetailsScreen
 import AddCustomerScreen from './src/screens/Customers/AddCustomerScreen';
 import ProductsScreen from './src/screens/Products/ProductsScreen';
 import AddProductScreen from './src/screens/Products/AddProductScreen';
+import AddProductLiteScreen from './src/screens/Products/AddProductLiteScreen';
 import TransactionsScreen from './src/screens/Transactions/TransactionsScreen';
 import AddTransactionScreen from './src/screens/Transactions/AddTransactionScreen';
 import InvoiceGeneratorScreen from './src/screens/Invoice/InvoiceGeneratorScreen';
@@ -325,6 +326,11 @@ function AppContent() {
               name="AddProduct"
               component={AddProductScreen}
               options={{ headerTitle: 'Add Product' }}
+            />
+            <Stack.Screen
+              name="AddProductLite"
+              component={AddProductLiteScreen}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="AddTransaction"
