@@ -38,6 +38,7 @@ export default function KhataScreen({ navigation }: any) {
   const [customers, setCustomers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [businessName, setBusinessName] = useState('Business Account');
+  const [activeTab, setActiveTab] = useState<'today' | 'month'>('today');
 
   // Calculate today and this month stats - MUST be before conditional returns
   const { todayStats, monthStats } = useMemo(() => {
@@ -248,120 +249,72 @@ export default function KhataScreen({ navigation }: any) {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); loadData(); }} colors={[Colors.primary]} tintColor={Colors.primary} />}
         showsVerticalScrollIndicator={false}
       >
-        {/* Modern Daily Summary Card */}
-        <View style={[styles.modernSummaryCard, { backgroundColor: Colors.card }]}>
-          <View style={styles.summaryTitleRow}>
-            <View>
-              <Text style={[styles.modernSummaryTitle, { color: Colors.textPrimary }]}>Today's Activity</Text>
-              <Text style={[styles.modernSummarySubtitle, { color: Colors.textSecondary }]}>
-                {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+        {/* Unified Activity Card with Tabs */}
+        <View style={[styles.activityCard, { backgroundColor: Colors.card }]}>
+          {/* Tab Selector */}
+          <View style={styles.tabContainer}>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'today' && styles.activeTab]}
+              onPress={() => setActiveTab('today')}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.tabText, { color: activeTab === 'today' ? Colors.primary : Colors.textSecondary }]}>
+                Today
               </Text>
-            </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'month' && styles.activeTab]}
+              onPress={() => setActiveTab('month')}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.tabText, { color: activeTab === 'month' ? Colors.primary : Colors.textSecondary }]}>
+                This Month
+              </Text>
+            </TouchableOpacity>
           </View>
 
-          <View style={styles.modernStatsGrid}>
-            {/* Transactions Count */}
-            <View style={[styles.modernStatCard, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.12)' : '#E8F5F3' }]}>
-              <View style={[styles.modernStatIconContainer, { backgroundColor: Colors.primary }]}>
-                <SvgIcon name="transactionRecord" size={16} color="#fff" />
+          {/* Stats Display */}
+          <View style={styles.compactStatsRow}>
+            <View style={styles.compactStat}>
+              <View style={styles.compactStatRow}>
+                <Ionicons name="arrow-down" size={16} color="#dc2626" />
+                <Text style={[styles.compactStatLabel, { color: Colors.textSecondary }]}>Credits</Text>
               </View>
-              <Text style={[styles.modernStatValue, { color: Colors.primary }]}>
-                {todayStats.count}
+              <Text style={[styles.compactStatValue, { color: '#dc2626' }]}>
+                ₹{(activeTab === 'today' ? todayStats.credits : monthStats.credits).toLocaleString('en-IN')}
               </Text>
-              <Text style={[styles.modernStatLabel, { color: Colors.textSecondary }]}>Transactions</Text>
             </View>
 
-            {/* Credits */}
-            <View style={[styles.modernStatCard, { backgroundColor: isDark ? 'rgba(220, 38, 38, 0.12)' : '#FEE2E2' }]}>
-              <View style={[styles.modernStatIconContainer, { backgroundColor: '#dc2626' }]}>
-                <SvgIcon name="deposit" size={16} color="#fff" />
+            <View style={[styles.compactDivider, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#e5e7eb' }]} />
+
+            <View style={styles.compactStat}>
+              <View style={styles.compactStatRow}>
+                <Ionicons name="arrow-up" size={16} color="#22c55e" />
+                <Text style={[styles.compactStatLabel, { color: Colors.textSecondary }]}>Payments</Text>
               </View>
-              <Text style={[styles.modernStatValue, { color: '#dc2626' }]}>
-                ₹{todayStats.credits.toLocaleString('en-IN')}
+              <Text style={[styles.compactStatValue, { color: '#22c55e' }]}>
+                ₹{(activeTab === 'today' ? todayStats.payments : monthStats.payments).toLocaleString('en-IN')}
               </Text>
-              <Text style={[styles.modernStatLabel, { color: Colors.textSecondary }]}>Credits</Text>
             </View>
+          </View>
 
-            {/* Payments */}
-            <View style={[styles.modernStatCard, { backgroundColor: isDark ? 'rgba(34, 197, 94, 0.12)' : '#DCFCE7' }]}>
-              <View style={[styles.modernStatIconContainer, { backgroundColor: '#22c55e' }]}>
-                <SvgIcon name="savings" size={16} color="#fff" />
-              </View>
-              <Text style={[styles.modernStatValue, { color: '#22c55e' }]}>
-                ₹{todayStats.payments.toLocaleString('en-IN')}
+          {/* Net & Transaction Count */}
+          <View style={[styles.summaryFooter, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.1)' : '#f0fdf4' }]}>
+            <View style={styles.summaryFooterItem}>
+              <Text style={[styles.summaryFooterLabel, { color: Colors.textSecondary }]}>Net</Text>
+              <Text style={[styles.summaryFooterValue, { color: Colors.textPrimary }]}>
+                {activeTab === 'today' 
+                  ? (todayStats.payments - todayStats.credits >= 0 ? '+' : '')
+                  : (monthStats.payments - monthStats.credits >= 0 ? '+' : '')
+                }₹{Math.abs((activeTab === 'today' ? todayStats.payments - todayStats.credits : monthStats.payments - monthStats.credits)).toLocaleString('en-IN')}
               </Text>
-              <Text style={[styles.modernStatLabel, { color: Colors.textSecondary }]}>Payments</Text>
             </View>
-          </View>
-        </View>
-
-        {/* This Month Summary */}
-        <View style={[styles.modernSummaryCard, { backgroundColor: Colors.card }]}>
-          <View style={styles.summaryTitleRow}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Ionicons name="calendar" size={20} color={Colors.textPrimary} />
-              <Text style={[styles.modernSummaryTitle, { color: Colors.textPrimary }]}>This Month</Text>
+            <View style={styles.summaryFooterItem}>
+              <Text style={[styles.summaryFooterLabel, { color: Colors.textSecondary }]}>Transactions</Text>
+              <Text style={[styles.summaryFooterValue, { color: Colors.textPrimary }]}>
+                {activeTab === 'today' ? todayStats.count : monthStats.count}
+              </Text>
             </View>
-            <View style={[styles.monthBadge, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.2)' : '#E8F5F3' }]}>
-              <Text style={[styles.monthBadgeText, { color: Colors.primary }]}>{monthStats.count} transactions</Text>
-            </View>
-          </View>
-
-          <View style={styles.monthStatsRow}>
-            <View style={styles.monthStat}>
-              <Text style={[styles.monthStatLabel, { color: Colors.textSecondary }]}>Given</Text>
-              <Text style={[styles.monthStatValue, { color: '#dc2626' }]}>₹{monthStats.credits.toLocaleString('en-IN')}</Text>
-            </View>
-            <View style={styles.monthStat}>
-              <Text style={[styles.monthStatLabel, { color: Colors.textSecondary }]}>Received</Text>
-              <Text style={[styles.monthStatValue, { color: '#22c55e' }]}>₹{monthStats.payments.toLocaleString('en-IN')}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Quick Stats Cards */}
-        <View style={styles.quickStatsGrid}>
-          <TouchableOpacity
-            style={[styles.quickStatCard, { backgroundColor: Colors.card }]}
-            onPress={() => navigation.navigate('Profile')}
-            activeOpacity={0.7}
-          >
-            <SvgIcon name="customerService" size={32} color={Colors.primary} />
-            <View style={styles.quickStatData}>
-              <Text style={[styles.quickStatValue, { color: Colors.textPrimary }]}>{customersCount}</Text>
-              <Text style={[styles.quickStatLabel, { color: Colors.textSecondary }]}>Customers</Text>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.quickStatCard, { backgroundColor: Colors.card }]}
-            onPress={() => navigation.navigate('Profile')}
-            activeOpacity={0.7}
-          >
-            <SvgIcon name="record" size={32} color="#8b5cf6" />
-            <View style={styles.quickStatData}>
-              <Text style={[styles.quickStatValue, { color: Colors.textPrimary }]}>{recentTransactions.length}</Text>
-              <Text style={[styles.quickStatLabel, { color: Colors.textSecondary }]}>Transactions</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        {/* Search Customers */}
-        <View style={[styles.searchCard, { backgroundColor: Colors.card }]}>
-          <View style={[styles.searchBox, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f3f4f6' }]}>
-            <Ionicons name="search" size={20} color={Colors.textTertiary} />
-            <TextInput
-              style={[styles.searchInput, { color: Colors.textPrimary }]}
-              placeholder="Search customers..."
-              placeholderTextColor={Colors.textTertiary}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <Ionicons name="close-circle" size={20} color={Colors.textTertiary} />
-              </TouchableOpacity>
-            )}
           </View>
         </View>
 
@@ -371,17 +324,43 @@ export default function KhataScreen({ navigation }: any) {
             <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>
               {searchQuery ? 'Search Results' : 'Customers Who Owe You'}
             </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Customers')}>
-              <Text style={[styles.viewAllText, { color: Colors.primary }]}>View All →</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <TouchableOpacity 
+                onPress={() => setSearchQuery(searchQuery ? '' : ' ')}
+                style={[styles.searchIconButton, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f3f4f6' }]}
+              >
+                <Ionicons name="search" size={18} color={Colors.textSecondary} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('Customers')}>
+                <Text style={[styles.viewAllText, { color: Colors.primary }]}>View All →</Text>
+              </TouchableOpacity>
+            </View>
           </View>
+
+          {/* Integrated Search Input */}
+          {searchQuery !== '' && (
+            <View style={[styles.integratedSearchBox, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f3f4f6' }]}>
+              <Ionicons name="search" size={18} color={Colors.textTertiary} />
+              <TextInput
+                style={[styles.searchInput, { color: Colors.textPrimary }]}
+                placeholder="Search customers..."
+                placeholderTextColor={Colors.textTertiary}
+                value={searchQuery === ' ' ? '' : searchQuery}
+                onChangeText={setSearchQuery}
+                autoFocus
+              />
+              <TouchableOpacity onPress={() => setSearchQuery('')}>
+                <Ionicons name="close-circle" size={18} color={Colors.textTertiary} />
+              </TouchableOpacity>
+            </View>
+          )}
 
           {filteredCustomers.length > 0 ? (
             <>
               {filteredCustomers.map((customer, index) => (
                 <TouchableOpacity
                   key={customer.$id || customer.id || `customer-${customer.phone_number}`}
-                  style={[styles.customerCard, { borderBottomColor: isDark ? 'rgba(255,255,255,0.1)' : '#f3f4f6' }]}
+                  style={[styles.customerCard, { borderBottomColor: isDark ? 'rgba(255,255,255,0.05)' : '#f3f4f6' }]}
                   onPress={() => navigation.navigate('CustomerDetails', { customerId: customer.$id })}
                   activeOpacity={0.7}
                 >
@@ -391,16 +370,19 @@ export default function KhataScreen({ navigation }: any) {
                         {customer.name?.[0]?.toUpperCase()}
                       </Text>
                     </View>
-                    <View>
-                      <Text style={[styles.customerName, { color: Colors.textPrimary }]}>{customer.name}</Text>
-                      <Text style={[styles.customerPhone, { color: Colors.textSecondary }]}>{customer.phone_number}</Text>
+                    <View style={styles.customerDetails}>
+                      <Text style={[styles.customerName, { color: Colors.textPrimary }]} numberOfLines={1}>
+                        {customer.name}
+                      </Text>
+                      <Text style={[styles.customerPhone, { color: Colors.textSecondary }]}>
+                        {customer.phone_number?.slice(0, 3)}•••{customer.phone_number?.slice(-3)}
+                      </Text>
                     </View>
                   </View>
-                  <View style={{ alignItems: 'flex-end' }}>
+                  <View style={styles.customerBalanceContainer}>
                     <Text style={[styles.customerBalance, { color: '#ef4444' }]}>
-                      {formatCurrency(customer.balance)}
+                      {formatCurrency(customer.balance)} ↑
                     </Text>
-                    <Text style={[styles.dueLabel, { color: Colors.textTertiary }]}>Due</Text>
                   </View>
                 </TouchableOpacity>
               ))}
@@ -578,143 +560,105 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingBottom: 95,
   },
-  // Modern Summary Card Styles
-  modernSummaryCard: {
+  // Unified Activity Card
+  activityCard: {
     marginHorizontal: Spacing.md,
     marginTop: Spacing.md,
-    padding: Spacing.md,
     borderRadius: BorderRadius.lg,
-    ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 4 },
-      android: { elevation: 2 },
-    }),
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
   },
-  summaryTitleRow: {
+  tabContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.05)',
   },
-  modernSummaryTitle: {
-    fontSize: Typography.fontMd,
-    fontWeight: Typography.bold,
-    marginBottom: 2,
-  },
-  modernSummarySubtitle: {
-    fontSize: Typography.fontXs,
-  },
-  modernStatsGrid: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-  },
-  modernStatCard: {
+  tab: {
     flex: 1,
-    padding: Spacing.sm,
-    borderRadius: BorderRadius.md,
+    paddingVertical: 12,
     alignItems: 'center',
-    gap: 6,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
   },
-  modernStatIconContainer: {
+  activeTab: {
+    borderBottomColor: '#5A9A8E',
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  compactStatsRow: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+  },
+  compactStat: {
+    flex: 1,
+  },
+  compactStatRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 6,
+  },
+  compactStatLabel: {
+    fontSize: 12,
+  },
+  compactStatValue: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  compactDivider: {
+    width: 1,
+    marginHorizontal: 16,
+  },
+  summaryFooter: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 16,
+  },
+  summaryFooterItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  summaryFooterLabel: {
+    fontSize: 11,
+    marginBottom: 4,
+  },
+  summaryFooterValue: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  searchIconButton: {
     width: 32,
     height: 32,
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modernStatValue: {
-    fontSize: Typography.fontMd,
-    fontWeight: Typography.bold,
-  },
-  modernStatLabel: {
-    fontSize: Typography.font3xs,
-    textAlign: 'center',
-  },
-  monthBadge: {
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
-    borderRadius: BorderRadius.sm,
-  },
-  monthBadgeText: {
-    fontSize: Typography.font3xs,
-    fontWeight: Typography.semiBold,
-  },
-  monthStatsRow: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-  },
-  monthStat: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  monthStatLabel: {
-    fontSize: Typography.fontSm,
-    marginBottom: 4,
-  },
-  monthStatValue: {
-    fontSize: Typography.fontLg,
-    fontWeight: Typography.bold,
-  },
-  quickStatsGrid: {
-    flexDirection: 'row',
-    marginHorizontal: Spacing.md,
-    marginTop: Spacing.md,
-    gap: Spacing.sm,
-  },
-  quickStatCard: {
-    flex: 1,
-    padding: Spacing.md,
-    borderRadius: BorderRadius.lg,
+  integratedSearchBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.md,
-    ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 4 },
-      android: { elevation: 2 },
-    }),
-  },
-  quickStatData: {
-    flex: 1,
-    alignItems: 'flex-start',
-  },
-  quickStatValue: {
-    fontSize: Typography.fontXl,
-    fontWeight: Typography.bold,
-  },
-  quickStatLabel: {
-    fontSize: Typography.fontXs,
-    marginTop: 2,
-  },
-  searchCard: {
-    marginHorizontal: Spacing.md,
-    marginTop: Spacing.md,
-    padding: Spacing.sm,
-    borderRadius: BorderRadius.lg,
-    ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 4 },
-      android: { elevation: 2 },
-    }),
-  },
-  searchBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.md,
-    gap: Spacing.sm,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginTop: 12,
+    gap: 8,
   },
   searchInput: {
     flex: 1,
-    fontSize: Typography.fontMd,
+    fontSize: 14,
+    paddingVertical: 0,
   },
   section: {
     marginHorizontal: Spacing.md,
-    marginTop: Spacing.md,
-    padding: Spacing.md,
+    marginTop: 20,
+    padding: 12,
     borderRadius: BorderRadius.lg,
-    ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 4 },
-      android: { elevation: 2 },
-    }),
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -734,40 +678,46 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: Spacing.md,
+    paddingVertical: 10,
     borderBottomWidth: 1,
+    minHeight: 48,
   },
   customerInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.sm,
+    gap: 10,
+    flex: 1,
+  },
+  customerDetails: {
+    flex: 1,
+    gap: 2,
   },
   customerAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
   },
   customerInitial: {
-    fontSize: Typography.fontMd,
-    fontWeight: Typography.bold,
+    fontSize: 14,
+    fontWeight: '700',
     color: '#ffffff',
   },
   customerName: {
-    fontSize: Typography.fontMd,
-    fontWeight: Typography.semiBold,
+    fontSize: 15,
+    fontWeight: '600',
   },
   customerPhone: {
-    fontSize: Typography.fontSm,
+    fontSize: 12,
+  },
+  customerBalanceContainer: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
   },
   customerBalance: {
-    fontSize: Typography.fontMd,
-    fontWeight: Typography.bold,
-  },
-  dueLabel: {
-    fontSize: Typography.font3xs,
-    marginTop: 2,
+    fontSize: 15,
+    fontWeight: '700',
   },
   txnCard: {
     flexDirection: 'row',
