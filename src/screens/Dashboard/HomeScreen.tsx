@@ -173,7 +173,7 @@ export default function HomeScreen({ navigation }: any) {
 
             <TouchableOpacity
               style={styles.completeButton}
-              onPress={() => navigation.navigate('EditProfile')}
+              onPress={() => navigation.navigate('CompleteProfile')}
               activeOpacity={0.8}
             >
               <Text style={styles.completeButtonText}>Complete Profile</Text>

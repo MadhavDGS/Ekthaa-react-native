@@ -49,6 +49,7 @@ import AddShopPhotosScreen from './src/screens/Business/AddShopPhotosScreen';
 import AnalyticsScreen from './src/screens/Business/AnalyticsScreen';
 import ProfileScreen from './src/screens/profile/ProfileScreen';
 import EditProfileScreen from './src/screens/profile/EditProfileScreen';
+import CompleteProfileScreen from './src/screens/profile/CompleteProfileScreen';
 import PreviewBusinessScreen from './src/screens/profile/PreviewBusinessScreen';
 import PrivacySecurityScreen from './src/screens/profile/PrivacySecurityScreen';
 import PrivacyPolicyScreen from './src/screens/profile/PrivacyPolicyScreen';
@@ -365,6 +366,14 @@ function AppContent() {
               component={EditProfileScreen}
               options={{
                 headerTitle: 'Edit Profile',
+                animation: 'slide_from_right',
+              }}
+            />
+            <Stack.Screen
+              name="CompleteProfile"
+              component={CompleteProfileScreen}
+              options={{
+                headerShown: false,
                 animation: 'slide_from_right',
               }}
             />
