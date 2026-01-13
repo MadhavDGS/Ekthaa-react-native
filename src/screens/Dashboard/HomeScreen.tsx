@@ -25,6 +25,7 @@ import ApiService from '../../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Illustration from '../../components/Illustration';
 import SvgIcon, { SvgIconName } from '../../components/SvgIcon';
+import { SkeletonCard } from '../../components/Skeletons';
 
 const { width } = Dimensions.get('window');
 
@@ -237,6 +238,22 @@ export default function HomeScreen({ navigation }: any) {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         contentContainerStyle={styles.scrollContent}
       >
+        {loading ? (
+          <View>
+            <View style={[styles.card, { backgroundColor: Colors.card }]}>
+              <View style={[styles.skeletonBox, { backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', height: 120, borderRadius: 8 }]} />
+            </View>
+            <View style={[styles.card, { backgroundColor: Colors.card }]}>
+              <View style={[styles.skeletonBox, { backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', height: 20, width: '40%', borderRadius: 4, marginBottom: Spacing.sm }]} />
+              <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
+                <View style={[styles.skeletonBox, { backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', height: 140, width: 120, borderRadius: 8 }]} />
+                <View style={[styles.skeletonBox, { backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', height: 140, width: 120, borderRadius: 8 }]} />
+                <View style={[styles.skeletonBox, { backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', height: 140, width: 120, borderRadius: 8 }]} />
+              </View>
+            </View>
+          </View>
+        ) : (
+          <>
           {/* Profile Completion Card */}
         {profileCompletion < 100 && (
           <View style={[styles.card, { backgroundColor: Colors.card }]}>
@@ -403,6 +420,8 @@ export default function HomeScreen({ navigation }: any) {
             onPress={() => navigation.navigate('PreviewBusiness')}
           />
         </View>
+          </>
+        )}
       </ScrollView>
     </LinearGradient>
   );
@@ -705,5 +724,8 @@ const styles = StyleSheet.create({
     fontWeight: Typography.semiBold,
     textAlign: 'center',
     lineHeight: 13,
+  },
+  skeletonBox: {
+    borderRadius: BorderRadius.md,
   },
 });

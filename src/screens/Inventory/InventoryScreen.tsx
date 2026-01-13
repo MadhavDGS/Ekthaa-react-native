@@ -533,8 +533,8 @@ export default function InventoryScreen({ navigation }: any) {
     return (
       <View style={[styles.container, { backgroundColor: Colors.backgroundSecondary }]}>
         <View style={[styles.statsHeader, { backgroundColor: Colors.card, borderBottomColor: Colors.borderLight }]}>
-          <View style={[styles.statBox, { backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', height: 60, borderRadius: 8 }]} />
-          <View style={[styles.statBox, { backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', height: 60, borderRadius: 8 }]} />
+          <View style={[styles.statBox, styles.statBoxLarge, { backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', height: 60, borderRadius: 8 }]} />
+          <View style={[styles.statBox, styles.statBoxSmall, { backgroundColor: isDark ? '#2a2a2a' : '#e5e7eb', height: 60, borderRadius: 8 }]} />
         </View>
         <SkeletonCard isDark={isDark} />
         <SkeletonCard isDark={isDark} />
