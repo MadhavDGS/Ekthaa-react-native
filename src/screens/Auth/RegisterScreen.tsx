@@ -1,906 +1,223 @@
 /**
- * Register Screen - Multi-Step Registration
- * Step-by-step business registration with Next/Skip options
+ * Register Screen - Simplified Registration
+ * Quick registration with essential fields only
+ * Additional details can be completed from profile section
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Image,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
-  Animated,
   Alert,
   ScrollView,
-  Modal,
-  Keyboard,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
-import * as Location from 'expo-location';
 import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
-import { AvatarSizes } from '../../constants/scales';
 import { useTheme } from '../../context/ThemeContext';
 import ApiService from '../../services/api';
 
-// Business Categories with Subcategories
-const BUSINESS_CATEGORIES = [
-  {
-    name: 'Retail',
-    subcategories: ['Grocery Store', 'Supermarket', 'Convenience Store', 'Clothing Store', 'Electronics Store', 'Hardware Store', 'Pharmacy', 'Other Retail']
-  },
-  {
-    name: 'Food & Restaurant',
-    subcategories: ['Restaurant', 'Fast Food', 'Cafe', 'Bakery', 'Sweet Shop', 'Ice Cream Parlor', 'Cloud Kitchen', 'Catering']
-  },
-  {
-    name: 'Services',
-    subcategories: ['Salon & Spa', 'Laundry', 'Repair Services', 'Consulting', 'Photography', 'Event Planning', 'Cleaning Services', 'Other Services']
-  },
-  {
-    name: 'Healthcare',
-    subcategories: ['Clinic', 'Hospital', 'Diagnostic Center', 'Dental Clinic', 'Veterinary', 'Medical Store', 'Pharmacy']
-  },
-  {
-    name: 'Education',
-    subcategories: ['School', 'Coaching Classes', 'Training Institute', 'Language Classes', 'Music Classes', 'Dance Academy', 'Sports Academy']
-  },
-  {
-    name: 'Automobile',
-    subcategories: ['Car Showroom', 'Bike Showroom', 'Service Center', 'Spare Parts', 'Car Wash', 'Tyre Shop']
-  },
-  {
-    name: 'Real Estate',
-    subcategories: ['Property Dealer', 'Construction', 'Interior Designer', 'Architect']
-  },
-  {
-    name: 'Other',
-    subcategories: ['Manufacturing', 'Wholesale', 'Distribution', 'Logistics', 'Other Business']
-  }
-];
-
-interface Step {
-  id: string;
-  title: string;
-  subtitle: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  placeholder: string;
-  value: string;
-  setValue: (value: string) => void;
-  keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'url';
-  maxLength?: number;
-  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
-  multiline?: boolean;
-  secureTextEntry?: boolean;
-  validation?: (value: string) => string | null;
-  required?: boolean;
-  isSpecial?: 'profile-photo' | 'location' | 'category' | 'subcategory' | 'operating-hours';
-}
 
 export default function RegisterScreen({ navigation }: any) {
   const { isDark } = useTheme();
   const Colors = getThemedColors(isDark);
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const fadeAnim = useState(new Animated.Value(1))[0];
-  const [registered, setRegistered] = useState(false);
-  const [authToken, setAuthToken] = useState(''); // Store token temporarily
-  const [userData, setUserData] = useState<any>(null); // Store user data temporarily
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
-  // Keyboard visibility listeners
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-      setKeyboardVisible(true);
-    });
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardVisible(false);
-    });
-
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
-  }, []);
-
-  // Form state
+  // Form state - only essential fields
   const [businessName, setBusinessName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
-  const [profilePhoto, setProfilePhoto] = useState('');
-  const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('');
-  const [pincode, setPincode] = useState('');
-  const [category, setCategory] = useState('');
-  const [businessType, setBusinessType] = useState('');
-  const [gstNumber, setGstNumber] = useState('');
-  const [description, setDescription] = useState('');
-  const [website, setWebsite] = useState('');
-  const [facebook, setFacebook] = useState('');
-  const [instagram, setInstagram] = useState('');
-  const [subcategory, setSubcategory] = useState('');
-  const [operatingHours, setOperatingHours] = useState('9 AM - 9 PM');
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [showSubcategoryModal, setShowSubcategoryModal] = useState(false);
-
-  const steps: Step[] = [
-    {
-      id: 'businessName',
-      title: 'What\'s your business name?',
-      subtitle: 'Enter your business or shop name',
-      icon: 'storefront',
-      placeholder: 'Enter business name',
-      value: businessName,
-      setValue: setBusinessName,
-      required: true,
-    },
-    {
-      id: 'phoneNumber',
-      title: 'Your mobile number?',
-      subtitle: 'We\'ll use this for login',
-      icon: 'call',
-      placeholder: 'Enter 10-digit mobile number',
-      value: phoneNumber,
-      setValue: setPhoneNumber,
-      maxLength: 10,
-      validation: (value) => {
-        if (value.length !== 10) return 'Phone number must be 10 digits';
-        return null;
-      },
-      required: true,
-    },
-    {
-      id: 'password',
-      title: 'Create a password',
-      subtitle: 'Keep it secure and memorable',
-      icon: 'lock-closed',
-      placeholder: 'Create password',
-      value: password,
-      setValue: setPassword,
-      autoCapitalize: 'none',
-      secureTextEntry: true,
-      validation: (value) => {
-        if (value.length < 6) return 'Password must be at least 6 characters';
-        return null;
-      },
-      required: true,
-    },
-    {
-      id: 'profilePhoto',
-      title: 'Add your business logo',
-      subtitle: 'Upload a profile photo or logo (optional)',
-      icon: 'camera',
-      placeholder: '',
-      value: profilePhoto,
-      setValue: setProfilePhoto,
-      isSpecial: 'profile-photo',
-    },
-    {
-      id: 'location',
-      title: 'Where is your business?',
-      subtitle: 'Get your current location automatically',
-      icon: 'location',
-      placeholder: '',
-      value: address,
-      setValue: setAddress,
-      isSpecial: 'location',
-    },
-    {
-      id: 'email',
-      title: 'What\'s your email?',
-      subtitle: 'We\'ll send important updates',
-      icon: 'mail',
-      placeholder: 'your.email@example.com',
-      value: email,
-      setValue: setEmail,
-      autoCapitalize: 'none',
-      validation: (value) => {
-        if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          return 'Please enter a valid email';
-        }
-        return null;
-      },
-    },
-    {
-      id: 'address',
-      title: 'Business address',
-      subtitle: 'Full address of your business',
-      icon: 'home',
-      placeholder: 'Enter full address',
-      value: address,
-      setValue: setAddress,
-    },
-    {
-      id: 'city',
-      title: 'Which city?',
-      subtitle: 'Your business location',
-      icon: 'business',
-      placeholder: 'e.g., Mumbai',
-      value: city,
-      setValue: setCity,
-    },
-    {
-      id: 'state',
-      title: 'Which state?',
-      subtitle: 'State where your business operates',
-      icon: 'map',
-      placeholder: 'e.g., Maharashtra',
-      value: state,
-      setValue: setState,
-    },
-    {
-      id: 'pincode',
-      title: 'What\'s your pincode?',
-      subtitle: 'Area pin code',
-      icon: 'pin',
-      placeholder: 'Enter 6-digit pincode',
-      value: pincode,
-      setValue: setPincode,
-      maxLength: 6,
-      validation: (value) => {
-        if (value && value.length !== 6) return 'Pincode must be 6 digits';
-        return null;
-      },
-    },
-    {
-      id: 'category',
-      title: 'Business category?',
-      subtitle: 'What type of business do you run?',
-      icon: 'grid',
-      placeholder: 'Select category',
-      value: category,
-      setValue: setCategory,
-      isSpecial: 'category',
-    },
-    {
-      id: 'subcategory',
-      title: 'Business subcategory?',
-      subtitle: 'More specific type of business',
-      icon: 'apps',
-      placeholder: 'Select subcategory',
-      value: subcategory,
-      setValue: setSubcategory,
-      isSpecial: 'subcategory',
-    },
-    {
-      id: 'operatingHours',
-      title: 'Operating hours?',
-      subtitle: 'When is your business open?',
-      icon: 'time',
-      placeholder: 'e.g., 9 AM - 9 PM',
-      value: operatingHours,
-      setValue: setOperatingHours,
-    },
-    {
-      id: 'businessType',
-      title: 'Business type?',
-      subtitle: 'Legal structure of your business',
-      icon: 'briefcase',
-      placeholder: 'e.g., Sole Proprietor',
-      value: businessType,
-      setValue: setBusinessType,
-    },
-    {
-      id: 'gst',
-      title: 'GST Number',
-      subtitle: 'If you have GST registration',
-      icon: 'document-text',
-      placeholder: 'Enter GST number',
-      value: gstNumber,
-      setValue: setGstNumber,
-      autoCapitalize: 'characters',
-    },
-    {
-      id: 'description',
-      title: 'About your business',
-      subtitle: 'Brief description',
-      icon: 'text',
-      placeholder: 'What does your business do?',
-      value: description,
-      setValue: setDescription,
-      multiline: true,
-    },
-    {
-      id: 'website',
-      title: 'Website URL',
-      subtitle: 'Your business website (optional)',
-      icon: 'globe',
-      placeholder: 'https://yourbusiness.com',
-      value: website,
-      setValue: setWebsite,
-      keyboardType: 'url',
-      autoCapitalize: 'none',
-    },
-    {
-      id: 'facebook',
-      title: 'Facebook profile',
-      subtitle: 'Your business Facebook page',
-      icon: 'logo-facebook',
-      placeholder: 'Facebook URL',
-      value: facebook,
-      setValue: setFacebook,
-      keyboardType: 'url',
-      autoCapitalize: 'none',
-    },
-    {
-      id: 'instagram',
-      title: 'Instagram profile',
-      subtitle: 'Your business Instagram page',
-      icon: 'logo-instagram',
-      placeholder: 'Instagram URL',
-      value: instagram,
-      setValue: setInstagram,
-      keyboardType: 'url',
-      autoCapitalize: 'none',
-    },
-  ];
-
-  const currentStep = steps[currentStepIndex];
-  const progress = ((currentStepIndex + 1) / steps.length) * 100;
-
-  // Direct setter mapping to avoid closure issues
-  const getSetterForStep = (stepId: string) => {
-    const setterMap: { [key: string]: (value: string) => void } = {
-      businessName: setBusinessName,
-      phoneNumber: setPhoneNumber,
-      password: setPassword,
-      profilePhoto: setProfilePhoto,
-      location: setAddress,
-      email: setEmail,
-      address: setAddress,
-      city: setCity,
-      state: setState,
-      pincode: setPincode,
-      category: setCategory,
-      subcategory: setSubcategory,
-      operatingHours: setOperatingHours,
-      businessType: setBusinessType,
-      gst: setGstNumber,
-      description: setDescription,
-      website: setWebsite,
-      facebook: setFacebook,
-      instagram: setInstagram,
-    };
-    return setterMap[stepId] || (() => {});
-  };
-
-  const handleProfilePhotoPick = async () => {
-    try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission needed', 'Please grant camera roll permissions');
-        return;
-      }
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.8,
-      });
-
-      if (!result.canceled && result.assets[0]) {
-        setProfilePhoto(result.assets[0].uri);
-      }
-    } catch (error) {
-      console.error('Image picker error:', error);
-      Alert.alert('Error', 'Failed to pick image');
-    }
-  };
-
-  const handleLocationPick = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission needed', 'Please grant location permissions');
-        return;
-      }
-
-      setLoading(true);
-      const location = await Location.getCurrentPositionAsync({});
-      const reverseGeocode = await Location.reverseGeocodeAsync({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      });
-
-      if (reverseGeocode[0]) {
-        const loc = reverseGeocode[0];
-        const fullAddress = `${loc.street || ''} ${loc.name || ''}, ${loc.city || ''}, ${loc.region || ''} ${loc.postalCode || ''}`.trim();
-        setAddress(fullAddress);
-        if (loc.city) setCity(loc.city);
-        if (loc.region) setState(loc.region);
-        if (loc.postalCode) setPincode(loc.postalCode);
-      }
-    } catch (error) {
-      console.error('Location error:', error);
-      Alert.alert('Error', 'Failed to get location');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleNext = async () => {
-    setError('');
-
-    // Validate required fields
-    if (currentStep.required && !currentStep.value) {
-      setError(`${currentStep.title.replace('?', '')} is required`);
-      return;
-    }
-
-    // Run validation if exists
-    if (currentStep.validation) {
-      const validationError = currentStep.validation(currentStep.value);
-      if (validationError) {
-        setError(validationError);
-        return;
-      }
-    }
-
-    // If we're on the last required step (password), register the user
-    if (currentStep.id === 'password' && !registered) {
-      await handleRegister();
-      return;
-    }
-
-    // Move to next step
-    if (currentStepIndex < steps.length - 1) {
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 150,
-        useNativeDriver: true,
-      }).start(() => {
-        setCurrentStepIndex(currentStepIndex + 1);
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 150,
-          useNativeDriver: true,
-        }).start();
-      });
-    } else {
-      // Finished - update profile with remaining details
-      await handleUpdateProfile();
-    }
-  };
-
-  const handleSkip = async () => {
-    setError('');
-    if (currentStepIndex < steps.length - 1) {
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 150,
-        useNativeDriver: true,
-      }).start(() => {
-        setCurrentStepIndex(currentStepIndex + 1);
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 150,
-          useNativeDriver: true,
-        }).start();
-      });
-    } else {
-      // Last step skipped - save auth token and let App.tsx handle navigation
-      if (authToken) {
-        await AsyncStorage.setItem('authToken', authToken);
-        if (userData) {
-          await AsyncStorage.setItem('userData', JSON.stringify(userData));
-        }
-        console.log('✅ Registration complete, auth saved, App.tsx will navigate');
-      }
-    }
-  };
-
-  const handleBack = () => {
-    setError('');
-    if (currentStepIndex > 0) {
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 150,
-        useNativeDriver: true,
-      }).start(() => {
-        setCurrentStepIndex(currentStepIndex - 1);
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 150,
-          useNativeDriver: true,
-        }).start();
-      });
-    }
-  };
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleRegister = async () => {
+    // Validation
+    if (!businessName.trim()) {
+      setError('Please enter your business name');
+      return;
+    }
+    
+    if (!phoneNumber.trim() || phoneNumber.length !== 10) {
+      setError('Please enter a valid 10-digit mobile number');
+      return;
+    }
+    
+    if (!password.trim() || password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
     try {
-      setLoading(true);
-      const response = await ApiService.register(businessName, phoneNumber, password);
-      
-      // Store token and user data temporarily - DON'T save to AsyncStorage yet
-      if (response.token) {
-        setAuthToken(response.token);
-        setUserData(response.user);
-      }
-      
-      setRegistered(true);
-      setLoading(false);
-      
-      // Move to next step with animation after successful registration
-      if (currentStepIndex < steps.length - 1) {
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 150,
-          useNativeDriver: true,
-        }).start(() => {
-          setCurrentStepIndex(currentStepIndex + 1);
-          Animated.timing(fadeAnim, {
-            toValue: 1,
-            duration: 150,
-            useNativeDriver: true,
-          }).start();
-        });
-      }
+      // Register the business
+      const registerResponse = await ApiService.register({
+        name: businessName.trim(),
+        phone_number: phoneNumber.trim(),
+        password: password,
+      });
+
+      // Store auth token
+      await AsyncStorage.setItem('authToken', registerResponse.token);
+      await AsyncStorage.setItem('businessId', registerResponse.business_id);
+      await AsyncStorage.setItem('user', JSON.stringify(registerResponse.business));
+
+      Alert.alert(
+        'Success!',
+        'Your account has been created successfully. Complete your profile to get more customers!',
+        [{ text: 'OK', onPress: () => navigation.replace('Main') }]
+      );
     } catch (err: any) {
       console.error('Registration error:', err);
-      setError(err.response?.data?.error || err.response?.data?.message || err.message || 'Registration failed');
-      setLoading(false);
-    }
-  };
-
-  const handleUpdateProfile = async () => {
-    try {
-      setLoading(true);
-      
-      // Save auth token and user data to AsyncStorage now that all steps are complete
-      if (authToken) {
-        await AsyncStorage.setItem('authToken', authToken);
-        if (userData) {
-          await AsyncStorage.setItem('userData', JSON.stringify(userData));
-        }
-      }
-      
-      const updateData: any = {};
-      if (email) updateData.email = email;
-      if (address) updateData.address = address;
-      if (city) updateData.city = city;
-      if (state) updateData.state = state;
-      if (pincode) updateData.pincode = pincode;
-      if (category) updateData.category = category;
-      if (subcategory) updateData.subcategory = subcategory;
-      if (operatingHours) updateData.operating_hours = operatingHours;
-      if (businessType) updateData.business_type = businessType;
-      if (gstNumber) updateData.gst_number = gstNumber;
-      if (description) updateData.description = description;
-      if (website) updateData.website = website;
-      if (facebook) updateData.facebook = facebook;
-      if (instagram) updateData.instagram = instagram;
-
-      // Upload profile photo if selected
-      if (profilePhoto) {
-        try {
-          console.log('📸 Uploading profile photo:', profilePhoto);
-          const photoResponse = await ApiService.uploadProfilePhoto(profilePhoto);
-          console.log('📸 Photo upload response:', photoResponse);
-          if (photoResponse.profile_photo_url) {
-            updateData.profile_photo_url = photoResponse.profile_photo_url;
-          }
-        } catch (photoError) {
-          console.error('Photo upload error:', photoError);
-          // Continue even if photo upload fails
-        }
-      }
-
-      if (Object.keys(updateData).length > 0) {
-        await ApiService.updateProfile(updateData);
-      }
-
-      // Profile updated successfully - auth already saved above
-      // App.tsx will detect token and automatically navigate to Main
-      console.log('✅ Profile updated, App.tsx will navigate to Main');
-    } catch (err: any) {
-      console.error('Update profile error:', err);
-      // Even if profile update fails, token is saved so navigate to Login
-      navigation.replace('Login');
+      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: Colors.backgroundSecondary }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: Colors.background }]} edges={['top']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-        {/* Header */}
-        <View style={[styles.header, { borderBottomColor: Colors.borderLight }]}>
-          <View style={styles.headerTop}>
-            {currentStepIndex > 0 && !loading && (
-              <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-                <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
-              </TouchableOpacity>
-            )}
-            <View style={{ flex: 1 }} />
-            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-              <Text style={[styles.loginLink, { color: Colors.primary }]}>
-                {currentStepIndex === 0 ? 'Login' : ''}
-              </Text>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={[styles.backButton, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }]}
+            >
+              <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
             </TouchableOpacity>
           </View>
-          
-          {/* Progress Bar */}
-          <View style={[styles.progressBar, { backgroundColor: Colors.borderLight }]}>
-            <View
-              style={[
-                styles.progressFill,
-                { backgroundColor: Colors.primary, width: `${progress}%` },
-              ]}
-            />
-          </View>
-          <Text style={[styles.progressText, { color: Colors.textTertiary }]}>
-            Step {currentStepIndex + 1} of {steps.length}
-          </Text>
-        </View>
 
-        {/* Content */}
-        <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
-          {/* Logo - Only on first step and when keyboard is hidden */}
-          {currentStepIndex === 0 && !keyboardVisible && (
-            <View style={styles.logoContainer}>
-              <Image
-                source={require('../../../assets/logo.png')}
-                style={styles.logo}
-              />
-              <Text style={[styles.appName, { color: Colors.primary }]}>Ekthaa</Text>
+          {/* Main Content */}
+          <View style={styles.content}>
+            <View style={[styles.iconWrapper, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.2)' : '#e8f5f3' }]}>
+              <Ionicons name="storefront" size={40} color="#5a9a8e" />
             </View>
-          )}
 
-          {/* Step Card */}
-          <View style={[styles.stepCard, { backgroundColor: Colors.card }]}>
-            <Ionicons name={currentStep.icon} size={48} color={Colors.primary} />
-            <Text style={[styles.stepTitle, { color: Colors.textPrimary }]}>
-              {currentStep.title}
-            </Text>
-            <Text style={[styles.stepSubtitle, { color: Colors.textSecondary }]}>
-              {currentStep.subtitle}
+            <Text style={[styles.title, { color: Colors.textPrimary }]}>Create Your Account</Text>
+            <Text style={[styles.subtitle, { color: Colors.textSecondary }]}>
+              Start managing your business with Kathape
             </Text>
 
             {/* Error Message */}
             {error ? (
               <View style={styles.errorContainer}>
-                <Ionicons name="alert-circle" size={16} color={Colors.creditRed} />
-                <Text style={[styles.errorText, { color: Colors.creditRed }]}>{error}</Text>
+                <Ionicons name="alert-circle" size={20} color="#ef4444" />
+                <Text style={styles.errorText}>{error}</Text>
               </View>
             ) : null}
 
-            {/* Special Input: Profile Photo */}
-            {currentStep.isSpecial === 'profile-photo' ? (
-              <View style={styles.specialInputContainer}>
-                <TouchableOpacity
-                  style={[styles.photoButton, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}
-                  onPress={handleProfilePhotoPick}
-                >
-                  {profilePhoto ? (
-                    <Image 
-                      source={{ uri: profilePhoto }} 
-                      style={styles.profilePhotoPreview}
-                      resizeMode="cover"
-                    />
-                  ) : (
-                    <>
-                      <Ionicons name="camera" size={32} color={Colors.textTertiary} />
-                      <Text style={[styles.photoButtonText, { color: Colors.textSecondary }]}>
-                        Tap to upload photo
-                      </Text>
-                    </>
-                  )}
-                </TouchableOpacity>
-              </View>
-            ) : currentStep.isSpecial === 'location' ? (
-              /* Special Input: Location */
-              <View style={styles.specialInputContainer}>
-                <TouchableOpacity
-                  style={[styles.locationButton, { backgroundColor: Colors.primary }]}
-                  onPress={handleLocationPick}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <ActivityIndicator color={Colors.white} />
-                  ) : (
-                    <>
-                      <Ionicons name="location" size={24} color={Colors.white} />
-                      <Text style={[styles.locationButtonText, { color: Colors.white }]}>
-                        Get Current Location
-                      </Text>
-                    </>
-                  )}
-                </TouchableOpacity>
-                {address ? (
-                  <Text style={[styles.locationPreview, { color: Colors.textSecondary }]}>
-                    {address}
-                  </Text>
-                ) : null}
-              </View>
-            ) : currentStep.isSpecial === 'category' ? (
-              /* Special Input: Category Picker */
-              <View style={styles.specialInputContainer}>
-                <TouchableOpacity
-                  style={[styles.pickerButton, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}
-                  onPress={() => setShowCategoryModal(true)}
-                >
-                  <Text style={[styles.pickerButtonText, category ? { color: Colors.textPrimary } : { color: Colors.textTertiary }]}>
-                    {category || 'Select category'}
-                  </Text>
-                  <Ionicons name="chevron-down" size={20} color={Colors.textSecondary} />
-                </TouchableOpacity>
-              </View>
-            ) : currentStep.isSpecial === 'subcategory' ? (
-              /* Special Input: Subcategory Picker */
-              <View style={styles.specialInputContainer}>
-                <TouchableOpacity
-                  style={[styles.pickerButton, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}
-                  onPress={() => {
-                    if (!category) {
-                      Alert.alert('Select Category First', 'Please select a business category before choosing subcategory');
-                    } else {
-                      setShowSubcategoryModal(true);
-                    }
-                  }}
-                >
-                  <Text style={[styles.pickerButtonText, subcategory ? { color: Colors.textPrimary } : { color: Colors.textTertiary }]}>
-                    {subcategory || 'Select subcategory'}
-                  </Text>
-                  <Ionicons name="chevron-down" size={20} color={Colors.textSecondary} />
-                </TouchableOpacity>
-              </View>
-            ) : (
-              /* Regular Text Input */
-              <View style={[styles.inputWrapper, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
+            {/* Business Name Input */}
+            <View style={styles.inputSection}>
+              <Text style={[styles.inputLabel, { color: Colors.textPrimary }]}>Business Name *</Text>
+              <View style={[styles.inputWrapper, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}>
+                <Ionicons name="storefront-outline" size={20} color={Colors.textTertiary} style={styles.inputIcon} />
                 <TextInput
-                  key={`input-${currentStep.id}`}
-                  style={[
-                    styles.input,
-                    { color: Colors.textPrimary },
-                    currentStep.multiline && styles.textArea,
-                  ]}
-                  placeholder={currentStep.placeholder}
+                  style={[styles.input, { color: Colors.textPrimary }]}
+                  placeholder="Enter your business name"
                   placeholderTextColor={Colors.textTertiary}
-                  value={currentStep.value}
-                  onChangeText={(text) => {
-                    console.log('TextInput onChange:', currentStep.id, text);
-                    const setter = getSetterForStep(currentStep.id);
-                    setter(text);
-                  }}
-                  keyboardType={currentStep.keyboardType || 'default'}
-                  maxLength={currentStep.maxLength}
-                  autoCapitalize={currentStep.autoCapitalize || 'sentences'}
-                  secureTextEntry={currentStep.secureTextEntry || false}
-                  textContentType={currentStep.secureTextEntry ? 'password' : undefined}
-                  multiline={currentStep.multiline || false}
-                  numberOfLines={currentStep.multiline ? 3 : 1}
-                  editable={true}
+                  value={businessName}
+                  onChangeText={setBusinessName}
+                  autoCapitalize="words"
+                  editable={!loading}
                 />
               </View>
-            )}
-          </View>
-        </Animated.View>
+            </View>
 
-        {/* Footer Buttons */}
-        <View style={[styles.footer, { borderTopColor: Colors.borderLight }]}>
-          {/* Show Skip button only after password step (index >= 3) */}
-          {currentStepIndex >= 3 && (
+            {/* Phone Number Input */}
+            <View style={styles.inputSection}>
+              <Text style={[styles.inputLabel, { color: Colors.textPrimary }]}>Mobile Number *</Text>
+              <View style={[styles.inputWrapper, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}>
+                <Ionicons name="call-outline" size={20} color={Colors.textTertiary} style={styles.inputIcon} />
+                <TextInput
+                  style={[styles.input, { color: Colors.textPrimary }]}
+                  placeholder="10-digit mobile number"
+                  placeholderTextColor={Colors.textTertiary}
+                  value={phoneNumber}
+                  onChangeText={setPhoneNumber}
+                  keyboardType="phone-pad"
+                  maxLength={10}
+                  editable={!loading}
+                />
+              </View>
+            </View>
+
+            {/* Password Input */}
+            <View style={styles.inputSection}>
+              <Text style={[styles.inputLabel, { color: Colors.textPrimary }]}>Password *</Text>
+              <View style={[styles.inputWrapper, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}>
+                <Ionicons name="lock-closed-outline" size={20} color={Colors.textTertiary} style={styles.inputIcon} />
+                <TextInput
+                  style={[styles.input, { color: Colors.textPrimary, flex: 1 }]}
+                  placeholder="Minimum 6 characters"
+                  placeholderTextColor={Colors.textTertiary}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                  autoCapitalize="none"
+                  editable={!loading}
+                />
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                  <Ionicons
+                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                    size={20}
+                    color={Colors.textTertiary}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Register Button */}
             <TouchableOpacity
-              style={[styles.skipButton, { backgroundColor: Colors.backgroundSecondary }]}
-              onPress={handleSkip}
+              style={[styles.registerButton, { opacity: loading ? 0.7 : 1 }]}
+              onPress={handleRegister}
               disabled={loading}
             >
-              <Text style={[styles.skipButtonText, { color: Colors.textSecondary }]}>
-                {currentStepIndex === steps.length - 1 ? 'Finish' : 'Skip'}
-              </Text>
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <>
+                  <Text style={styles.registerButtonText}>Create Account</Text>
+                  <Ionicons name="arrow-forward" size={20} color="#fff" />
+                </>
+              )}
             </TouchableOpacity>
-          )}
 
-          <TouchableOpacity
-            style={[currentStepIndex >= 3 ? styles.nextButton : styles.nextButtonFull, { backgroundColor: Colors.primary }]}
-            onPress={handleNext}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color={Colors.white} />
-            ) : (
-              <>
-                <Text style={[styles.nextButtonText, { color: Colors.white }]}>
-                  {currentStep.id === 'password' && !registered
-                    ? 'Register'
-                    : currentStepIndex === steps.length - 1
-                    ? 'Complete'
-                    : 'Next'}
-                </Text>
-                <Ionicons name="arrow-forward" size={20} color={Colors.white} />
-              </>
-            )}
-          </TouchableOpacity>
-        </View>
+            {/* Info Note */}
+            <View style={[styles.infoNote, { backgroundColor: isDark ? 'rgba(99, 102, 241, 0.1)' : '#eef2ff', borderColor: isDark ? 'rgba(99, 102, 241, 0.2)' : '#c7d2fe' }]}>
+              <Ionicons name="information-circle" size={20} color="#6366f1" />
+              <Text style={[styles.infoText, { color: isDark ? '#c7d2fe' : '#6366f1' }]}>
+                You can complete your profile details later from the dashboard
+              </Text>
+            </View>
 
-        {/* Category Modal */}
-        <Modal
-          visible={showCategoryModal}
-          transparent={true}
-          animationType="slide"
-          onRequestClose={() => setShowCategoryModal(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={[styles.modalContent, { backgroundColor: Colors.card }]}>
-              <View style={styles.modalHeader}>
-                <Text style={[styles.modalTitle, { color: Colors.textPrimary }]}>Select Category</Text>
-                <TouchableOpacity onPress={() => setShowCategoryModal(false)}>
-                  <Ionicons name="close" size={24} color={Colors.textSecondary} />
-                </TouchableOpacity>
-              </View>
-              <ScrollView style={styles.modalScroll}>
-                {BUSINESS_CATEGORIES.map((cat) => (
-                  <TouchableOpacity
-                    key={cat.name}
-                    style={[styles.modalOption, category === cat.name && { backgroundColor: Colors.primary + '15' }]}
-                    onPress={() => {
-                      setCategory(cat.name);
-                      setSubcategory(''); // Reset subcategory when category changes
-                      setShowCategoryModal(false);
-                    }}
-                  >
-                    <Text style={[styles.modalOptionText, { color: category === cat.name ? Colors.primary : Colors.textPrimary }]}>
-                      {cat.name}
-                    </Text>
-                    {category === cat.name && <Ionicons name="checkmark" size={20} color={Colors.primary} />}
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
+            {/* Login Link */}
+            <View style={styles.loginContainer}>
+              <Text style={[styles.loginText, { color: Colors.textSecondary }]}>
+                Already have an account?{' '}
+              </Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Login')} disabled={loading}>
+                <Text style={styles.loginLink}>Login</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        </Modal>
-
-        {/* Subcategory Modal */}
-        <Modal
-          visible={showSubcategoryModal}
-          transparent={true}
-          animationType="slide"
-          onRequestClose={() => setShowSubcategoryModal(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={[styles.modalContent, { backgroundColor: Colors.card }]}>
-              <View style={styles.modalHeader}>
-                <Text style={[styles.modalTitle, { color: Colors.textPrimary }]}>Select Subcategory</Text>
-                <TouchableOpacity onPress={() => setShowSubcategoryModal(false)}>
-                  <Ionicons name="close" size={24} color={Colors.textSecondary} />
-                </TouchableOpacity>
-              </View>
-              <ScrollView style={styles.modalScroll}>
-                {BUSINESS_CATEGORIES.find(c => c.name === category)?.subcategories.map((sub) => (
-                  <TouchableOpacity
-                    key={sub}
-                    style={[styles.modalOption, subcategory === sub && { backgroundColor: Colors.primary + '15' }]}
-                    onPress={() => {
-                      setSubcategory(sub);
-                      setShowSubcategoryModal(false);
-                    }}
-                  >
-                    <Text style={[styles.modalOptionText, { color: subcategory === sub ? Colors.primary : Colors.textPrimary }]}>
-                      {sub}
-                    </Text>
-                    {subcategory === sub && <Ionicons name="checkmark" size={20} color={Colors.primary} />}
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-          </View>
-        </Modal>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -913,227 +230,125 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: Spacing.space6,
+  },
   header: {
     paddingHorizontal: Spacing.space4,
-    paddingTop: Spacing.space3,
-    paddingBottom: Spacing.space4,
-    borderBottomWidth: 1,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing.space3,
+    paddingTop: Spacing.space2,
   },
   backButton: {
-    padding: Spacing.space2,
-  },
-  loginLink: {
-    fontSize: Typography.fontSm,
-    fontWeight: Typography.semiBold,
-  },
-  progressBar: {
-    height: 4,
-    borderRadius: 2,
-    overflow: 'hidden',
-    marginBottom: Spacing.space2,
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 2,
-  },
-  progressText: {
-    fontSize: Typography.fontXs,
-    textAlign: 'center',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: {
-    flex: 1,
-    padding: Spacing.space4,
-    justifyContent: 'center',
+    paddingHorizontal: Spacing.space6,
+    paddingTop: Spacing.space4,
   },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: Spacing.space6,
-  },
-  logo: {
+  iconWrapper: {
     width: 80,
     height: 80,
-    resizeMode: 'contain',
-  },
-  appName: {
-    fontSize: Typography.fontXl,
-    fontWeight: Typography.bold,
-    marginTop: Spacing.space2,
-  },
-  stepCard: {
-    borderRadius: BorderRadius.xxl,
-    padding: Spacing.space6,
+    borderRadius: 40,
+    justifyContent: 'center',
     alignItems: 'center',
-    ...Shadows.md,
+    alignSelf: 'center',
+    marginBottom: Spacing.space4,
   },
-  stepTitle: {
-    fontSize: Typography.fontXl,
-    fontWeight: Typography.bold,
-    marginTop: Spacing.space4,
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
     textAlign: 'center',
+    marginBottom: Spacing.space2,
   },
-  stepSubtitle: {
-    fontSize: Typography.fontBase,
-    marginTop: Spacing.space2,
-    marginBottom: Spacing.space5,
+  subtitle: {
+    fontSize: 15,
     textAlign: 'center',
+    marginBottom: Spacing.space6,
   },
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: Spacing.space3,
+    backgroundColor: '#fef2f2',
+    padding: Spacing.space3,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.space4,
+    gap: Spacing.space2,
   },
   errorText: {
-    fontSize: Typography.fontSm,
-    fontWeight: Typography.medium,
+    flex: 1,
+    color: '#ef4444',
+    fontSize: 14,
+  },
+  inputSection: {
+    marginBottom: Spacing.space4,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: Spacing.space2,
   },
   inputWrapper: {
-    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1,
-    borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.space4,
-    paddingVertical: Spacing.space4,
+    borderRadius: BorderRadius.lg,
+    paddingHorizontal: Spacing.space3,
+    height: 54,
+  },
+  inputIcon: {
+    marginRight: Spacing.space2,
   },
   input: {
-    fontSize: Typography.fontBase,
+    flex: 1,
+    fontSize: 15,
     paddingVertical: 0,
-    minHeight: 24,
   },
-  textArea: {
-    minHeight: 80,
-    textAlignVertical: 'top',
-  },
-  specialInputContainer: {
-    width: '100%',
-    alignItems: 'center',
-  },
-  photoButton: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 2,
+  registerButton: {
+    backgroundColor: '#5a9a8e',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  profilePhotoPreview: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-  },
-  photoButtonText: {
-    fontSize: Typography.fontSm,
+    paddingVertical: Spacing.space4,
+    borderRadius: BorderRadius.lg,
     marginTop: Spacing.space2,
-    textAlign: 'center',
+    gap: Spacing.space2,
+    ...Shadows.md,
   },
-  locationButton: {
+  registerButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  infoNote: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    paddingVertical: Spacing.space4,
-    paddingHorizontal: Spacing.space6,
+    padding: Spacing.space3,
     borderRadius: BorderRadius.md,
-  },
-  locationButtonText: {
-    fontSize: Typography.fontBase,
-    fontWeight: Typography.semiBold,
-  },
-  locationPreview: {
-    fontSize: Typography.fontSm,
-    marginTop: Spacing.space3,
-    textAlign: 'center',
-  },
-  footer: {
-    flexDirection: 'row',
-    padding: Spacing.space4,
-    gap: Spacing.space3,
-    borderTopWidth: 1,
-  },
-  skipButton: {
-    flex: 1,
-    paddingVertical: Spacing.space4,
-    borderRadius: BorderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  skipButtonText: {
-    fontSize: Typography.fontBase,
-    fontWeight: Typography.semiBold,
-  },
-  nextButton: {
-    flex: 2,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: Spacing.space4,
-    borderRadius: BorderRadius.md,
-  },
-  nextButtonFull: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: Spacing.space4,
-    borderRadius: BorderRadius.md,
-  },
-  nextButtonText: {
-    fontSize: Typography.fontBase,
-    fontWeight: Typography.bold,
-  },
-  pickerButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: Spacing.space4,
-    borderRadius: BorderRadius.md,
+    marginTop: Spacing.space4,
+    gap: Spacing.space2,
     borderWidth: 1,
   },
-  pickerButtonText: {
-    fontSize: Typography.fontBase,
-  },
-  modalOverlay: {
+  infoText: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
+    fontSize: 13,
+    lineHeight: 18,
   },
-  modalContent: {
-    borderTopLeftRadius: BorderRadius.xl,
-    borderTopRightRadius: BorderRadius.xl,
-    maxHeight: '70%',
-  },
-  modalHeader: {
+  loginContainer: {
     flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.space4,
-    paddingVertical: Spacing.space3,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
+    marginTop: Spacing.space6,
   },
-  modalTitle: {
-    fontSize: Typography.fontLg,
-    fontWeight: Typography.semiBold,
+  loginText: {
+    fontSize: 14,
   },
-  modalScroll: {
-    maxHeight: 400,
-  },
-  modalOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.space4,
-    paddingVertical: Spacing.space4,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
-  },
-  modalOptionText: {
-    fontSize: Typography.fontBase,
+  loginLink: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#5a9a8e',
   },
 });
