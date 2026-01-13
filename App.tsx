@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Platform, UIManager, ActivityIndicator, View, AppState } from 'react-native';
+import { Platform, UIManager, ActivityIndicator, View, AppState, StyleSheet, Animated } from 'react-native';
 
 // Enable hardware acceleration on Android for better performance on MediaTek/Snapdragon
 if (Platform.OS === 'android') {
@@ -64,15 +64,146 @@ import { getThemedColors, LightColors, DarkColors } from './src/constants/theme'
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Bottom Tab Navigator with native styling and theme support
-function MainTabs() {
+// Custom Tab Bar Component - Clean Modern Design
+function CustomTabBar({ state, descriptors, navigation }: any) {
   const { isDark } = useTheme();
   const Colors = getThemedColors(isDark);
   const insets = useSafeAreaInsets();
 
+  // Icon configuration with unique SF Symbols style icons
+  const getTabConfig = (routeName: string, isFocused: boolean) => {
+    const configs: { [key: string]: { icon: string; label: string } } = {
+      'Khata': { 
+        icon: isFocused ? 'wallet' : 'wallet-outline',
+        label: 'Khata'
+      },
+      'Inventory': { 
+        icon: isFocused ? 'layers' : 'layers-outline',
+        label: 'Stock'
+      },
+      'Home': { 
+        icon: isFocused ? 'grid' : 'grid-outline',
+        label: 'Home'
+      },
+      'Customers': { 
+        icon: isFocused ? 'person-circle' : 'person-circle-outline',
+        label: 'Customers'
+      },
+      'Invoice': { 
+        icon: isFocused ? 'document-text' : 'document-text-outline',
+        label: 'Invoice'
+      },
+    };
+    return configs[routeName] || { icon: 'ellipse-outline', label: routeName };
+  };
+
+  return (
+    <View style={[
+      tabBarStyles.container,
+      {
+        paddingBottom: Math.max(insets.bottom, 4),
+        backgroundColor: Colors.card,
+        borderTopColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+      }
+    ]}>
+      <View style={tabBarStyles.tabBar}>
+        {state.routes.map((route: any, index: number) => {
+          const { options } = descriptors[route.key];
+          const isFocused = state.index === index;
+          const { icon, label } = getTabConfig(route.name, isFocused);
+
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name);
+            }
+          };
+
+          return (
+            <TouchableOpacity
+              key={route.key}
+              accessibilityRole="button"
+              accessibilityState={isFocused ? { selected: true } : {}}
+              accessibilityLabel={options.tabBarAccessibilityLabel}
+              onPress={onPress}
+              style={tabBarStyles.tab}
+              activeOpacity={0.6}
+            >
+              <View style={[
+                tabBarStyles.iconWrapper,
+                isFocused && [tabBarStyles.iconWrapperActive, { backgroundColor: Colors.primary + '15' }]
+              ]}>
+                <Ionicons 
+                  name={icon as any}
+                  size={24} 
+                  color={isFocused ? Colors.primary : Colors.textTertiary} 
+                />
+              </View>
+              <Text style={[
+                tabBarStyles.label,
+                { color: isFocused ? Colors.primary : Colors.textTertiary },
+                isFocused && tabBarStyles.labelActive
+              ]} numberOfLines={1}>
+                {label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+const tabBarStyles = StyleSheet.create({
+  container: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
+  tabBar: {
+    flexDirection: 'row',
+    paddingTop: 8,
+    paddingHorizontal: 4,
+  },
+  tab: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 4,
+  },
+  iconWrapper: {
+    width: 48,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 16,
+    marginBottom: 2,
+  },
+  iconWrapperActive: {
+    // backgroundColor set dynamically
+  },
+  label: {
+    fontSize: 10,
+    fontWeight: '500',
+    letterSpacing: 0.1,
+  },
+  labelActive: {
+    fontWeight: '600',
+  },
+});
+
+// Bottom Tab Navigator with custom tab bar
+function MainTabs() {
+  const { isDark } = useTheme();
+  const Colors = getThemedColors(isDark);
+
   return (
     <Tab.Navigator
       initialRouteName="Home"
+      tabBar={(props) => <CustomTabBar {...props} />}
       screenOptions={({ route, navigation }) => ({
         headerShown: true,
         headerStyle: {
@@ -101,43 +232,6 @@ function MainTabs() {
             <Ionicons name="person-circle-outline" size={28} color="#fff" />
           </TouchableOpacity>
         ),
-
-        tabBarStyle: {
-          backgroundColor: Colors.card,
-          borderTopColor: Colors.borderLight,
-          borderTopWidth: 1,
-          paddingBottom: Platform.OS === 'ios' ? 20 : Math.max(insets.bottom, 8),
-          height: Platform.OS === 'ios' ? 68 : 52 + Math.max(insets.bottom, 8),
-        },
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.textTertiary,
-        tabBarLabelStyle: {
-          fontSize: 10,
-          fontWeight: '500',
-        },
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName: any;
-
-          switch (route.name) {
-            case 'Khata':
-              iconName = focused ? 'book' : 'book-outline';
-              break;
-            case 'Inventory':
-              iconName = focused ? 'cube' : 'cube-outline';
-              break;
-            case 'Home':
-              iconName = focused ? 'home' : 'home-outline';
-              break;
-            case 'Customers':
-              iconName = focused ? 'people' : 'people-outline';
-              break;
-            case 'Invoice':
-              iconName = focused ? 'receipt' : 'receipt-outline';
-              break;
-          }
-
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
       })}
     >
       <Tab.Screen 

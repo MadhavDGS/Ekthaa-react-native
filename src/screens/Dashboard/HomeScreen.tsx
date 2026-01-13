@@ -239,11 +239,6 @@ export default function HomeScreen({ navigation }: any) {
               <Text style={styles.headerStatLabel}>Customers</Text>
             </TouchableOpacity>
             <View style={styles.headerStatDivider} />
-            <TouchableOpacity style={styles.headerStatItem} onPress={() => navigation.navigate('Khata')}>
-              <Text style={styles.headerStatValue}>₹{Math.abs((dashboardStats.total_credit || 0) - (dashboardStats.total_payment || 0)).toLocaleString('en-IN')}</Text>
-              <Text style={styles.headerStatLabel}>To Receive</Text>
-            </TouchableOpacity>
-            <View style={styles.headerStatDivider} />
             <TouchableOpacity style={styles.headerStatItem} onPress={() => navigation.navigate('Inventory')}>
               <Text style={styles.headerStatValue}>{products.length}</Text>
               <Text style={styles.headerStatLabel}>Products</Text>
