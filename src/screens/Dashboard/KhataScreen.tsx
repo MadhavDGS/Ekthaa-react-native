@@ -249,69 +249,80 @@ export default function KhataScreen({ navigation }: any) {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); loadData(); }} colors={[Colors.primary]} tintColor={Colors.primary} />}
         showsVerticalScrollIndicator={false}
       >
-        {/* Unified Activity Card with Tabs */}
+        {/* Activity Summary - Premium Design */}
         <View style={[styles.activityCard, { backgroundColor: Colors.card }]}>
-          {/* Tab Selector */}
-          <View style={styles.tabContainer}>
+          {/* Pill Tab Selector */}
+          <View style={[styles.pillTabContainer, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9' }]}>
             <TouchableOpacity
-              style={[styles.tab, activeTab === 'today' && styles.activeTab]}
+              style={[styles.pillTab, activeTab === 'today' && [styles.pillTabActive, { backgroundColor: Colors.card }]]}
               onPress={() => setActiveTab('today')}
-              activeOpacity={0.7}
+              activeOpacity={0.8}
             >
-              <Text style={[styles.tabText, { color: activeTab === 'today' ? Colors.primary : Colors.textSecondary }]}>
+              <Text style={[styles.pillTabText, { color: activeTab === 'today' ? Colors.textPrimary : Colors.textSecondary }]}>
                 Today
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.tab, activeTab === 'month' && styles.activeTab]}
+              style={[styles.pillTab, activeTab === 'month' && [styles.pillTabActive, { backgroundColor: Colors.card }]]}
               onPress={() => setActiveTab('month')}
-              activeOpacity={0.7}
+              activeOpacity={0.8}
             >
-              <Text style={[styles.tabText, { color: activeTab === 'month' ? Colors.primary : Colors.textSecondary }]}>
+              <Text style={[styles.pillTabText, { color: activeTab === 'month' ? Colors.textPrimary : Colors.textSecondary }]}>
                 This Month
               </Text>
             </TouchableOpacity>
           </View>
 
-          {/* Stats Display */}
-          <View style={styles.compactStatsRow}>
-            <View style={styles.compactStat}>
-              <View style={styles.compactStatRow}>
-                <Ionicons name="arrow-down" size={16} color="#dc2626" />
-                <Text style={[styles.compactStatLabel, { color: Colors.textSecondary }]}>Credits</Text>
+          {/* Main Stats Row */}
+          <View style={styles.activityStatsRow}>
+            {/* Credits Given */}
+            <View style={styles.activityStatBlock}>
+              <View style={[styles.activityStatDot, { backgroundColor: '#fee2e2' }]}>
+                <View style={[styles.activityStatDotInner, { backgroundColor: '#ef4444' }]} />
               </View>
-              <Text style={[styles.compactStatValue, { color: '#dc2626' }]}>
+              <Text style={[styles.activityStatAmount, { color: '#ef4444' }]}>
                 ₹{(activeTab === 'today' ? todayStats.credits : monthStats.credits).toLocaleString('en-IN')}
               </Text>
+              <Text style={[styles.activityStatLabel, { color: Colors.textSecondary }]}>Given</Text>
             </View>
 
-            <View style={[styles.compactDivider, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#e5e7eb' }]} />
-
-            <View style={styles.compactStat}>
-              <View style={styles.compactStatRow}>
-                <Ionicons name="arrow-up" size={16} color="#22c55e" />
-                <Text style={[styles.compactStatLabel, { color: Colors.textSecondary }]}>Payments</Text>
+            {/* Divider with icon */}
+            <View style={styles.activityDivider}>
+              <View style={[styles.activityDividerLine, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : '#e2e8f0' }]} />
+              <View style={[styles.activityDividerIcon, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f8fafc' }]}>
+                <Ionicons name="swap-horizontal" size={14} color={Colors.textTertiary} />
               </View>
-              <Text style={[styles.compactStatValue, { color: '#22c55e' }]}>
+              <View style={[styles.activityDividerLine, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : '#e2e8f0' }]} />
+            </View>
+
+            {/* Payments Received */}
+            <View style={styles.activityStatBlock}>
+              <View style={[styles.activityStatDot, { backgroundColor: '#dcfce7' }]}>
+                <View style={[styles.activityStatDotInner, { backgroundColor: '#22c55e' }]} />
+              </View>
+              <Text style={[styles.activityStatAmount, { color: '#22c55e' }]}>
                 ₹{(activeTab === 'today' ? todayStats.payments : monthStats.payments).toLocaleString('en-IN')}
               </Text>
+              <Text style={[styles.activityStatLabel, { color: Colors.textSecondary }]}>Received</Text>
             </View>
           </View>
 
-          {/* Net & Transaction Count */}
-          <View style={[styles.summaryFooter, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.1)' : '#f0fdf4' }]}>
-            <View style={styles.summaryFooterItem}>
-              <Text style={[styles.summaryFooterLabel, { color: Colors.textSecondary }]}>Net</Text>
-              <Text style={[styles.summaryFooterValue, { color: Colors.textPrimary }]}>
-                {activeTab === 'today' 
-                  ? (todayStats.payments - todayStats.credits >= 0 ? '+' : '')
-                  : (monthStats.payments - monthStats.credits >= 0 ? '+' : '')
-                }₹{Math.abs((activeTab === 'today' ? todayStats.payments - todayStats.credits : monthStats.payments - monthStats.credits)).toLocaleString('en-IN')}
+          {/* Bottom Summary Strip */}
+          <View style={[styles.activitySummaryStrip, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.08)' : '#f0fdf9' }]}>
+            <View style={styles.activitySummaryItem}>
+              <Text style={[styles.activitySummaryLabel, { color: Colors.textTertiary }]}>Net Balance</Text>
+              <Text style={[
+                styles.activitySummaryValue, 
+                { color: (activeTab === 'today' ? todayStats.payments - todayStats.credits : monthStats.payments - monthStats.credits) >= 0 ? '#22c55e' : '#ef4444' }
+              ]}>
+                {(activeTab === 'today' ? todayStats.payments - todayStats.credits : monthStats.payments - monthStats.credits) >= 0 ? '+' : ''}
+                ₹{Math.abs((activeTab === 'today' ? todayStats.payments - todayStats.credits : monthStats.payments - monthStats.credits)).toLocaleString('en-IN')}
               </Text>
             </View>
-            <View style={styles.summaryFooterItem}>
-              <Text style={[styles.summaryFooterLabel, { color: Colors.textSecondary }]}>Transactions</Text>
-              <Text style={[styles.summaryFooterValue, { color: Colors.textPrimary }]}>
+            <View style={[styles.activitySummaryDivider, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0' }]} />
+            <View style={styles.activitySummaryItem}>
+              <Text style={[styles.activitySummaryLabel, { color: Colors.textTertiary }]}>Transactions</Text>
+              <Text style={[styles.activitySummaryValue, { color: Colors.textPrimary }]}>
                 {activeTab === 'today' ? todayStats.count : monthStats.count}
               </Text>
             </View>
@@ -564,72 +575,106 @@ const styles = StyleSheet.create({
   activityCard: {
     marginHorizontal: Spacing.md,
     marginTop: Spacing.md,
-    borderRadius: BorderRadius.lg,
+    borderRadius: 20,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.05)',
   },
-  tabContainer: {
+  pillTabContainer: {
     flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
+    margin: 12,
+    borderRadius: 12,
+    padding: 4,
   },
-  tab: {
+  pillTab: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 10,
     alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
+    borderRadius: 10,
   },
-  activeTab: {
-    borderBottomColor: '#5A9A8E',
+  pillTabActive: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  tabText: {
+  pillTabText: {
     fontSize: 14,
     fontWeight: '600',
   },
-  compactStatsRow: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-  compactStat: {
-    flex: 1,
-  },
-  compactStatRow: {
+  activityStatsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginBottom: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 20,
   },
-  compactStatLabel: {
-    fontSize: 12,
+  activityStatBlock: {
+    flex: 1,
+    alignItems: 'center',
   },
-  compactStatValue: {
-    fontSize: 18,
+  activityStatDot: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  activityStatDotInner: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  activityStatAmount: {
+    fontSize: 22,
     fontWeight: '700',
+    marginBottom: 4,
+    letterSpacing: -0.5,
   },
-  compactDivider: {
+  activityStatLabel: {
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  activityDivider: {
+    alignItems: 'center',
+    paddingHorizontal: 8,
+  },
+  activityDividerLine: {
     width: 1,
-    marginHorizontal: 16,
+    height: 28,
   },
-  summaryFooter: {
+  activityDividerIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 4,
+  },
+  activitySummaryStrip: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    gap: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.04)',
   },
-  summaryFooterItem: {
+  activitySummaryItem: {
     flex: 1,
     alignItems: 'center',
   },
-  summaryFooterLabel: {
+  activitySummaryLabel: {
     fontSize: 11,
+    fontWeight: '500',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
     marginBottom: 4,
   },
-  summaryFooterValue: {
-    fontSize: 16,
-    fontWeight: '600',
+  activitySummaryValue: {
+    fontSize: 17,
+    fontWeight: '700',
+  },
+  activitySummaryDivider: {
+    width: 1,
+    marginHorizontal: 12,
   },
   searchIconButton: {
     width: 32,
