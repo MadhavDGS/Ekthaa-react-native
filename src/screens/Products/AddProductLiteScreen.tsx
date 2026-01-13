@@ -20,7 +20,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
-import { IconSizes, SpacingScale, RadiusScale } from '../../constants/scales';
+import { IconSizes, SpacingScale, RadiusScale, AvatarSizes } from '../../constants/scales';
 import { useTheme } from '../../context/ThemeContext';
 import ApiService from '../../services/api';
 
@@ -146,7 +146,7 @@ export default function AddProductLiteScreen({ navigation }: any) {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
+          <Ionicons name="arrow-back" size={IconSizes.medium} color={Colors.textPrimary} />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={[styles.headerTitle, { color: Colors.textPrimary }]}>Add Product</Text>
@@ -175,14 +175,14 @@ export default function AddProductLiteScreen({ navigation }: any) {
               <View style={styles.imagePreviewContainer}>
                 <Image source={{ uri: imageUri }} style={styles.productImage} />
                 <View style={styles.imageOverlay}>
-                  <Ionicons name="camera" size={24} color="#fff" />
+                  <Ionicons name="camera" size={IconSizes.medium} color="#fff" />
                   <Text style={styles.overlayText}>Change Photo</Text>
                 </View>
               </View>
             ) : (
               <View style={styles.imagePlaceholder}>
                 <View style={[styles.cameraIconCircle, { backgroundColor: Colors.primary + '15' }]}>
-                  <Ionicons name="camera" size={32} color={Colors.primary} />
+                  <Ionicons name="camera" size={IconSizes.large} color={Colors.primary} />
                 </View>
                 <Text style={[styles.uploadText, { color: Colors.textPrimary }]}>Add Product Photo</Text>
                 <Text style={[styles.uploadSubtext, { color: Colors.textSecondary }]}>Tap to upload</Text>
@@ -197,7 +197,7 @@ export default function AddProductLiteScreen({ navigation }: any) {
               <Text style={[styles.label, { color: Colors.textPrimary }]}>Product Name *</Text>
               <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
                 <View style={[styles.iconWrapper, { backgroundColor: Colors.primary + '10' }]}>
-                  <Ionicons name="cube-outline" size={18} color={Colors.primary} />
+                  <Ionicons name="cube-outline" size={IconSizes.small} color={Colors.primary} />
                 </View>
                 <TextInput
                   style={[styles.input, { color: Colors.textPrimary }]}
@@ -215,7 +215,7 @@ export default function AddProductLiteScreen({ navigation }: any) {
               <Text style={[styles.label, { color: Colors.textPrimary }]}>Description</Text>
               <View style={[styles.inputContainer, { alignItems: 'flex-start', backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
                 <View style={[styles.iconWrapper, { marginTop: 4, backgroundColor: Colors.primary + '10' }]}>
-                  <Ionicons name="document-text-outline" size={18} color={Colors.primary} />
+                  <Ionicons name="document-text-outline" size={IconSizes.small} color={Colors.primary} />
                 </View>
                 <TextInput
                   style={[styles.input, styles.textArea, { color: Colors.textPrimary }]}
@@ -235,7 +235,7 @@ export default function AddProductLiteScreen({ navigation }: any) {
               <Text style={[styles.label, { color: Colors.textPrimary }]}>Price *</Text>
               <View style={[styles.inputContainer, { backgroundColor: Colors.backgroundSecondary, borderColor: Colors.borderLight }]}>
                 <View style={[styles.iconWrapper, { backgroundColor: Colors.primary + '10' }]}>
-                  <Ionicons name="cash-outline" size={18} color={Colors.primary} />
+                  <Ionicons name="cash-outline" size={IconSizes.small} color={Colors.primary} />
                 </View>
                 <Text style={[styles.currencySymbol, { color: Colors.textSecondary }]}>₹</Text>
                 <TextInput
@@ -251,7 +251,7 @@ export default function AddProductLiteScreen({ navigation }: any) {
 
             {/* Info Note */}
             <View style={[styles.infoBox, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.1)' : '#e8f5f3' }]}>
-              <Ionicons name="information-circle" size={20} color="#5a9a8e" />
+              <Ionicons name="information-circle" size={IconSizes.small} color="#5a9a8e" />
               <Text style={[styles.infoText, { color: Colors.textSecondary }]}>
                 You can add more details like category, stock, and units later from the full product page.
               </Text>
@@ -268,7 +268,7 @@ export default function AddProductLiteScreen({ navigation }: any) {
               <ActivityIndicator color="#fff" />
             ) : (
               <>
-                <Ionicons name="add-circle" size={20} color="#fff" />
+                <Ionicons name="add-circle" size={IconSizes.small} color="#fff" />
                 <Text style={styles.addButtonText}>Add Product</Text>
               </>
             )}

@@ -45,6 +45,7 @@ import InvoicePreviewScreen from './src/screens/Invoice/InvoicePreviewScreen';
 import QRCodeScreen from './src/screens/Business/QRCodeScreen';
 import OffersScreen from './src/screens/Business/OffersScreen';
 import AddOfferScreen from './src/screens/Business/AddOfferScreen';
+import AddShopPhotosScreen from './src/screens/Business/AddShopPhotosScreen';
 import AnalyticsScreen from './src/screens/Business/AnalyticsScreen';
 import ProfileScreen from './src/screens/profile/ProfileScreen';
 import EditProfileScreen from './src/screens/profile/EditProfileScreen';
@@ -382,6 +383,11 @@ function AppContent() {
                 headerTitle: 'Offers & Promotions',
                 animation: 'slide_from_right',
               }}
+            />
+            <Stack.Screen
+              name="AddShopPhotos"
+              component={AddShopPhotosScreen}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="AddOffer"

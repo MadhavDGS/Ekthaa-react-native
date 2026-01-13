@@ -275,7 +275,7 @@ export default function HomeScreen({ navigation }: any) {
             icon="camera"
             label="Add Shop Photo"
             color="#16a34a"
-            onPress={() => navigation.navigate('EditProfile')}
+            onPress={() => navigation.navigate('AddShopPhotos')}
           />
           <QuickActionButton
             svgIcon="reward"

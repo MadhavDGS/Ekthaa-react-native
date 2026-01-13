@@ -324,6 +324,48 @@ export default function ProfileScreen({ navigation }: any) {
           </View>
         )}
 
+        {/* Shop Photos Gallery */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Shop Photos</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('AddShopPhotos')}>
+              <Text style={[styles.seeAllText, { color: Colors.primary }]}>
+                {user?.shop_photos && user.shop_photos.length > 0 ? 'Manage' : 'Add Photos'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          
+          {user?.shop_photos && user.shop_photos.length > 0 ? (
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.photosScrollContent}
+            >
+              {user.shop_photos.map((photo: string, index: number) => (
+                <Image
+                  key={index}
+                  source={{ uri: photo }}
+                  style={styles.shopPhotoThumbnail}
+                />
+              ))}
+            </ScrollView>
+          ) : (
+            <View style={[styles.emptyPhotosCard, { backgroundColor: Colors.card }]}>
+              <Ionicons name="images-outline" size={32} color={Colors.textTertiary} />
+              <Text style={[styles.emptyPhotosText, { color: Colors.textSecondary }]}>
+                No photos added yet
+              </Text>
+              <TouchableOpacity 
+                style={[styles.addPhotosButton, { backgroundColor: Colors.primary }]}
+                onPress={() => navigation.navigate('AddShopPhotos')}
+              >
+                <Ionicons name="add" size={16} color="#fff" />
+                <Text style={styles.addPhotosButtonText}>Add Photos</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
         {/* Business Tools Section */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Business Tools</Text>
@@ -630,10 +672,56 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xl,
     paddingHorizontal: Spacing.md,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
   sectionTitle: {
     fontSize: Typography.fontBase,
     fontFamily: Typography.fonts.semiBold,
-    marginBottom: Spacing.sm,
+  },
+  seeAllText: {
+    fontSize: Typography.fontSm,
+    fontFamily: Typography.fonts.semiBold,
+  },
+  photosScrollContent: {
+    paddingRight: Spacing.md,
+  },
+  shopPhotoThumbnail: {
+    width: 120,
+    height: 120,
+    borderRadius: BorderRadius.md,
+    marginRight: Spacing.sm,
+  },
+  emptyPhotosCard: {
+    padding: Spacing.space8,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  emptyPhotosText: {
+    fontSize: Typography.fontSm,
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  addPhotosButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.lg,
+    gap: Spacing.xs,
+  },
+  addPhotosButtonText: {
+    color: '#fff',
+    fontSize: Typography.fontSm,
+    fontFamily: Typography.fonts.semiBold,
   },
   settingCard: {
     flexDirection: 'row',

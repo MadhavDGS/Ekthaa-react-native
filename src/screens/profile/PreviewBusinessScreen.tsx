@@ -306,6 +306,26 @@ export default function PreviewBusinessScreen({ navigation }: any) {
                     )}
                 </View>
 
+                {/* Shop Photos Gallery */}
+                {profile.shop_photos && profile.shop_photos.length > 0 && (
+                    <View style={[styles.section, { backgroundColor: Colors.background }]}>
+                        <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Shop Photos</Text>
+                        <ScrollView 
+                            horizontal 
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.photosScrollContent}
+                        >
+                            {profile.shop_photos.map((photo: string, index: number) => (
+                                <Image
+                                    key={index}
+                                    source={{ uri: photo }}
+                                    style={styles.shopPhoto}
+                                />
+                            ))}
+                        </ScrollView>
+                    </View>
+                )}
+
                 {/* Tabs Section */}
                 <View style={[styles.tabsContainer, { backgroundColor: Colors.background, borderBottomColor: Colors.borderLight }]}>
                     <TouchableOpacity
@@ -778,6 +798,16 @@ const styles = StyleSheet.create({
         height: 3,
         borderTopLeftRadius: 3,
         borderTopRightRadius: 3,
+    },
+    photosScrollContent: {
+        paddingLeft: Spacing.space4,
+        paddingRight: Spacing.space4,
+    },
+    shopPhoto: {
+        width: 200,
+        height: 150,
+        borderRadius: BorderRadius.md,
+        marginRight: Spacing.space3,
     },
     productsGrid: {
         flexDirection: 'row',
