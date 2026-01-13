@@ -332,20 +332,20 @@ export default function KhataScreen({ navigation }: any) {
         {/* Customers Who Owe */}
         <View style={[styles.section, { backgroundColor: Colors.card }]}>
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>
-              {searchQuery ? 'Search Results' : 'Customers Who Owe You'}
-            </Text>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <TouchableOpacity 
                 onPress={() => setSearchQuery(searchQuery ? '' : ' ')}
                 style={[styles.searchIconButton, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f3f4f6' }]}
               >
                 <Ionicons name="search" size={18} color={Colors.textSecondary} />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => navigation.navigate('Customers')}>
-                <Text style={[styles.viewAllText, { color: Colors.primary }]}>View All →</Text>
-              </TouchableOpacity>
+              <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>
+                {searchQuery ? 'Search Results' : 'Customers Who Owe You'}
+              </Text>
             </View>
+            <TouchableOpacity onPress={() => navigation.navigate('Customers')}>
+              <Text style={[styles.viewAllText, { color: Colors.primary }]}>View All →</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Integrated Search Input */}
@@ -454,7 +454,7 @@ export default function KhataScreen({ navigation }: any) {
                       {txn.transaction_type === 'credit' ? '-' : '+'}{formatCurrency(txn.amount)}
                     </Text>
                     <Text style={[styles.txnType, { color: Colors.textTertiary }]}>
-                      {txn.transaction_type === 'credit' ? 'Credit' : 'Payment'}
+                      {txn.transaction_type === 'credit' ? 'Given' : 'Received'}
                     </Text>
                   </View>
                 </View>
