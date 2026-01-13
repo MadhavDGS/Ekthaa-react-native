@@ -549,11 +549,11 @@ export default function InventoryScreen({ navigation }: any) {
     <View style={[styles.container, { backgroundColor: Colors.backgroundSecondary }]}>
       {/* Stats Header */}
       <View style={[styles.statsHeader, { backgroundColor: Colors.card, borderBottomColor: Colors.borderLight }]}>
-        <View style={[styles.statBox, { backgroundColor: Colors.primary + '15', borderColor: Colors.primary + '30' }]}>
+        <View style={[styles.statBox, styles.statBoxLarge, { backgroundColor: Colors.primary + '15', borderColor: Colors.primary + '30' }]}>
           <Text style={[styles.statLabel, { color: Colors.textSecondary }]}>Inventory Value</Text>
           <Text style={[styles.statValue, { color: Colors.primary }]}>{formatCurrency(stats.totalValue)}</Text>
         </View>
-        <View style={[styles.statBox, { backgroundColor: Colors.creditRed + '15', borderColor: Colors.creditRed + '30' }]}>
+        <View style={[styles.statBox, styles.statBoxSmall, { backgroundColor: Colors.creditRed + '15', borderColor: Colors.creditRed + '30' }]}>
           <Text style={[styles.statLabel, { color: Colors.textSecondary }]}>Low Stock Items</Text>
           <Text style={[styles.statValue, { color: Colors.creditRed }]}>{stats.lowStock}</Text>
         </View>
@@ -657,6 +657,12 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: Spacing.md,
     borderRadius: BorderRadius.md,
+  },
+  statBoxLarge: {
+    flex: 3,
+  },
+  statBoxSmall: {
+    flex: 1,
   },
   statLabel: {
     fontSize: Typography.fontSm,
