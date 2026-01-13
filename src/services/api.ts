@@ -329,6 +329,107 @@ class ApiService {
     return response.data;
   }
 
+  // ========== CATALOG (Customer-Facing Products) ==========
+  
+  async getCatalog(isVisible?: boolean) {
+    const params: any = {};
+    if (isVisible !== undefined) {
+      params.is_visible = isVisible.toString();
+    }
+    const response = await this.api.get(API_ENDPOINTS.CATALOG, { params });
+    return response.data;
+  }
+
+  async getCatalogItem(itemId: string) {
+    const response = await this.api.get(`${API_ENDPOINTS.CATALOG_ITEM}/${itemId}`);
+    return response.data;
+  }
+
+  async addCatalogItem(data: {
+    name: string;
+    description?: string;
+    price: number;
+    image_url?: string;
+    image?: string; // Local file URI
+    is_visible?: boolean;
+    display_order?: number;
+    category?: string;
+    inventory_item_id?: string;
+  }) {
+    // If image is a local file URI, use FormData
+    if (data.image && data.image.startsWith('file://')) {
+      const formData = new FormData();
+      formData.append('name', data.name);
+      formData.append('price', data.price.toString());
+      if (data.description) formData.append('description', data.description);
+      if (data.is_visible !== undefined) formData.append('is_visible', data.is_visible.toString());
+      if (data.display_order !== undefined) formData.append('display_order', data.display_order.toString());
+      if (data.category) formData.append('category', data.category);
+      if (data.inventory_item_id) formData.append('inventory_item_id', data.inventory_item_id);
+      
+      // Add the image file
+      const filename = data.image.split('/').pop() || 'catalog.jpg';
+      const match = /\.(\w+)$/.exec(filename);
+      const fileType = match ? `image/${match[1]}` : 'image/jpeg';
+      
+      formData.append('image', {
+        uri: data.image,
+        name: filename,
+        type: fileType,
+      } as any);
+      
+      const response = await this.api.post(API_ENDPOINTS.ADD_CATALOG_ITEM, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    }
+    
+    // Otherwise use regular JSON
+    const response = await this.api.post(API_ENDPOINTS.ADD_CATALOG_ITEM, data);
+    return response.data;
+  }
+
+  async updateCatalogItem(itemId: string, data: {
+    name?: string;
+    description?: string;
+    price?: number;
+    image_url?: string;
+    is_visible?: boolean;
+    display_order?: number;
+    category?: string;
+  }) {
+    const response = await this.api.put(`${API_ENDPOINTS.UPDATE_CATALOG_ITEM}/${itemId}`, data);
+    return response.data;
+  }
+
+  async deleteCatalogItem(itemId: string) {
+    const response = await this.api.delete(`${API_ENDPOINTS.DELETE_CATALOG_ITEM}/${itemId}`);
+    return response.data;
+  }
+
+  async addCatalogFromInventory(inventoryItemIds: string[]) {
+    const response = await this.api.post(API_ENDPOINTS.CATALOG_ADD_FROM_INVENTORY, {
+      inventory_item_ids: inventoryItemIds,
+    });
+    return response.data;
+  }
+
+  async toggleCatalogVisibility(itemId: string) {
+    const response = await this.api.put(`${API_ENDPOINTS.CATALOG_TOGGLE_VISIBILITY}/${itemId}`);
+    return response.data;
+  }
+
+  async addCatalogToInventory(catalogItemIds: string[], options?: { default_quantity?: number; default_unit?: string }) {
+    const response = await this.api.post('/api/catalog/add-to-inventory', {
+      catalog_item_ids: catalogItemIds,
+      default_quantity: options?.default_quantity || 0,
+      default_unit: options?.default_unit || 'piece',
+    });
+    return response.data;
+  }
+
   // Business
   async getBusinessInfo() {
     const response = await this.api.get(API_ENDPOINTS.BUSINESS_INFO);

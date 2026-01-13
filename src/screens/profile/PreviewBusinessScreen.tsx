@@ -22,6 +22,105 @@ import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../
 import { useTheme } from '../../context/ThemeContext';
 import ApiService from '../../services/api';
 
+// Fallback placeholder image (Credit: rawpixel.com / Freepik)
+const PRODUCT_PLACEHOLDER = require('../../../assets/product-placeholder.jpg');
+
+// Category-based placeholder images from free sources (Unsplash/Pexels)
+const CATEGORY_PLACEHOLDERS: { [key: string]: string } = {
+  // Food & Grocery
+  'rice': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80',
+  'sugar': 'https://images.unsplash.com/photo-1563450392-1ebb936e4a57?w=400&q=80',
+  'oil': 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&q=80',
+  'flour': 'https://images.unsplash.com/photo-1628548985793-27d8e2d22c48?w=400&q=80',
+  'atta': 'https://images.unsplash.com/photo-1628548985793-27d8e2d22c48?w=400&q=80',
+  'wheat': 'https://images.unsplash.com/photo-1628548985793-27d8e2d22c48?w=400&q=80',
+  'salt': 'https://images.unsplash.com/photo-1599909533730-b5d81e4e2f2c?w=400&q=80',
+  'spices': 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&q=80',
+  'masala': 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&q=80',
+  'dal': 'https://images.unsplash.com/photo-1612257416648-ee7a6c533b4f?w=400&q=80',
+  'pulses': 'https://images.unsplash.com/photo-1612257416648-ee7a6c533b4f?w=400&q=80',
+  'lentils': 'https://images.unsplash.com/photo-1612257416648-ee7a6c533b4f?w=400&q=80',
+  'tea': 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&q=80',
+  'coffee': 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&q=80',
+  'milk': 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&q=80',
+  'bread': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80',
+  'biscuits': 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&q=80',
+  'cookies': 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&q=80',
+  'snacks': 'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=400&q=80',
+  'chips': 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400&q=80',
+  'namkeen': 'https://images.unsplash.com/photo-1599490659213-e2b9527bd087?w=400&q=80',
+  'vegetables': 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80',
+  'fruits': 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=400&q=80',
+  'eggs': 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400&q=80',
+  'meat': 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400&q=80',
+  'chicken': 'https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=400&q=80',
+  'fish': 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&q=80',
+  // Beverages
+  'juice': 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&q=80',
+  'water': 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&q=80',
+  'soda': 'https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=400&q=80',
+  'drinks': 'https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=400&q=80',
+  // Personal Care
+  'soap': 'https://images.unsplash.com/photo-1584305574647-0cc949a2bb9f?w=400&q=80',
+  'shampoo': 'https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?w=400&q=80',
+  'toothpaste': 'https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=80',
+  'cream': 'https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=400&q=80',
+  // Household
+  'detergent': 'https://images.unsplash.com/photo-1585664811087-47f65abbad64?w=400&q=80',
+  'cleaner': 'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400&q=80',
+  // Categories
+  'grocery': 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=80',
+  'food': 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=400&q=80',
+  'beverages': 'https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=400&q=80',
+  'dairy': 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&q=80',
+  'bakery': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80',
+  'personal care': 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80',
+  'household': 'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400&q=80',
+  'electronics': 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400&q=80',
+  'clothing': 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=400&q=80',
+  'stationery': 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=400&q=80',
+  'toys': 'https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=400&q=80',
+  'medicine': 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80',
+  'health': 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80',
+};
+
+// Get placeholder image based on product name, category, or type
+const getProductPlaceholder = (product: any): { uri: string } | number => {
+  // First check if product has its own image
+  if (product.product_image_url && product.product_image_url.length > 0) {
+    return { uri: product.product_image_url };
+  }
+  
+  // Try to match product name with category placeholders
+  const productName = (product.name || '').toLowerCase();
+  const productCategory = (product.category || '').toLowerCase();
+  const productType = (product.type || '').toLowerCase();
+  
+  // Check product name first (most specific)
+  for (const [key, url] of Object.entries(CATEGORY_PLACEHOLDERS)) {
+    if (productName.includes(key)) {
+      return { uri: url };
+    }
+  }
+  
+  // Check category
+  for (const [key, url] of Object.entries(CATEGORY_PLACEHOLDERS)) {
+    if (productCategory.includes(key) || key.includes(productCategory)) {
+      return { uri: url };
+    }
+  }
+  
+  // Check type
+  for (const [key, url] of Object.entries(CATEGORY_PLACEHOLDERS)) {
+    if (productType.includes(key) || key.includes(productType)) {
+      return { uri: url };
+    }
+  }
+  
+  // Fallback to local placeholder (Credit: rawpixel.com / Freepik)
+  return PRODUCT_PLACEHOLDER;
+};
+
 export default function PreviewBusinessScreen({ navigation }: any) {
     const { isDark } = useTheme();
     const Colors = getThemedColors(isDark);
@@ -361,16 +460,10 @@ export default function PreviewBusinessScreen({ navigation }: any) {
                                         key={product.id}
                                         style={[styles.productCard, { backgroundColor: Colors.card }]}
                                     >
-                                        {product.product_image_url ? (
-                                            <Image
-                                                source={{ uri: product.product_image_url }}
-                                                style={styles.productImage}
-                                            />
-                                        ) : (
-                                            <View style={[styles.productImage, styles.productImagePlaceholder, { backgroundColor: Colors.backgroundSecondary }]}>
-                                                <Ionicons name="cube-outline" size={32} color={Colors.textTertiary} />
-                                            </View>
-                                        )}
+                                        <Image
+                                            source={getProductPlaceholder(product)}
+                                            style={styles.productImage}
+                                        />
                                         <View style={styles.productInfo}>
                                             <Text style={[styles.productName, { color: Colors.textPrimary }]} numberOfLines={1}>
                                                 {product.name}

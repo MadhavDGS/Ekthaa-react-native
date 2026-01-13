@@ -36,8 +36,10 @@ import CustomersScreen from './src/screens/Customers/CustomersScreen';
 import CustomerDetailsScreen from './src/screens/Customers/CustomerDetailsScreen';
 import AddCustomerScreen from './src/screens/Customers/AddCustomerScreen';
 import ProductsScreen from './src/screens/Products/ProductsScreen';
-import AddProductScreen from './src/screens/Products/AddProductScreen';
-import AddProductLiteScreen from './src/screens/Products/AddProductLiteScreen';
+import AddCatalogItemScreen from './src/screens/Products/AddCatalogItemScreen';
+import InventoryScreen from './src/screens/Inventory/InventoryScreen';
+import AddInventoryItemScreen from './src/screens/Inventory/AddInventoryItemScreen';
+import AddInventoryLiteScreen from './src/screens/Inventory/AddInventoryLiteScreen';
 import TransactionsScreen from './src/screens/Transactions/TransactionsScreen';
 import AddTransactionScreen from './src/screens/Transactions/AddTransactionScreen';
 import InvoiceGeneratorScreen from './src/screens/Invoice/InvoiceGeneratorScreen';
@@ -120,7 +122,7 @@ function MainTabs() {
             case 'Khata':
               iconName = focused ? 'book' : 'book-outline';
               break;
-            case 'Products':
+            case 'Inventory':
               iconName = focused ? 'cube' : 'cube-outline';
               break;
             case 'Home':
@@ -144,9 +146,9 @@ function MainTabs() {
         options={{ headerShown: false }}
       />
       <Tab.Screen 
-        name="Products" 
-        component={ProductsScreen}
-        options={{ title: 'Products' }}
+        name="Inventory" 
+        component={InventoryScreen}
+        options={{ title: 'Inventory' }}
       />
       <Tab.Screen 
         name="Home" 
@@ -325,13 +327,28 @@ function AppContent() {
               options={{ headerTitle: 'Add Customer' }}
             />
             <Stack.Screen
-              name="AddProduct"
-              component={AddProductScreen}
+              name="Products"
+              component={ProductsScreen}
+              options={{ headerTitle: 'My Products' }}
+            />
+            <Stack.Screen
+              name="AddCatalogItem"
+              component={AddCatalogItemScreen}
               options={{ headerTitle: 'Add Product' }}
             />
             <Stack.Screen
-              name="AddProductLite"
-              component={AddProductLiteScreen}
+              name="Inventory"
+              component={InventoryScreen}
+              options={{ headerTitle: 'Inventory' }}
+            />
+            <Stack.Screen
+              name="AddInventoryItem"
+              component={AddInventoryItemScreen}
+              options={{ headerTitle: 'Add Inventory Item' }}
+            />
+            <Stack.Screen
+              name="AddInventoryLite"
+              component={AddInventoryLiteScreen}
               options={{ headerShown: false }}
             />
             <Stack.Screen

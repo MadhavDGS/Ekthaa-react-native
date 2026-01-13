@@ -1,5 +1,6 @@
 /**
- * Add Product Screen
+ * Add Inventory Item Screen
+ * Add items to internal inventory with full details
  */
 
 import React, { useState } from 'react';
@@ -22,7 +23,7 @@ import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../
 import ApiService from '../../services/api';
 import { getAllLevel1InventoryCategories, getLevel2InventoryOptions } from '../../constants/inventoryCategories';
 
-export default function AddProductScreen({ navigation }: any) {
+export default function AddInventoryItemScreen({ navigation }: any) {
   const { isDark } = useTheme();
   const Colors = getThemedColors(isDark);
   const [name, setName] = useState('');

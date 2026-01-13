@@ -27,7 +27,7 @@ export const API_ENDPOINTS = {
   ADD_TRANSACTION: '/api/transaction',
   TRANSACTION_BILL: '/api/transaction', // /:id/bill
 
-  // Products
+  // Products (Internal Inventory)
   PRODUCTS: '/api/products',
   PRODUCT_DETAILS: '/api/product', // /:id
   ADD_PRODUCT: '/api/product',
@@ -35,6 +35,15 @@ export const API_ENDPOINTS = {
   DELETE_PRODUCT: '/api/product', // DELETE /:id
   PRODUCT_CATEGORIES: '/api/products/categories',
   PRODUCT_UNITS: '/api/products/units',
+
+  // Catalog (Customer-Facing Products)
+  CATALOG: '/api/catalog',
+  CATALOG_ITEM: '/api/catalog', // /:id
+  ADD_CATALOG_ITEM: '/api/catalog',
+  UPDATE_CATALOG_ITEM: '/api/catalog', // PUT /:id
+  DELETE_CATALOG_ITEM: '/api/catalog', // DELETE /:id
+  CATALOG_ADD_FROM_INVENTORY: '/api/catalog/add-from-inventory',
+  CATALOG_TOGGLE_VISIBILITY: '/api/catalog/toggle-visibility', // PUT /:id
 
   // Business Profile
   BUSINESS_INFO: '/api/profile',

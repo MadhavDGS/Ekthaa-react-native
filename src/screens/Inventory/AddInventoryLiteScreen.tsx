@@ -1,5 +1,5 @@
 /**
- * Add Product Lite Screen - Simplified version for quick product additions from dashboard
+ * Add Inventory Lite Screen - Simplified version for quick inventory additions from dashboard
  * Only captures: Image, Name, Description, Price
  */
 
@@ -24,7 +24,7 @@ import { IconSizes, SpacingScale, RadiusScale, AvatarSizes } from '../../constan
 import { useTheme } from '../../context/ThemeContext';
 import ApiService from '../../services/api';
 
-export default function AddProductLiteScreen({ navigation }: any) {
+export default function AddInventoryLiteScreen({ navigation }: any) {
   const { isDark } = useTheme();
   const Colors = getThemedColors(isDark);
   
