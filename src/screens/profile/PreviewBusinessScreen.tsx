@@ -82,7 +82,7 @@ export default function PreviewBusinessScreen({ navigation }: any) {
             ios: `comgooglemaps://?q=${lat},${lng}&center=${lat},${lng}&zoom=14`,
             android: `geo:${lat},${lng}?q=${lat},${lng}(${label})`,
         });
-        const appleMapsUrl = `maps:${lat},${lng}?q=${label}`;
+        const appleMapsUrl = `maps://?ll=${lat},${lng}&q=${label}`;
         const wazeUrl = `waze://?ll=${lat},${lng}&navigate=yes`;
         const googleMapsWeb = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
 
@@ -180,8 +180,8 @@ export default function PreviewBusinessScreen({ navigation }: any) {
                     <View style={styles.headerContent}>
                         <View style={styles.businessInfo}>
                             <View style={[styles.avatar, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
-                                {profile.profile_image_url ? (
-                                    <Image source={{ uri: profile.profile_image_url }} style={styles.avatarImage} />
+                                {profile.profile_photo_url ? (
+                                    <Image source={{ uri: profile.profile_photo_url }} style={styles.avatarImage} />
                                 ) : (
                                     <Text style={styles.avatarText}>{profile.name?.charAt(0)?.toUpperCase() || 'B'}</Text>
                                 )}
@@ -381,15 +381,15 @@ export default function PreviewBusinessScreen({ navigation }: any) {
                                         )}
                                         <View style={styles.productInfo}>
                                             <Text style={[styles.productName, { color: Colors.textPrimary }]} numberOfLines={1}>
-                                                {product.product_name}
+                                                {product.name}
                                             </Text>
                                             <Text style={[styles.productPrice, { color: Colors.primary }]}>
                                                 {formatCurrency(product.price)}
                                             </Text>
-                                            {product.quantity !== undefined && (
-                                                <View style={[styles.stockBadge, { backgroundColor: product.quantity > 0 ? Colors.bgLightGreen : Colors.bgLightRed }]}>
-                                                    <Text style={[styles.stockText, { color: product.quantity > 0 ? Colors.paymentGreen : Colors.creditRed }]}>
-                                                        {product.quantity > 0 ? 'Available in-store' : 'Out of stock'}
+                                            {product.stock_quantity !== undefined && (
+                                                <View style={[styles.stockBadge, { backgroundColor: product.stock_quantity > 0 ? Colors.bgLightGreen : Colors.bgLightRed }]}>
+                                                    <Text style={[styles.stockText, { color: product.stock_quantity > 0 ? Colors.paymentGreen : Colors.creditRed }]}>
+                                                        {product.stock_quantity > 0 ? 'In Stock' : 'Out of Stock'}
                                                     </Text>
                                                 </View>
                                             )}
