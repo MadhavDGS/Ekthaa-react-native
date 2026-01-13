@@ -71,14 +71,14 @@ export default function KhataScreen({ navigation }: any) {
     };
   }, [recentTransactions]);
 
-  // Filter customers who owe money (negative balance means they owe us)
+  // Filter customers who owe money (positive balance means they owe us)
   const customersWhoOwe = useMemo(() => {
     return customers
       .filter(c => {
         const balance = c.balance || 0;
-        return balance < 0; // Negative balance = customer owes money
+        return balance > 0; // Positive balance = customer owes money
       })
-      .sort((a, b) => (a.balance || 0) - (b.balance || 0)) // Most negative first
+      .sort((a, b) => (b.balance || 0) - (a.balance || 0)) // Highest balance first
       .slice(0, 5);
   }, [customers]);
 
