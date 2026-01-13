@@ -36,6 +36,7 @@ export default function HomeScreen({ navigation }: any) {
   const [profile, setProfile] = useState<any>(null);
   const [products, setProducts] = useState<any[]>([]);
   const [profileCompletion, setProfileCompletion] = useState(0);
+  const [dashboardStats, setDashboardStats] = useState<any>(null);
 
   useEffect(() => {
     loadData();
@@ -44,13 +45,15 @@ export default function HomeScreen({ navigation }: any) {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [profileData, productsData] = await Promise.all([
+      const [profileData, productsData, dashboard] = await Promise.all([
         ApiService.getProfile(),
         ApiService.getProducts(),
+        ApiService.getDashboard(),
       ]);
       
       setProfile(profileData.business);
       setProducts(productsData.products.slice(0, 4)); // Show first 4 products
+      setDashboardStats(dashboard?.summary || dashboard);
       
       // Calculate profile completion
       const completion = calculateProfileCompletion(profileData.business);
@@ -117,13 +120,37 @@ export default function HomeScreen({ navigation }: any) {
             onPress={() => navigation.navigate('Profile')}
             activeOpacity={0.7}
           >
-            <Ionicons name="person-circle-outline" size={28} color="#ffffff" />
+            {profile?.profile_photo_url ? (
+              <Image source={{ uri: profile.profile_photo_url }} style={styles.profileImage} />
+            ) : (
+              <Ionicons name="person-circle-outline" size={28} color="#ffffff" />
+            )}
           </TouchableOpacity>
         </View>
 
         <View style={styles.header}>
           <Text style={styles.businessName}>{profile?.name || 'Your Business'}</Text>
         </View>
+
+        {/* Quick Stats Bar */}
+        {dashboardStats && (
+          <View style={styles.headerStats}>
+            <TouchableOpacity style={styles.headerStatItem} onPress={() => navigation.navigate('Customers')}>
+              <Text style={styles.headerStatValue}>{dashboardStats.total_customers || 0}</Text>
+              <Text style={styles.headerStatLabel}>Customers</Text>
+            </TouchableOpacity>
+            <View style={styles.headerStatDivider} />
+            <TouchableOpacity style={styles.headerStatItem} onPress={() => navigation.navigate('Khata')}>
+              <Text style={styles.headerStatValue}>₹{Math.abs((dashboardStats.total_credit || 0) - (dashboardStats.total_payment || 0)).toLocaleString('en-IN')}</Text>
+              <Text style={styles.headerStatLabel}>To Receive</Text>
+            </TouchableOpacity>
+            <View style={styles.headerStatDivider} />
+            <TouchableOpacity style={styles.headerStatItem} onPress={() => navigation.navigate('Products')}>
+              <Text style={styles.headerStatValue}>{products.length}</Text>
+              <Text style={styles.headerStatLabel}>Products</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </SafeAreaView>
 
       <ScrollView
@@ -345,15 +372,50 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  profileImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 20,
   },
   header: {
     paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.md,
+    paddingBottom: Spacing.sm,
   },
   businessName: {
     fontSize: Typography.fontSm,
     color: 'rgba(255, 255, 255, 0.9)',
     fontWeight: Typography.medium,
+  },
+  headerStats: {
+    flexDirection: 'row',
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.md,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+  },
+  headerStatItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  headerStatValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#fff',
+    marginBottom: 2,
+  },
+  headerStatLabel: {
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontWeight: '500',
+  },
+  headerStatDivider: {
+    width: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    marginVertical: 4,
   },
   card: {
     marginHorizontal: SpacingScale.sectionPadding,
