@@ -105,18 +105,18 @@ export default function InvoiceGeneratorScreen({ navigation }: any) {
             const data = await ApiService.getProfile();
             console.log('Profile API Response:', data);
 
-            // The API returns { user: {...} } structure
-            const user = data.user || data;
-            console.log('User data:', user);
+            // The API returns { business: {...} } structure
+            const business = data.business || data;
+            console.log('Business data:', business);
 
             setFormData(prev => ({
                 ...prev,
-                seller_name: user.business_name || user.name || '',
-                seller_address: user.address || '',
-                seller_city: user.city || '',
-                seller_state: user.state || '',
-                seller_pincode: user.pincode || '',
-                seller_gstin: user.gst_number || '',
+                seller_name: business.name || '',
+                seller_address: business.address || '',
+                seller_city: business.city || '',
+                seller_state: business.state || '',
+                seller_pincode: business.pincode || '',
+                seller_gstin: business.gst_number || '',
             }));
 
             console.log('Seller details set successfully');

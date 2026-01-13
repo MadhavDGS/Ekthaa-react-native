@@ -631,7 +631,7 @@ export default function InventoryScreen({ navigation }: any) {
           styles.fab,
           {
             backgroundColor: Colors.primary,
-            bottom: Platform.OS === 'ios' ? 100 : 90 + Math.max(insets.bottom, 0),
+            bottom: Platform.OS === 'ios' ? 20 : 16 + Math.max(insets.bottom, 0),
           }
         ]}
         onPress={() => navigation.navigate('AddInventoryItem')}
@@ -657,7 +657,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: Spacing.md,
     borderRadius: BorderRadius.md,
-    borderWidth: 1,
   },
   statLabel: {
     fontSize: Typography.fontSm,
@@ -727,7 +726,6 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
     marginBottom: Spacing.md,
-    borderWidth: 1,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -840,9 +838,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.sm,
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.md,
-    borderWidth: 1,
     marginTop: Spacing.sm,
-    borderTopWidth: 1,
   },
   quantityLabel: {
     flexDirection: 'row',
@@ -864,7 +860,6 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
     ...Platform.select({
       ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2 },
       android: { elevation: 1 },

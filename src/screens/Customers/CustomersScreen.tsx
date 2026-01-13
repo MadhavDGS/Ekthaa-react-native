@@ -215,18 +215,19 @@ export default function CustomersScreen({ navigation }: any) {
         }
       />
 
+      {/* FAB */}
       <TouchableOpacity
         style={[
           styles.fab,
           {
             backgroundColor: Colors.primary,
-            bottom: 22 + Math.max(insets.bottom, 0)
+            bottom: Platform.OS === 'ios' ? 20 : 16 + Math.max(insets.bottom, 0),
           }
         ]}
         onPress={() => navigation.navigate('AddCustomer')}
         activeOpacity={0.8}
       >
-        <Ionicons name="person-add" size={17} color="#fff" />
+        <Ionicons name="person-add" size={24} color="#fff" />
       </TouchableOpacity>
     </View>
   );
@@ -270,16 +271,12 @@ const styles = StyleSheet.create({
   emptyText: { fontSize: Typography.fontXs, textAlign: 'center' },
   fab: {
     position: 'absolute',
-    // bottom set dynamically
-    right: 22,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    // bottom set dynamically in component
+    right: 16,
+    width: IconSizes.xlarge + 10,
+    height: IconSizes.xlarge + 10,
+    borderRadius: (IconSizes.xlarge + 10) / 2,
     justifyContent: 'center',
     alignItems: 'center',
-    ...Platform.select({
-      ios: { shadowColor: '#7c3aed', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
-      android: { elevation: 6 },
-    }),
   },
 });

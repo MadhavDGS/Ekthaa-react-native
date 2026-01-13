@@ -24,6 +24,7 @@ import { AvatarSizes, IconSizes } from '../../constants/scales';
 import { useTheme } from '../../context/ThemeContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { SkeletonHeader, SkeletonTransaction } from '../../components/Skeletons';
+import ChatBackground from '../../components/ChatBackground';
 import ApiService from '../../services/api';
 import { Customer, Transaction } from '../../types';
 import Illustration from '../../components/Illustration';
@@ -41,7 +42,18 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
   useEffect(() => {
     navigation.setOptions({
       headerShown: true,
-      headerTitle: customer?.name || 'Customer Details',
+      headerTitle: () => (
+        <View style={{ alignItems: 'flex-start' }}>
+          <Text style={{ fontSize: 17, fontWeight: '600', color: Colors.textPrimary }}>
+            {customer?.name || 'Customer Details'}
+          </Text>
+          {customer?.phone_number && (
+            <Text style={{ fontSize: 13, color: Colors.textSecondary, marginTop: 2 }}>
+              {customer.phone_number}
+            </Text>
+          )}
+        </View>
+      ),
       headerBackTitleVisible: false,
       headerRight: () => (
         <TouchableOpacity
@@ -178,14 +190,48 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
   };
 
   if (loading) {
+    const skeletonBg = isDark ? '#2a2a2a' : '#e5e7eb';
     return (
-      <View style={[styles.container, { backgroundColor: Colors.background }]}>
-        <SkeletonHeader isDark={isDark} />
-        <SkeletonTransaction isDark={isDark} />
-        <SkeletonTransaction isDark={isDark} />
-        <SkeletonTransaction isDark={isDark} />
-        <SkeletonTransaction isDark={isDark} />
-        <SkeletonTransaction isDark={isDark} />
+      <View style={[styles.container, { backgroundColor: isDark ? Colors.background : '#f5f5f5' }]}>
+        {/* Skeleton Balance Card */}
+        <View style={[styles.balanceCard, { backgroundColor: Colors.card }]}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+            <View style={{ width: 120, height: 14, backgroundColor: skeletonBg, borderRadius: 4 }} />
+            <View style={{ width: 70, height: 20, backgroundColor: skeletonBg, borderRadius: 10 }} />
+          </View>
+          <View style={{ width: 150, height: 32, backgroundColor: skeletonBg, borderRadius: 6 }} />
+        </View>
+        
+        {/* Skeleton Chat Bubbles */}
+        <View style={{ padding: 16, gap: 12 }}>
+          {/* Date badge */}
+          <View style={{ alignItems: 'center', marginBottom: 8 }}>
+            <View style={{ width: 80, height: 24, backgroundColor: skeletonBg, borderRadius: 12 }} />
+          </View>
+          {/* Left bubble */}
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: skeletonBg }} />
+            <View style={{ width: '60%', padding: 12, backgroundColor: skeletonBg, borderRadius: 12, borderTopLeftRadius: 4 }}>
+              <View style={{ width: 80, height: 20, backgroundColor: isDark ? '#3a3a3a' : '#d1d5db', borderRadius: 4, marginBottom: 8 }} />
+              <View style={{ width: 100, height: 14, backgroundColor: isDark ? '#3a3a3a' : '#d1d5db', borderRadius: 4 }} />
+            </View>
+          </View>
+          {/* Right bubble */}
+          <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+            <View style={{ width: '60%', padding: 12, backgroundColor: isDark ? 'rgba(90, 154, 142, 0.2)' : 'rgba(90, 154, 142, 0.15)', borderRadius: 12, borderTopRightRadius: 4 }}>
+              <View style={{ width: 80, height: 20, backgroundColor: isDark ? 'rgba(90, 154, 142, 0.3)' : 'rgba(90, 154, 142, 0.25)', borderRadius: 4, marginBottom: 8 }} />
+              <View style={{ width: 100, height: 14, backgroundColor: isDark ? 'rgba(90, 154, 142, 0.3)' : 'rgba(90, 154, 142, 0.25)', borderRadius: 4 }} />
+            </View>
+          </View>
+          {/* Another left bubble */}
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: skeletonBg }} />
+            <View style={{ width: '55%', padding: 12, backgroundColor: skeletonBg, borderRadius: 12, borderTopLeftRadius: 4 }}>
+              <View style={{ width: 70, height: 20, backgroundColor: isDark ? '#3a3a3a' : '#d1d5db', borderRadius: 4, marginBottom: 8 }} />
+              <View style={{ width: 90, height: 14, backgroundColor: isDark ? '#3a3a3a' : '#d1d5db', borderRadius: 4 }} />
+            </View>
+          </View>
+        </View>
       </View>
     );
   }
@@ -202,6 +248,9 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
 
   return (
     <View style={[styles.container, { backgroundColor: isDark ? Colors.background : '#f5f5f5' }]}>
+      {/* Chat Background Pattern */}
+      <ChatBackground color={isDark ? '#5a9a8e' : '#5a9a8e'} opacity={isDark ? 0.6 : 1} />
+      
       {/* Balance Card - Clean & Minimal */}
       <View style={[styles.balanceCard, {
         backgroundColor: Colors.card,
@@ -284,8 +333,8 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
                         !isBusinessCreated ? styles.bubbleReceived : styles.bubbleSent,
                         {
                           backgroundColor: !isBusinessCreated
-                            ? (isDark ? '#2a2a2a' : '#f5f5f5')
-                            : (isDark ? 'rgba(90, 154, 142, 0.15)' : 'rgba(90, 154, 142, 0.08)')
+                            ? (isDark ? '#2a2a2a' : '#ffffff')
+                            : (isDark ? '#1a3d36' : '#d4edda')
                         }
                       ]}>
                         {/* Amount */}
@@ -354,9 +403,9 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
               customerName: customer.name,
               transactionType: 'credit',
             })}
-            activeOpacity={0.7}
+            activeOpacity={0.8}
           >
-            <Ionicons name="arrow-up-outline" size={20} color="#fff" />
+            <Ionicons name="arrow-up" size={20} color="#fff" />
             <Text style={styles.actionButtonText}>Give Credit</Text>
           </TouchableOpacity>
 
@@ -367,9 +416,9 @@ export default function CustomerDetailsScreen({ route, navigation }: any) {
               customerName: customer.name,
               transactionType: 'payment',
             })}
-            activeOpacity={0.7}
+            activeOpacity={0.8}
           >
-            <Ionicons name="arrow-down-outline" size={20} color="#fff" />
+            <Ionicons name="arrow-down" size={20} color="#fff" />
             <Text style={styles.actionButtonText}>Receive Payment</Text>
           </TouchableOpacity>
         </View>
@@ -406,17 +455,7 @@ const styles = StyleSheet.create({
     marginVertical: Spacing.md,
     padding: Spacing.lg,
     borderRadius: BorderRadius.lg,
-    borderWidth: 1,
     backgroundColor: 'transparent',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-      },
-      android: { elevation: 2 },
-    }),
   },
   balanceHeader: {
     flexDirection: 'row',
@@ -545,15 +584,6 @@ const styles = StyleSheet.create({
     padding: Spacing.space6,
     alignItems: 'center',
     margin: Spacing.md,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 3,
-      },
-      android: { elevation: 2 },
-    }),
   },
   emptyText: {
     fontSize: Typography.fontSm,
@@ -561,17 +591,7 @@ const styles = StyleSheet.create({
   },
   bottomActions: {
     padding: Spacing.md,
-    paddingBottom: Platform.OS === 'ios' ? 90 : 70, // Extra space for bottom nav bar
-    borderTopWidth: 1,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-      },
-      android: { elevation: 4 },
-    }),
+    paddingBottom: Platform.OS === 'ios' ? 24 : 16,
   },
   actionButtonsRow: {
     flexDirection: 'row',
@@ -582,42 +602,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: Spacing.md,
+    paddingVertical: 14,
+    paddingHorizontal: Spacing.md,
     borderRadius: BorderRadius.lg,
     gap: Spacing.xs,
     backgroundColor: '#ef4444',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.15,
-        shadowRadius: 4,
-      },
-      android: { elevation: 3 },
-    }),
   },
   paymentButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: Spacing.md,
+    paddingVertical: 14,
+    paddingHorizontal: Spacing.md,
     borderRadius: BorderRadius.lg,
     gap: Spacing.xs,
     backgroundColor: '#10b981',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.15,
-        shadowRadius: 4,
-      },
-      android: { elevation: 3 },
-    }),
   },
   actionButtonText: {
     color: '#fff',
     fontSize: Typography.fontMd,
-    fontWeight: Typography.bold,
+    fontWeight: '700',
   },
 });

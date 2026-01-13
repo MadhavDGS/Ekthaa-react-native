@@ -351,7 +351,7 @@ export default function HomeScreen({ navigation }: any) {
               <View style={[styles.productsActionsCapsule, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.2)' : '#d1f0e8' }]}>
                 <TouchableOpacity
                   style={styles.addProductButton}
-                  onPress={() => navigation.navigate('AddInventoryLite')}
+                  onPress={() => navigation.navigate('Products')}
                   activeOpacity={0.7}
                 >
                   <Ionicons name="add-circle" size={18} color="#5a9a8e" />
@@ -362,7 +362,7 @@ export default function HomeScreen({ navigation }: any) {
 
                 <TouchableOpacity
                   style={styles.viewAllButton}
-                  onPress={() => navigation.navigate('Inventory')}
+                  onPress={() => navigation.navigate('Products')}
                   activeOpacity={0.7}
                 >
                   <Text style={styles.viewAllButtonText}>View All</Text>
@@ -376,7 +376,7 @@ export default function HomeScreen({ navigation }: any) {
               <Text style={[styles.emptyText, { color: Colors.textSecondary }]}>No products yet</Text>
               <TouchableOpacity
                 style={[styles.addFirstButton, { backgroundColor: Colors.primary }]}
-                onPress={() => navigation.navigate('AddInventoryLite')}
+                onPress={() => navigation.navigate('Products')}
               >
                 <Text style={styles.addFirstButtonText}>Add Your First Product</Text>
               </TouchableOpacity>

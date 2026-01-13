@@ -199,9 +199,13 @@ class ApiService {
 
   // Transactions
   async getTransactions(customerId?: string) {
-    const response = await this.api.get(API_ENDPOINTS.TRANSACTIONS, {
-      params: customerId ? { customer_id: customerId } : {},
-    });
+    // If customerId is provided, use the customer-specific endpoint
+    if (customerId) {
+      const response = await this.api.get(`${API_ENDPOINTS.CUSTOMER_TRANSACTIONS}/${customerId}/transactions`);
+      return response.data;
+    }
+    // Otherwise get all transactions
+    const response = await this.api.get(API_ENDPOINTS.TRANSACTIONS);
     return response.data;
   }
 
