@@ -45,6 +45,7 @@ import HelpIcon from '../../svg-pack/help-svgrepo-com.svg';
 import RecordIcon from '../../svg-pack/record-svgrepo-com.svg';
 import NotesIcon from '../../svg-pack/notes-svgrepo-com.svg';
 import MessageCenterIcon from '../../svg-pack/message-center-svgrepo-com.svg';
+import HomeSmileIcon from '../../svg-pack/home-smile-angle-svgrepo-com.svg';
 
 // Account
 import OpenAccountIcon from '../../svg-pack/open-an-account-svgrepo-com.svg';
@@ -99,13 +100,14 @@ export const SVG_ICONS = {
   like: LikeIcon,
   idea: IdeaIcon,
   
-  // UI Elements (6 icons)
+  // UI Elements (7 icons)
   checkIn: CheckInIcon,
   setting: SettingIcon,
   help: HelpIcon,
   record: RecordIcon,
   notes: NotesIcon,
   messageCenter: MessageCenterIcon,
+  homeSmile: HomeSmileIcon,
   
   // Account (3 icons)
   openAccount: OpenAccountIcon,

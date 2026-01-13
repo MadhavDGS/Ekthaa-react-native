@@ -57,6 +57,7 @@ import PrivacySecurityScreen from './src/screens/profile/PrivacySecurityScreen';
 import PrivacyPolicyScreen from './src/screens/profile/PrivacyPolicyScreen';
 import TermsOfServiceScreen from './src/screens/profile/TermsOfServiceScreen';
 import { TouchableOpacity, Text } from 'react-native';
+import SvgIcon from './src/components/SvgIcon';
 
 // Theme
 import { getThemedColors, LightColors, DarkColors } from './src/constants/theme';
@@ -72,7 +73,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
 
   // Icon configuration with unique SF Symbols style icons
   const getTabConfig = (routeName: string, isFocused: boolean) => {
-    const configs: { [key: string]: { icon: string; label: string } } = {
+    const configs: { [key: string]: { icon: string; label: string; useSvg?: boolean } } = {
       'Khata': { 
         icon: isFocused ? 'wallet' : 'wallet-outline',
         label: 'Khata'
@@ -82,8 +83,9 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         label: 'Stock'
       },
       'Home': { 
-        icon: isFocused ? 'grid' : 'grid-outline',
-        label: 'Home'
+        icon: 'homeSmile',
+        label: 'Home',
+        useSvg: true
       },
       'Customers': { 
         icon: isFocused ? 'person-circle' : 'person-circle-outline',
@@ -110,7 +112,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         {state.routes.map((route: any, index: number) => {
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;
-          const { icon, label } = getTabConfig(route.name, isFocused);
+          const { icon, label, useSvg } = getTabConfig(route.name, isFocused);
 
           const onPress = () => {
             const event = navigation.emit({
@@ -138,11 +140,19 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                 tabBarStyles.iconWrapper,
                 isFocused && [tabBarStyles.iconWrapperActive, { backgroundColor: Colors.primary + '15' }]
               ]}>
-                <Ionicons 
-                  name={icon as any}
-                  size={24} 
-                  color={isFocused ? Colors.primary : Colors.textTertiary} 
-                />
+                {useSvg ? (
+                  <SvgIcon 
+                    name={icon as any}
+                    size={24} 
+                    color={isFocused ? Colors.primary : Colors.textTertiary} 
+                  />
+                ) : (
+                  <Ionicons 
+                    name={icon as any}
+                    size={24} 
+                    color={isFocused ? Colors.primary : Colors.textTertiary} 
+                  />
+                )}
               </View>
               <Text style={[
                 tabBarStyles.label,
