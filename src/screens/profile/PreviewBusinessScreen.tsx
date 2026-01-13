@@ -223,87 +223,79 @@ export default function PreviewBusinessScreen({ navigation }: any) {
 
                 {/* Contact Information */}
                 <View style={[styles.section, { backgroundColor: Colors.background }]}>
-                    <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Contact Information</Text>
+                    <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Business Details</Text>
 
-                    {profile.phone_number && (
-                        <View style={[styles.contactCard, { backgroundColor: Colors.backgroundSecondary }]}>
-                            <View style={[styles.iconCircle, { backgroundColor: Colors.primary + '15' }]}>
-                                <Ionicons name="call" size={20} color={Colors.primary} />
-                            </View>
-                            <View style={styles.contactText}>
-                                <Text style={[styles.contactLabel, { color: Colors.textSecondary }]}>Phone</Text>
-                                <Text style={[styles.contactValue, { color: Colors.textPrimary }]}>
-                                    {profile.phone_number}
-                                </Text>
-                            </View>
-                            <TouchableOpacity onPress={makeCall}>
-                                <Ionicons name="chevron-forward" size={20} color={Colors.textTertiary} />
+                    <View style={[styles.infoGrid, { backgroundColor: Colors.card }]}>
+                        {/* Email */}
+                        {profile.email && (
+                            <TouchableOpacity 
+                                style={styles.infoItem}
+                                onPress={() => Linking.openURL(`mailto:${profile.email}`)}
+                                activeOpacity={0.7}
+                            >
+                                <View style={[styles.infoIconWrapper, { backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : '#eef2ff' }]}>
+                                    <Ionicons name="mail" size={20} color="#6366f1" />
+                                </View>
+                                <View style={styles.infoContent}>
+                                    <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>Email</Text>
+                                    <Text style={[styles.infoValue, { color: Colors.textPrimary }]} numberOfLines={1}>
+                                        {profile.email}
+                                    </Text>
+                                </View>
+                                <Ionicons name="arrow-forward" size={16} color={Colors.textTertiary} />
                             </TouchableOpacity>
-                        </View>
-                    )}
+                        )}
 
-                    {profile.email && (
-                        <View style={[styles.contactCard, { backgroundColor: Colors.backgroundSecondary }]}>
-                            <View style={[styles.iconCircle, { backgroundColor: Colors.primary + '15' }]}>
-                                <Ionicons name="mail" size={20} color={Colors.primary} />
-                            </View>
-                            <View style={[styles.contactText, { flex: 1 }]}>
-                                <Text style={[styles.contactLabel, { color: Colors.textSecondary }]}>Email</Text>
-                                <Text style={[styles.contactValue, { color: Colors.textPrimary }]}>
-                                    {profile.email}
-                                </Text>
-                            </View>
-                        </View>
-                    )}
-
-                    {(profile.address || profile.city || profile.state || profile.pincode) && (
-                        <View style={[styles.contactCard, { backgroundColor: Colors.backgroundSecondary }]}>
-                            <View style={[styles.iconCircle, { backgroundColor: Colors.primary + '15' }]}>
-                                <Ionicons name="location" size={20} color={Colors.primary} />
-                            </View>
-                            <View style={[styles.contactText, { flex: 1 }]}>
-                                <Text style={[styles.contactLabel, { color: Colors.textSecondary }]}>Address</Text>
-                                {profile.address && (
-                                    <Text style={[styles.contactValue, { color: Colors.textPrimary }]}>
-                                        {profile.address}
+                        {/* Address */}
+                        {(profile.address || profile.city || profile.state || profile.pincode) && (
+                            <TouchableOpacity 
+                                style={styles.infoItem}
+                                onPress={openLocation}
+                                activeOpacity={0.7}
+                            >
+                                <View style={[styles.infoIconWrapper, { backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : '#fef2f2' }]}>
+                                    <Ionicons name="location" size={20} color="#ef4444" />
+                                </View>
+                                <View style={styles.infoContent}>
+                                    <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>Location</Text>
+                                    <Text style={[styles.infoValue, { color: Colors.textPrimary }]} numberOfLines={2}>
+                                        {profile.address || [profile.city, profile.state, profile.pincode].filter(Boolean).join(', ')}
                                     </Text>
-                                )}
-                                {(profile.city || profile.state || profile.pincode) && (
-                                    <Text style={[styles.contactValue, { color: Colors.textPrimary, marginTop: 2 }]}>
-                                        {[profile.city, profile.state, profile.pincode].filter(Boolean).join(', ')}
+                                </View>
+                                <Ionicons name="navigate" size={16} color={Colors.textTertiary} />
+                            </TouchableOpacity>
+                        )}
+
+                        {/* Operating Hours */}
+                        {profile.operating_hours && (
+                            <View style={styles.infoItem}>
+                                <View style={[styles.infoIconWrapper, { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.15)' : '#f0fdf4' }]}>
+                                    <Ionicons name="time" size={20} color="#10b981" />
+                                </View>
+                                <View style={styles.infoContent}>
+                                    <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>Hours</Text>
+                                    <Text style={[styles.infoValue, { color: Colors.textPrimary }]}>
+                                        {profile.operating_hours}
                                     </Text>
-                                )}
+                                </View>
                             </View>
-                        </View>
-                    )}
+                        )}
 
-                    {profile.gst_number && (
-                        <View style={[styles.contactCard, { backgroundColor: Colors.backgroundSecondary }]}>
-                            <View style={[styles.iconCircle, { backgroundColor: Colors.primary + '15' }]}>
-                                <Ionicons name="document-text" size={20} color={Colors.primary} />
+                        {/* GST Number */}
+                        {profile.gst_number && (
+                            <View style={styles.infoItem}>
+                                <View style={[styles.infoIconWrapper, { backgroundColor: isDark ? 'rgba(245, 158, 11, 0.15)' : '#fffbeb' }]}>
+                                    <Ionicons name="document-text" size={20} color="#f59e0b" />
+                                </View>
+                                <View style={styles.infoContent}>
+                                    <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>GST Number</Text>
+                                    <Text style={[styles.infoValue, { color: Colors.textPrimary, fontFamily: 'monospace' }]}>
+                                        {profile.gst_number}
+                                    </Text>
+                                </View>
                             </View>
-                            <View style={[styles.contactText, { flex: 1 }]}>
-                                <Text style={[styles.contactLabel, { color: Colors.textSecondary }]}>GST Number</Text>
-                                <Text style={[styles.contactValue, { color: Colors.textPrimary }]}>
-                                    {profile.gst_number}
-                                </Text>
-                            </View>
-                        </View>
-                    )}
-
-                    {profile.operating_hours && (
-                        <View style={[styles.contactCard, { backgroundColor: Colors.backgroundSecondary }]}>
-                            <View style={[styles.iconCircle, { backgroundColor: Colors.primary + '15' }]}>
-                                <Ionicons name="time" size={20} color={Colors.primary} />
-                            </View>
-                            <View style={[styles.contactText, { flex: 1 }]}>
-                                <Text style={[styles.contactLabel, { color: Colors.textSecondary }]}>Operating Hours</Text>
-                                <Text style={[styles.contactValue, { color: Colors.textPrimary }]}>
-                                    {profile.operating_hours}
-                                </Text>
-                            </View>
-                        </View>
-                    )}
+                        )}
+                    </View>
                 </View>
 
                 {/* Shop Photos Gallery */}
@@ -648,6 +640,42 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '700',
         marginBottom: Spacing.space3,
+    },
+    infoGrid: {
+        borderRadius: BorderRadius.lg,
+        overflow: 'hidden',
+        ...Shadows.sm,
+    },
+    infoItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: Spacing.space4,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.05)',
+    },
+    infoIconWrapper: {
+        width: 44,
+        height: 44,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: Spacing.space3,
+    },
+    infoContent: {
+        flex: 1,
+        marginRight: Spacing.space2,
+    },
+    infoLabel: {
+        fontSize: 12,
+        fontWeight: '500',
+        marginBottom: 3,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    infoValue: {
+        fontSize: 15,
+        fontWeight: '600',
+        lineHeight: 20,
     },
     contactCard: {
         flexDirection: 'row',
