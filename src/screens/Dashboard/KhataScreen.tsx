@@ -371,7 +371,7 @@ export default function KhataScreen({ navigation }: any) {
             <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>
               {searchQuery ? 'Search Results' : 'Customers Who Owe You'}
             </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+            <TouchableOpacity onPress={() => navigation.navigate('Customers')}>
               <Text style={[styles.viewAllText, { color: Colors.primary }]}>View All →</Text>
             </TouchableOpacity>
           </View>
