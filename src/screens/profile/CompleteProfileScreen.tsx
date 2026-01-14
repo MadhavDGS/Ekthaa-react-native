@@ -343,12 +343,6 @@ export default function CompleteProfileScreen({ navigation }: any) {
 
   const handleProfilePhotoPick = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission needed', 'Please grant camera roll permissions');
-        return;
-      }
-
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
         allowsEditing: true,

@@ -86,12 +86,6 @@ export default function EditProfileScreen({ navigation, route }: any) {
 
     const pickImage = async () => {
         try {
-            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            if (status !== 'granted') {
-                Alert.alert('Permission Denied', 'Sorry, we need camera roll permissions to upload photos.');
-                return;
-            }
-
             const result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,

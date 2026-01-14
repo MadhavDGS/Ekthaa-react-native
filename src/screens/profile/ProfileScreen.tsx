@@ -138,12 +138,6 @@ export default function ProfileScreen({ navigation }: any) {
 
   const handleUploadPhoto = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission needed', 'Please grant camera roll permissions to upload a photo');
-        return;
-      }
-
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
@@ -502,7 +496,7 @@ export default function ProfileScreen({ navigation }: any) {
           <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Help & Support</Text>
 
           <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]} onPress={handleShareApp}>
-            <View style={[styles.settingIcon, { backgroundColor: isDark ? '#831843' : 'rgba(236, 72, 153, 0.15)' }]}>
+            <View style={[styles.settingIcon, { backgroundColor: isDark ? '#831843' : 'rgba(236, 72, 153, 0.15)' }]}> 
               <Ionicons name="share-social" size={17} color={isDark ? '#f9a8d4' : '#ec4899'} />
             </View>
             <View style={styles.menuContent}>
@@ -513,7 +507,7 @@ export default function ProfileScreen({ navigation }: any) {
           </TouchableOpacity>
 
           <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]} onPress={() => Alert.alert('Support', 'Email: Support@ekthaa.app\nPhone: 6305964802')}>
-            <View style={[styles.settingIcon, { backgroundColor: isDark ? '#064e3b' : 'rgba(20, 184, 166, 0.15)' }]}>
+            <View style={[styles.settingIcon, { backgroundColor: isDark ? '#064e3b' : 'rgba(20, 184, 166, 0.15)' }]}> 
               <Ionicons name="help-circle" size={17} color={isDark ? '#5eead4' : '#14b8a6'} />
             </View>
             <View style={styles.menuContent}>
@@ -523,8 +517,30 @@ export default function ProfileScreen({ navigation }: any) {
             <Ionicons name="chevron-forward" size={16} color={Colors.textTertiary} />
           </TouchableOpacity>
 
+          <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]} onPress={() => {
+            // Open feedback form in browser
+            const url = 'https://forms.gle/A4EQY83Ss6mm3ooL9';
+            if (Platform.OS === 'web') {
+              window.open(url, '_blank');
+            } else {
+              // For mobile, use Linking
+              import('react-native').then(({ Linking }) => {
+                Linking.openURL(url);
+              });
+            }
+          }}>
+            <View style={[styles.settingIcon, { backgroundColor: isDark ? '#f59e42' : 'rgba(251, 191, 36, 0.15)' }]}> 
+              <Ionicons name="chatbox-ellipses" size={17} color={isDark ? '#fbbf24' : '#f59e42'} />
+            </View>
+            <View style={styles.menuContent}>
+              <Text style={[styles.settingText, { color: Colors.textPrimary }]}>Give Feedback</Text>
+              <Text style={[styles.menuSubtitle, { color: Colors.textSecondary }]}>Let us know your thoughts</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={Colors.textTertiary} />
+          </TouchableOpacity>
+
           <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]} onPress={() => Alert.alert('Ekthaa', 'Version 1.0.0\nDigital Ledger for Everyone')}>
-            <View style={[styles.settingIcon, { backgroundColor: isDark ? '#312e81' : 'rgba(99, 102, 241, 0.15)' }]}>
+            <View style={[styles.settingIcon, { backgroundColor: isDark ? '#312e81' : 'rgba(99, 102, 241, 0.15)' }]}> 
               <Ionicons name="information-circle" size={17} color={isDark ? '#a5b4fc' : '#6366f1'} />
             </View>
             <View style={styles.menuContent}>

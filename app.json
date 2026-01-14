@@ -2,7 +2,7 @@
   "expo": {
     "name": "Ekthaa Business",
     "slug": "Ekthaa-React-Native",
-    "version": "1.0.2",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -22,18 +22,14 @@
         "backgroundColor": "#5A9A8E"
       },
       "package": "com.ekthaa.business",
-      "versionCode": 14,
       "permissions": [
         "android.permission.INTERNET",
         "android.permission.ACCESS_NETWORK_STATE",
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.CAMERA",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.RECORD_AUDIO",
-        "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
-        "android.permission.READ_MEDIA_AUDIO"
+      "android.permission.RECORD_AUDIO",
+      "android.permission.READ_MEDIA_VISUAL_USER_SELECTED"
       ],
       "softwareKeyboardLayoutMode": "pan"
     },
@@ -41,6 +37,7 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      "./app.plugin.js",
       [
         "expo-build-properties",
         {
@@ -63,14 +60,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow Ekthaa Business to access your photos to upload product images."
-        }
-      ],
-      [
-        "expo-media-library",
-        {
-          "photosPermission": "Allow Ekthaa Business to save images to your photo library.",
-          "savePhotosPermission": "Allow Ekthaa Business to save photos."
+          "photosPermission": "Allow Ekthaa Business to access your photos to upload product images.",
+          "cameraPermission": "Allow Ekthaa Business to take photos for product images."
         }
       ],
       "@react-native-community/datetimepicker"

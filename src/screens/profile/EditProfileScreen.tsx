@@ -90,14 +90,7 @@ export default function EditProfileScreen({ navigation, route }: any) {
 
     const pickImage = async () => {
         try {
-            // Request permission
-            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            if (status !== 'granted') {
-                Alert.alert('Permission Denied', 'Sorry, we need camera roll permissions to upload photos.');
-                return;
-            }
-
-            // Launch image picker
+            // Launch image picker (uses Android Photo Picker on Android 13+, no permission needed)
             const result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,

@@ -70,13 +70,6 @@ export default function AddShopPhotosScreen({ navigation }: any) {
       return;
     }
 
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (permissionResult.granted === false) {
-      Alert.alert('Permission Required', 'Permission to access camera roll is required!');
-      return;
-    }
-
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,

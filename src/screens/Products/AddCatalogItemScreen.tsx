@@ -43,12 +43,6 @@ export default function AddCatalogItemScreen({ navigation }: any) {
 
   const handlePickImage = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission Required', 'Please grant camera roll permissions to add images.');
-        return;
-      }
-
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
         allowsEditing: true,

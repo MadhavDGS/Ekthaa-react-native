@@ -73,12 +73,6 @@ export default function AddTransactionScreen({ route, navigation }: any) {
 
   const handlePickImage = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission needed', 'Please grant camera roll permissions to upload receipt');
-        return;
-      }
-
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
         allowsEditing: true,
