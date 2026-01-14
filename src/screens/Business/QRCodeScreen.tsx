@@ -20,7 +20,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import * as FileSystem from 'expo-file-system';
-import * as MediaLibrary from 'expo-media-library';
 import * as Sharing from 'expo-sharing';
 import ApiService from '../../services/api';
 import { getThemedColors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
@@ -121,13 +120,6 @@ export default function QRCodeScreen({ navigation }: any) {
         return;
       }
 
-      // Request permissions
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission Required', 'Please grant permission to save images');
-        return;
-      }
-
       // Convert base64 to file
       const filename = `ekthaa-qr-${Date.now()}.png`;
       const fileUri = FileSystem.cacheDirectory ? `${FileSystem.cacheDirectory}${filename}` : `${filename}`;
@@ -139,15 +131,20 @@ export default function QRCodeScreen({ navigation }: any) {
         encoding: 'base64',
       });
 
-      // Save to media library
-      const asset = await MediaLibrary.createAssetAsync(fileUri);
-      await MediaLibrary.createAlbumAsync('Ekthaa', asset, false);
-      
-      Alert.alert('Success', 'QR code saved to gallery!');
-      console.log('✅ QR code downloaded successfully');
+      // Use system share sheet to save/share (no permissions needed)
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(fileUri, {
+          mimeType: 'image/png',
+          dialogTitle: 'Save QR Code',
+          UTI: 'public.png',
+        });
+        console.log('✅ QR code shared successfully');
+      } else {
+        Alert.alert('Error', 'Sharing is not available on this device');
+      }
     } catch (error) {
       console.error('❌ Download error:', error);
-      Alert.alert('Error', 'Failed to download QR code');
+      Alert.alert('Error', 'Failed to save QR code');
     }
   };
 

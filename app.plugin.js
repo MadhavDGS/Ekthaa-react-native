@@ -4,21 +4,37 @@ const withCustomAndroidManifest = (config) => {
   return withAndroidManifest(config, async (config) => {
     const androidManifest = config.modResults.manifest;
 
-    // Remove problematic permissions
+    const blockedPermissions = [
+      'android.permission.READ_MEDIA_IMAGES',
+      'android.permission.READ_MEDIA_VIDEO',
+      'android.permission.READ_MEDIA_AUDIO',
+      'android.permission.READ_EXTERNAL_STORAGE',
+      'android.permission.WRITE_EXTERNAL_STORAGE'
+    ];
+
+    // First, remove any existing blocked permissions
     if (androidManifest['uses-permission']) {
       androidManifest['uses-permission'] = androidManifest['uses-permission'].filter(
         (perm) => {
           const permName = perm.$['android:name'];
-          return (
-            permName !== 'android.permission.READ_MEDIA_IMAGES' &&
-            permName !== 'android.permission.READ_MEDIA_VIDEO' &&
-            permName !== 'android.permission.READ_MEDIA_AUDIO' &&
-            permName !== 'android.permission.READ_EXTERNAL_STORAGE' &&
-            permName !== 'android.permission.WRITE_EXTERNAL_STORAGE'
-          );
+          return !blockedPermissions.includes(permName);
         }
       );
     }
+
+    // Then add them back with tools:node="remove" to block dependencies from adding them
+    if (!androidManifest['uses-permission']) {
+      androidManifest['uses-permission'] = [];
+    }
+
+    blockedPermissions.forEach(permission => {
+      androidManifest['uses-permission'].push({
+        $: {
+          'android:name': permission,
+          'tools:node': 'remove'
+        }
+      });
+    });
 
     return config;
   });
