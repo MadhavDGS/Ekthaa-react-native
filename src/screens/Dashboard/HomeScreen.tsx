@@ -137,6 +137,7 @@ export default function HomeScreen({ navigation }: any) {
   const [products, setProducts] = useState<any[]>([]);
   const [profileCompletion, setProfileCompletion] = useState(0);
   const [dashboardStats, setDashboardStats] = useState<any>(null);
+  const [pendingPaymentsCount, setPendingPaymentsCount] = useState(0);
 
   useEffect(() => {
     loadData();
@@ -145,15 +146,17 @@ export default function HomeScreen({ navigation }: any) {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [profileData, productsData, dashboard] = await Promise.all([
+      const [profileData, productsData, dashboard, pendingCount] = await Promise.all([
         ApiService.getProfile(),
         ApiService.getProducts(),
         ApiService.getDashboard(),
+        ApiService.getPendingPaymentsCount().catch(() => ({ count: 0 })),
       ]);
       
       setProfile(profileData.business);
       setProducts(productsData.products.slice(0, 4)); // Show first 4 products
       setDashboardStats(dashboard?.summary || dashboard);
+      setPendingPaymentsCount(pendingCount.count || 0);
       
       // Calculate profile completion
       const completion = calculateProfileCompletion(profileData.business);
@@ -215,17 +218,35 @@ export default function HomeScreen({ navigation }: any) {
       <SafeAreaView edges={['top']} style={Platform.OS === 'web' && { paddingTop: 0 }}>
         <View style={styles.headerTitle}>
           <Text style={styles.appTitle}>Ekthaa</Text>
-          <TouchableOpacity
-            style={styles.profileButton}
-            onPress={() => navigation.navigate('Profile')}
-            activeOpacity={0.7}
-          >
-            {profile?.profile_photo_url ? (
-              <Image source={{ uri: profile.profile_photo_url }} style={styles.profileImage} />
-            ) : (
-              <Ionicons name="person-circle-outline" size={28} color="#ffffff" />
-            )}
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            {/* Pending Payments Bell */}
+            <TouchableOpacity
+              style={styles.notificationButton}
+              onPress={() => navigation.navigate('PendingPayments')}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="notifications-outline" size={24} color="#ffffff" />
+              {pendingPaymentsCount > 0 && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>
+                    {pendingPaymentsCount > 9 ? '9+' : pendingPaymentsCount}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+            {/* Profile Button */}
+            <TouchableOpacity
+              style={styles.profileButton}
+              onPress={() => navigation.navigate('Profile')}
+              activeOpacity={0.7}
+            >
+              {profile?.profile_photo_url ? (
+                <Image source={{ uri: profile.profile_photo_url }} style={styles.profileImage} />
+              ) : (
+                <Ionicons name="person-circle-outline" size={28} color="#ffffff" />
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.header}>
@@ -451,6 +472,39 @@ const styles = StyleSheet.create({
       ios: 'System',
       android: 'sans-serif-medium',
     }),
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  notificationButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  badge: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    backgroundColor: '#ef4444',
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 2,
+    borderColor: '#4A8A7E',
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '700',
   },
   profileButton: {
     width: 40,

@@ -42,6 +42,7 @@ import AddInventoryItemScreen from './src/screens/Inventory/AddInventoryItemScre
 import AddInventoryLiteScreen from './src/screens/Inventory/AddInventoryLiteScreen';
 import TransactionsScreen from './src/screens/Transactions/TransactionsScreen';
 import AddTransactionScreen from './src/screens/Transactions/AddTransactionScreen';
+import PendingPaymentsScreen from './src/screens/Transactions/PendingPaymentsScreen';
 import InvoiceGeneratorScreen from './src/screens/Invoice/InvoiceGeneratorScreen';
 import InvoicePreviewScreen from './src/screens/Invoice/InvoicePreviewScreen';
 import QRCodeScreen from './src/screens/Business/QRCodeScreen';
@@ -518,6 +519,11 @@ function AppContent() {
               name="Transactions"
               component={TransactionsScreen}
               options={{ headerTitle: 'Transactions' }}
+            />
+            <Stack.Screen
+              name="PendingPayments"
+              component={PendingPaymentsScreen}
+              options={{ headerTitle: 'Pending Payments' }}
             />
             <Stack.Screen
               name="InvoiceGenerator"

@@ -676,6 +676,32 @@ class ApiService {
     });
     return response.data;
   }
+
+  // ============ UPI PAYMENT VERIFICATION ============
+  
+  // Get pending payments for verification
+  async getPendingPayments() {
+    const response = await this.api.get('/api/payments/pending');
+    return response.data;
+  }
+
+  // Get pending payments count (for badge)
+  async getPendingPaymentsCount() {
+    const response = await this.api.get('/api/payments/pending/count');
+    return response.data;
+  }
+
+  // Verify a pending payment (business confirms receipt)
+  async verifyPayment(paymentId: string, upiRef?: string) {
+    const response = await this.api.post(`/api/payment/${paymentId}/verify`, { upi_ref: upiRef });
+    return response.data;
+  }
+
+  // Reject a pending payment claim
+  async rejectPayment(paymentId: string, reason?: string) {
+    const response = await this.api.post(`/api/payment/${paymentId}/reject`, { reason });
+    return response.data;
+  }
 }
 
 export default new ApiService();
