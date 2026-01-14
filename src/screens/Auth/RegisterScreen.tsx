@@ -59,11 +59,11 @@ export default function RegisterScreen({ navigation }: any) {
 
     try {
       // Register the business
-      const registerResponse = await ApiService.register({
-        name: businessName.trim(),
-        phone_number: phoneNumber.trim(),
-        password: password,
-      });
+      const registerResponse = await ApiService.register(
+        businessName.trim(),
+        phoneNumber.trim(),
+        password
+      );
 
       // Store auth token
       await AsyncStorage.setItem('authToken', registerResponse.token);
