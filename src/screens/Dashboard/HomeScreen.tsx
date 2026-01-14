@@ -358,8 +358,8 @@ export default function HomeScreen({ navigation }: any) {
                       <Text style={[styles.productName, { color: Colors.textPrimary }]} numberOfLines={1}>
                         {product.name}
                       </Text>
-                      <Text style={[styles.productPrice, { color: Colors.primary }]}>
-                        ₹{product.price}{product.unit && `/${product.unit}`}
+                      <Text style={[styles.productPrice, { color: product.price === 0 ? Colors.textSecondary : Colors.primary }]}>
+                        {product.price === 0 ? 'Contact for price' : `₹${product.price}${product.unit ? `/${product.unit}` : ''}`}
                       </Text>
                     </TouchableOpacity>
                   );

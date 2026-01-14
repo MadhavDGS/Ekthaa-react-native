@@ -40,6 +40,7 @@ export default function AddCatalogItemScreen({ navigation }: any) {
   const [category, setCategory] = useState('');
   const [imageUri, setImageUri] = useState('');
   const [loading, setLoading] = useState(false);
+  const [hidePrice, setHidePrice] = useState(false);
 
   const handlePickImage = async () => {
     try {
@@ -100,9 +101,13 @@ export default function AddCatalogItemScreen({ navigation }: any) {
       Alert.alert('Error', 'Product name is required');
       return;
     }
-    if (!price.trim() || isNaN(parseFloat(price)) || parseFloat(price) < 0) {
-      Alert.alert('Error', 'Please enter a valid price');
-      return;
+    
+    // Price validation: required if not hidden, must be valid number
+    if (!hidePrice) {
+      if (!price.trim() || isNaN(parseFloat(price)) || parseFloat(price) < 0) {
+        Alert.alert('Error', 'Please enter a valid price or enable "Hide price"');
+        return;
+      }
     }
 
     setLoading(true);
@@ -110,7 +115,7 @@ export default function AddCatalogItemScreen({ navigation }: any) {
       const catalogData: any = {
         name: name.trim(),
         description: description.trim(),
-        price: parseFloat(price),
+        price: hidePrice ? 0 : parseFloat(price),
         category: category.trim(),
         is_visible: true,
       };
@@ -186,15 +191,39 @@ export default function AddCatalogItemScreen({ navigation }: any) {
 
           {/* Price */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: Colors.textSecondary }]}>Price (₹) *</Text>
-            <TextInput
-              style={[styles.input, { backgroundColor: isDark ? '#2a2a2a' : '#f3f4f6', color: Colors.textPrimary }]}
-              value={price}
-              onChangeText={setPrice}
-              placeholder="0.00"
-              placeholderTextColor={Colors.textTertiary}
-              keyboardType="decimal-pad"
-            />
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <Text style={[styles.label, { color: Colors.textSecondary, marginBottom: 0 }]}>Price (₹) {hidePrice ? '' : '(optional)'}</Text>
+              <TouchableOpacity 
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+                onPress={() => {
+                  setHidePrice(!hidePrice);
+                  if (!hidePrice) setPrice('0');
+                }}
+                activeOpacity={0.7}
+              >
+                <View style={[
+                  { width: 20, height: 20, borderRadius: 4, borderWidth: 2, borderColor: Colors.primary, justifyContent: 'center', alignItems: 'center' },
+                  hidePrice && { backgroundColor: Colors.primary }
+                ]}>
+                  {hidePrice && <Ionicons name="checkmark" size={14} color="#fff" />}
+                </View>
+                <Text style={[{ fontSize: 13, color: Colors.textSecondary }]}>Hide price</Text>
+              </TouchableOpacity>
+            </View>
+            {!hidePrice ? (
+              <TextInput
+                style={[styles.input, { backgroundColor: isDark ? '#2a2a2a' : '#f3f4f6', color: Colors.textPrimary }]}
+                value={price}
+                onChangeText={setPrice}
+                placeholder="0.00"
+                placeholderTextColor={Colors.textTertiary}
+                keyboardType="decimal-pad"
+              />
+            ) : (
+              <View style={[styles.input, { backgroundColor: isDark ? '#2a2a2a' : '#f3f4f6', justifyContent: 'center' }]}>
+                <Text style={[{ color: Colors.textSecondary, fontStyle: 'italic' }]}>Price hidden - Customers will contact you</Text>
+              </View>
+            )}
           </View>
 
           {/* Category */}

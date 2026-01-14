@@ -36,35 +36,35 @@ import MapComponent from '../../components/MapComponent';
 const BUSINESS_CATEGORIES = [
   {
     name: 'Retail',
-    subcategories: ['Grocery Store', 'Supermarket', 'Convenience Store', 'Clothing Store', 'Electronics Store', 'Hardware Store', 'Pharmacy', 'Other Retail']
+    subcategories: ['Grocery Store', 'Supermarket', 'Convenience Store', 'Clothing Store', 'Electronics Store', 'Hardware Store', 'Pharmacy', 'Other Retail', 'Custom']
   },
   {
     name: 'Food & Restaurant',
-    subcategories: ['Restaurant', 'Fast Food', 'Cafe', 'Bakery', 'Sweet Shop', 'Ice Cream Parlor', 'Cloud Kitchen', 'Catering']
+    subcategories: ['Restaurant', 'Fast Food', 'Cafe', 'Bakery', 'Sweet Shop', 'Ice Cream Parlor', 'Cloud Kitchen', 'Catering', 'Custom']
   },
   {
     name: 'Services',
-    subcategories: ['Salon & Spa', 'Laundry', 'Repair Services', 'Consulting', 'Photography', 'Event Planning', 'Cleaning Services', 'Other Services']
+    subcategories: ['Salon & Spa', 'Laundry', 'Repair Services', 'Consulting', 'Photography', 'Event Planning', 'Cleaning Services', 'Other Services', 'Custom']
   },
   {
     name: 'Healthcare',
-    subcategories: ['Clinic', 'Hospital', 'Diagnostic Center', 'Dental Clinic', 'Veterinary', 'Medical Store', 'Pharmacy']
+    subcategories: ['Clinic', 'Hospital', 'Diagnostic Center', 'Dental Clinic', 'Veterinary', 'Medical Store', 'Pharmacy', 'Custom']
   },
   {
     name: 'Education',
-    subcategories: ['School', 'Coaching Classes', 'Training Institute', 'Language Classes', 'Music Classes', 'Dance Academy', 'Sports Academy']
+    subcategories: ['School', 'Coaching Classes', 'Training Institute', 'Language Classes', 'Music Classes', 'Dance Academy', 'Sports Academy', 'Custom']
   },
   {
     name: 'Automobile',
-    subcategories: ['Car Showroom', 'Bike Showroom', 'Service Center', 'Spare Parts', 'Car Wash', 'Tyre Shop']
+    subcategories: ['Car Showroom', 'Bike Showroom', 'Service Center', 'Spare Parts', 'Car Wash', 'Tyre Shop', 'Custom']
   },
   {
     name: 'Real Estate',
-    subcategories: ['Property Dealer', 'Construction', 'Interior Designer', 'Architect']
+    subcategories: ['Property Dealer', 'Construction', 'Interior Designer', 'Architect', 'Custom']
   },
   {
     name: 'Other',
-    subcategories: ['Manufacturing', 'Wholesale', 'Distribution', 'Logistics', 'Other Business']
+    subcategories: ['Manufacturing', 'Wholesale', 'Distribution', 'Logistics', 'Other Business', 'Custom']
   }
 ];
 
@@ -135,6 +135,10 @@ export default function CompleteProfileScreen({ navigation }: any) {
   const [facebook, setFacebook] = useState('');
   const [instagram, setInstagram] = useState('');
   const [subcategory, setSubcategory] = useState('');
+  const [customCategory, setCustomCategory] = useState('');
+  const [customSubcategory, setCustomSubcategory] = useState('');
+  const [showCustomCategoryInput, setShowCustomCategoryInput] = useState(false);
+  const [showCustomSubcategoryInput, setShowCustomSubcategoryInput] = useState(false);
   const [operatingHours, setOperatingHours] = useState('9 AM - 9 PM');
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showSubcategoryModal, setShowSubcategoryModal] = useState(false);
@@ -642,13 +646,20 @@ export default function CompleteProfileScreen({ navigation }: any) {
                   key={subcat}
                   style={[styles.categoryOption, { borderBottomColor: Colors.borderLight }]}
                   onPress={() => {
-                    setSubcategory(subcat);
-                    setShowSubcategoryModal(false);
+                    if (subcat === 'Custom') {
+                      setShowCustomSubcategoryInput(true);
+                      setShowSubcategoryModal(false);
+                    } else {
+                      setSubcategory(subcat);
+                      setCustomSubcategory('');
+                      setShowSubcategoryModal(false);
+                    }
                   }}
                 >
                   <Text style={[styles.categoryOptionText, { color: Colors.textPrimary }]}>
                     {subcat}
                   </Text>
+                  {subcat === 'Custom' && <Ionicons name="create-outline" size={18} color={Colors.textSecondary} />}
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -657,6 +668,42 @@ export default function CompleteProfileScreen({ navigation }: any) {
       </Modal>
     );
   };
+
+  const renderCustomSubcategoryInput = () => (
+    <Modal visible={showCustomSubcategoryInput} animationType="fade" transparent={true}>
+      <View style={styles.modalContainer}>
+        <View style={[styles.modalContent, { backgroundColor: Colors.card, maxHeight: '40%' }]}>
+          <View style={styles.modalHeader}>
+            <Text style={[styles.modalTitle, { color: Colors.textPrimary }]}>Enter Custom Subcategory</Text>
+            <TouchableOpacity onPress={() => setShowCustomSubcategoryInput(false)}>
+              <Ionicons name="close" size={24} color={Colors.textPrimary} />
+            </TouchableOpacity>
+          </View>
+          <View style={{ padding: Spacing.md }}>
+            <TextInput
+              style={[styles.input, { backgroundColor: isDark ? '#2a2a2a' : '#f3f4f6', color: Colors.textPrimary, marginBottom: Spacing.md }]}
+              value={customSubcategory}
+              onChangeText={setCustomSubcategory}
+              placeholder="Enter your business subcategory..."
+              placeholderTextColor={Colors.textTertiary}
+              autoFocus
+            />
+            <TouchableOpacity
+              style={[{ backgroundColor: Colors.primary, paddingVertical: 12, borderRadius: 8, alignItems: 'center' }]}
+              onPress={() => {
+                if (customSubcategory.trim()) {
+                  setSubcategory(customSubcategory.trim());
+                  setShowCustomSubcategoryInput(false);
+                }
+              }}
+            >
+              <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>Confirm</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
 
   const renderStepContent = () => {
     // Safety check
@@ -934,6 +981,7 @@ export default function CompleteProfileScreen({ navigation }: any) {
         {renderMapPickerModal()}
         {renderCategoryModal()}
         {renderSubcategoryModal()}
+        {renderCustomSubcategoryInput()}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

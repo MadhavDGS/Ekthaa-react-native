@@ -229,9 +229,9 @@ export default function ProductsScreen({ navigation }: any) {
           <Text style={[styles.productName, { color: Colors.textPrimary }]} numberOfLines={2}>
             {item.name}
           </Text>
-          <Text style={[styles.productPrice, { color: Colors.primary }]}>
-            {formatCurrency(item.price)}
-            {item.unit && <Text style={[styles.unitText, { color: Colors.textTertiary }]}>/{item.unit}</Text>}
+          <Text style={[styles.productPrice, { color: item.price === 0 ? Colors.textSecondary : Colors.primary }]}>
+            {item.price === 0 ? 'Contact for price' : formatCurrency(item.price)}
+            {item.price !== 0 && item.unit && <Text style={[styles.unitText, { color: Colors.textTertiary }]}>/{item.unit}</Text>}
           </Text>
           {item.description && (
             <Text style={[styles.productDescription, { color: Colors.textSecondary }]} numberOfLines={2}>
