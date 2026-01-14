@@ -146,15 +146,15 @@ export default function HomeScreen({ navigation }: any) {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [profileData, productsData, dashboard, pendingCount] = await Promise.all([
+      const [profileData, catalogData, dashboard, pendingCount] = await Promise.all([
         ApiService.getProfile(),
-        ApiService.getProducts(),
+        ApiService.getCatalog(true), // Get only visible catalog items
         ApiService.getDashboard(),
         ApiService.getPendingPaymentsCount().catch(() => ({ count: 0 })),
       ]);
       
       setProfile(profileData.business);
-      setProducts(productsData.products.slice(0, 4)); // Show first 4 products
+      setProducts((catalogData.catalog || []).slice(0, 4)); // Show first 4 catalog products
       setDashboardStats(dashboard?.summary || dashboard);
       setPendingPaymentsCount(pendingCount.count || 0);
       

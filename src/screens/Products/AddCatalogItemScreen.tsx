@@ -138,12 +138,14 @@ export default function AddCatalogItemScreen({ navigation }: any) {
   return (
     <KeyboardAvoidingView 
       style={[styles.container, { backgroundColor: Colors.backgroundSecondary }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {/* Image Picker */}
         <TouchableOpacity
@@ -263,7 +265,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: Spacing.md,
-    paddingBottom: 100,
+    paddingBottom: 120,
   },
   imagePicker: {
     width: '100%',

@@ -50,6 +50,12 @@ export default function EditProfileScreen({ navigation, route }: any) {
         user?.latitude && user?.longitude ? { latitude: user.latitude, longitude: user.longitude } : null
     );
     const [showMap, setShowMap] = useState(false);
+    const [mapInitialRegion, setMapInitialRegion] = useState<{
+        latitude: number;
+        longitude: number;
+        latitudeDelta: number;
+        longitudeDelta: number;
+    } | null>(null);
 
     // Reload profile data when screen is focused to get latest photo
     useFocusEffect(
@@ -235,6 +241,68 @@ export default function EditProfileScreen({ navigation, route }: any) {
         } catch (error: any) {
             console.error('Update profile error:', error);
             Alert.alert('Error', error.message || 'Failed to update profile');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleOpenMap = async () => {
+        try {
+            // If we already have a saved location, use that
+            if (location) {
+                setMapInitialRegion({
+                    latitude: location.latitude,
+                    longitude: location.longitude,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01,
+                });
+                setShowMap(true);
+                return;
+            }
+
+            // Otherwise, get current location
+            console.log('📍 Getting current location for map...');
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                // Default to Hyderabad if permission denied
+                setMapInitialRegion({
+                    latitude: 17.385,
+                    longitude: 78.486,
+                    latitudeDelta: 0.1,
+                    longitudeDelta: 0.1,
+                });
+                setShowMap(true);
+                Alert.alert('Permission Denied', 'Location permission is required. Showing default location.');
+                return;
+            }
+
+            setLoading(true);
+            const currentLocation = await Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.Balanced,
+            });
+
+            const newLocation = {
+                latitude: currentLocation.coords.latitude,
+                longitude: currentLocation.coords.longitude
+            };
+
+            setLocation(newLocation);
+            setMapInitialRegion({
+                ...newLocation,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+            });
+            setShowMap(true);
+        } catch (error: any) {
+            console.error('❌ Error opening map:', error);
+            // Fallback to default location
+            setMapInitialRegion({
+                latitude: 17.385,
+                longitude: 78.486,
+                latitudeDelta: 0.1,
+                longitudeDelta: 0.1,
+            });
+            setShowMap(true);
         } finally {
             setLoading(false);
         }
@@ -523,7 +591,7 @@ export default function EditProfileScreen({ navigation, route }: any) {
 
                             <TouchableOpacity
                                 style={[styles.locationButton, { backgroundColor: isDark ? 'rgba(90, 154, 142, 0.15)' : '#E8F5F3', borderColor: Colors.primary }]}
-                                onPress={() => setShowMap(true)}
+                                onPress={handleOpenMap}
                                 disabled={loading || !isMapSupported}
                             >
                                 <Ionicons name="map" size={18} color={Colors.primary} />
@@ -540,16 +608,11 @@ export default function EditProfileScreen({ navigation, route }: any) {
             </KeyboardAvoidingView>
 
             {/* Map Picker Modal */}
-            {showMap && isMapSupported && (
+            {showMap && isMapSupported && mapInitialRegion && (
                 <View style={styles.mapModal}>
                     <MapView
                         style={styles.fullMap}
-                        initialRegion={{
-                            latitude: location?.latitude || 17.385,
-                            longitude: location?.longitude || 78.486,
-                            latitudeDelta: 0.01,
-                            longitudeDelta: 0.01,
-                        }}
+                        initialRegion={mapInitialRegion}
                         onPress={(e) => setLocation(e.nativeEvent.coordinate)}
                         userInterfaceStyle={isDark ? 'dark' : 'light'}
                     >

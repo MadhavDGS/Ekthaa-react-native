@@ -141,6 +141,8 @@ export default function CompleteProfileScreen({ navigation }: any) {
   const [showMapPicker, setShowMapPicker] = useState(false);
   const [tempLatitude, setTempLatitude] = useState(0);
   const [tempLongitude, setTempLongitude] = useState(0);
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
   const [initialLoading, setInitialLoading] = useState(true);
 
   // Load existing profile data and calculate starting step
@@ -167,6 +169,8 @@ export default function CompleteProfileScreen({ navigation }: any) {
           if (profile.instagram) setInstagram(profile.instagram);
           if (profile.subcategory) setSubcategory(profile.subcategory);
           if (profile.operating_hours) setOperatingHours(profile.operating_hours);
+          if (profile.latitude) setLatitude(profile.latitude);
+          if (profile.longitude) setLongitude(profile.longitude);
           
           // Calculate starting step - find first incomplete step
           let startStep = 0;
@@ -424,6 +428,9 @@ export default function CompleteProfileScreen({ navigation }: any) {
         if (loc.region) setState(loc.region);
         if (loc.postalCode) setPincode(loc.postalCode);
       }
+      // Save the coordinates
+      setLatitude(lat);
+      setLongitude(lng);
       setShowMapPicker(false);
     } catch (error) {
       console.error('Location error:', error);
@@ -505,6 +512,17 @@ export default function CompleteProfileScreen({ navigation }: any) {
       if (photoUrl) profileData.profile_photo_url = photoUrl;
 
       await ApiService.updateProfile(profileData);
+
+      // Update location coordinates if selected
+      if (latitude !== null && longitude !== null) {
+        try {
+          await ApiService.updateLocation(latitude, longitude);
+          console.log('✅ Location coordinates saved:', latitude, longitude);
+        } catch (locError) {
+          console.error('⚠️ Failed to save location coordinates:', locError);
+          // Don't fail the whole save if location update fails
+        }
+      }
 
       Alert.alert(
         '🎉 Profile Complete!',
