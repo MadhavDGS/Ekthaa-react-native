@@ -28,6 +28,7 @@ import ErrorBoundary from './src/components/ErrorBoundary';
 import LoginScreen from './src/screens/Auth/LoginScreen';
 import RegisterScreen from './src/screens/Auth/RegisterScreen';
 import BusinessDetailsScreen from './src/screens/Auth/BusinessDetailsScreen';
+import BusinessSetupScreen from './src/screens/Auth/BusinessSetupScreen';
 import OnboardingScreen from './src/screens/Auth/OnboardingScreen';
 import HomeScreen from './src/screens/Dashboard/HomeScreen';
 import DashboardScreen from './src/screens/Dashboard/DashboardScreen';
@@ -468,6 +469,11 @@ function AppContent() {
             <Stack.Screen
               name="BusinessDetails"
               component={BusinessDetailsScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="BusinessSetup"
+              component={BusinessSetupScreen}
               options={{ headerShown: false }}
             />
           </>

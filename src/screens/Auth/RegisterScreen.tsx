@@ -70,11 +70,8 @@ export default function RegisterScreen({ navigation }: any) {
       await AsyncStorage.setItem('businessId', registerResponse.business_id);
       await AsyncStorage.setItem('user', JSON.stringify(registerResponse.business));
 
-      Alert.alert(
-        'Success!',
-        'Your account has been created successfully. Complete your profile to get more customers!',
-        [{ text: 'OK', onPress: () => navigation.replace('Main') }]
-      );
+      // Navigate to mandatory business setup
+      navigation.replace('BusinessSetup');
     } catch (err: any) {
       console.error('Registration error:', err);
       setError(err.message || 'Registration failed. Please try again.');
