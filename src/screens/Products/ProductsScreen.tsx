@@ -219,7 +219,11 @@ export default function ProductsScreen({ navigation }: any) {
 
   const renderProduct = ({ item }: any) => {
     return (
-      <View style={[styles.productCard, { backgroundColor: Colors.card }]}>
+      <TouchableOpacity 
+        style={[styles.productCard, { backgroundColor: Colors.card }]}
+        onPress={() => navigation.navigate('ProductDetail', { productId: item.id })}
+        activeOpacity={0.7}
+      >
         <Image
           source={getProductPlaceholder(item)}
           style={styles.productImage}
@@ -245,7 +249,7 @@ export default function ProductsScreen({ navigation }: any) {
         >
           <Ionicons name="eye-off-outline" size={18} color={Colors.creditRed} />
         </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
     );
   };
 

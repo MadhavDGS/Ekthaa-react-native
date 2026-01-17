@@ -16,6 +16,7 @@ import {
     ActivityIndicator,
     Alert,
     Image,
+    Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -165,16 +166,42 @@ export default function EditProfileScreen({ navigation, route }: any) {
 
             setLoading(true);
 
-            // Get current location with timeout
+            // Get current location with increased timeout and retry logic
             console.log('📍 Getting current position...');
-            const currentLocation = await Promise.race([
-                Location.getCurrentPositionAsync({
-                    accuracy: Location.Accuracy.Balanced,
-                }),
-                new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Location timeout - please try again')), 15000)
-                )
-            ]) as Location.LocationObject;
+            let currentLocation: Location.LocationObject | null = null;
+            let attempts = 0;
+            const maxAttempts = 3;
+            
+            while (!currentLocation && attempts < maxAttempts) {
+                attempts++;
+                console.log(`📍 Attempt ${attempts} of ${maxAttempts}...`);
+                try {
+                    currentLocation = await Promise.race([
+                        Location.getCurrentPositionAsync({
+                            accuracy: attempts === 1 ? Location.Accuracy.Balanced : Location.Accuracy.Low,
+                        }),
+                        new Promise<null>((_, reject) => 
+                            setTimeout(() => reject(new Error('timeout')), 20000)
+                        )
+                    ]) as Location.LocationObject;
+                } catch (attemptError: any) {
+                    console.log(`📍 Attempt ${attempts} failed:`, attemptError.message);
+                    if (attempts === maxAttempts) {
+                        // On last attempt, try getLastKnownPositionAsync
+                        console.log('📍 Trying last known position...');
+                        const lastKnown = await Location.getLastKnownPositionAsync();
+                        if (lastKnown) {
+                            currentLocation = lastKnown;
+                        } else {
+                            throw new Error('Location timeout - please try again or check your GPS settings');
+                        }
+                    }
+                }
+            }
+            
+            if (!currentLocation) {
+                throw new Error('Could not get location after multiple attempts');
+            }
             
             console.log('📍 Location obtained:', currentLocation.coords.latitude, currentLocation.coords.longitude);
             
@@ -607,12 +634,17 @@ export default function EditProfileScreen({ navigation, route }: any) {
                 </ScrollView>
             </KeyboardAvoidingView>
 
-            {/* Map Picker Modal */}
-            {showMap && isMapSupported && mapInitialRegion && (
+            {/* Map Picker Modal - Using proper Modal component to prevent crashes */}
+            <Modal
+                visible={showMap && isMapSupported && !!mapInitialRegion}
+                animationType="slide"
+                presentationStyle="fullScreen"
+                onRequestClose={() => setShowMap(false)}
+            >
                 <View style={styles.mapModal}>
                     <MapView
                         style={styles.fullMap}
-                        initialRegion={mapInitialRegion}
+                        initialRegion={mapInitialRegion || { latitude: 17.385, longitude: 78.486, latitudeDelta: 0.1, longitudeDelta: 0.1 }}
                         onPress={(e) => setLocation(e.nativeEvent.coordinate)}
                         userInterfaceStyle={isDark ? 'dark' : 'light'}
                     >
@@ -657,7 +689,7 @@ export default function EditProfileScreen({ navigation, route }: any) {
                         </View>
                     </View>
                 </View>
-            )}
+            </Modal>
 
             {/* Fixed Bottom Button */}
             <View style={[styles.bottomBar, {

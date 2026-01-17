@@ -128,7 +128,7 @@ export default function PreviewBusinessScreen({ navigation }: any) {
     const [profile, setProfile] = useState<any>(null);
     const [products, setProducts] = useState<any[]>([]);
     const [offers, setOffers] = useState<any[]>([]);
-    const [activeTab, setActiveTab] = useState<'products' | 'vouchers' | 'offers'>('products');
+    const [activeTab, setActiveTab] = useState<'products' | 'offers' | 'details' | 'vouchers'>('products');
 
     useEffect(() => {
         loadPreview();
@@ -320,83 +320,6 @@ export default function PreviewBusinessScreen({ navigation }: any) {
                     </View>
                 </View>
 
-                {/* Contact Information */}
-                <View style={[styles.section, { backgroundColor: Colors.background }]}>
-                    <Text style={[styles.sectionTitle, { color: Colors.textPrimary }]}>Business Details</Text>
-
-                    <View style={[styles.infoGrid, { backgroundColor: Colors.card }]}>
-                        {/* Email */}
-                        {profile.email && (
-                            <TouchableOpacity 
-                                style={styles.infoItem}
-                                onPress={() => Linking.openURL(`mailto:${profile.email}`)}
-                                activeOpacity={0.7}
-                            >
-                                <View style={[styles.infoIconWrapper, { backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : '#eef2ff' }]}>
-                                    <Ionicons name="mail" size={20} color="#6366f1" />
-                                </View>
-                                <View style={styles.infoContent}>
-                                    <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>Email</Text>
-                                    <Text style={[styles.infoValue, { color: Colors.textPrimary }]} numberOfLines={1}>
-                                        {profile.email}
-                                    </Text>
-                                </View>
-                                <Ionicons name="arrow-forward" size={16} color={Colors.textTertiary} />
-                            </TouchableOpacity>
-                        )}
-
-                        {/* Address */}
-                        {(profile.address || profile.city || profile.state || profile.pincode) && (
-                            <TouchableOpacity 
-                                style={styles.infoItem}
-                                onPress={openLocation}
-                                activeOpacity={0.7}
-                            >
-                                <View style={[styles.infoIconWrapper, { backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : '#fef2f2' }]}>
-                                    <Ionicons name="location" size={20} color="#ef4444" />
-                                </View>
-                                <View style={styles.infoContent}>
-                                    <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>Location</Text>
-                                    <Text style={[styles.infoValue, { color: Colors.textPrimary }]} numberOfLines={2}>
-                                        {profile.address || [profile.city, profile.state, profile.pincode].filter(Boolean).join(', ')}
-                                    </Text>
-                                </View>
-                                <Ionicons name="navigate" size={16} color={Colors.textTertiary} />
-                            </TouchableOpacity>
-                        )}
-
-                        {/* Operating Hours */}
-                        {profile.operating_hours && (
-                            <View style={styles.infoItem}>
-                                <View style={[styles.infoIconWrapper, { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.15)' : '#f0fdf4' }]}>
-                                    <Ionicons name="time" size={20} color="#10b981" />
-                                </View>
-                                <View style={styles.infoContent}>
-                                    <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>Hours</Text>
-                                    <Text style={[styles.infoValue, { color: Colors.textPrimary }]}>
-                                        {profile.operating_hours}
-                                    </Text>
-                                </View>
-                            </View>
-                        )}
-
-                        {/* GST Number */}
-                        {profile.gst_number && (
-                            <View style={styles.infoItem}>
-                                <View style={[styles.infoIconWrapper, { backgroundColor: isDark ? 'rgba(245, 158, 11, 0.15)' : '#fffbeb' }]}>
-                                    <Ionicons name="document-text" size={20} color="#f59e0b" />
-                                </View>
-                                <View style={styles.infoContent}>
-                                    <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>GST Number</Text>
-                                    <Text style={[styles.infoValue, { color: Colors.textPrimary, fontFamily: 'monospace' }]}>
-                                        {profile.gst_number}
-                                    </Text>
-                                </View>
-                            </View>
-                        )}
-                    </View>
-                </View>
-
                 {/* Shop Photos Gallery */}
                 {profile.shop_photos && profile.shop_photos.length > 0 && (
                     <View style={[styles.section, { backgroundColor: Colors.background }]}>
@@ -417,7 +340,7 @@ export default function PreviewBusinessScreen({ navigation }: any) {
                     </View>
                 )}
 
-                {/* Tabs Section */}
+                {/* Tabs Section - New Order: Products → Offers → Business Details → Vouchers */}
                 <View style={[styles.tabsContainer, { backgroundColor: Colors.background, borderBottomColor: Colors.borderLight }]}>
                     <TouchableOpacity
                         style={[styles.tab, activeTab === 'products' && styles.activeTab]}
@@ -430,16 +353,6 @@ export default function PreviewBusinessScreen({ navigation }: any) {
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={[styles.tab, activeTab === 'vouchers' && styles.activeTab]}
-                        onPress={() => setActiveTab('vouchers')}
-                    >
-                        <Text style={[styles.tabText, { color: activeTab === 'vouchers' ? Colors.primary : Colors.textSecondary }]}>
-                            Vouchers
-                        </Text>
-                        {activeTab === 'vouchers' && <View style={[styles.tabIndicator, { backgroundColor: Colors.primary }]} />}
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
                         style={[styles.tab, activeTab === 'offers' && styles.activeTab]}
                         onPress={() => setActiveTab('offers')}
                     >
@@ -447,6 +360,26 @@ export default function PreviewBusinessScreen({ navigation }: any) {
                             Offers
                         </Text>
                         {activeTab === 'offers' && <View style={[styles.tabIndicator, { backgroundColor: Colors.primary }]} />}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.tab, activeTab === 'details' && styles.activeTab]}
+                        onPress={() => setActiveTab('details')}
+                    >
+                        <Text style={[styles.tabText, { color: activeTab === 'details' ? Colors.primary : Colors.textSecondary }]}>
+                            Details
+                        </Text>
+                        {activeTab === 'details' && <View style={[styles.tabIndicator, { backgroundColor: Colors.primary }]} />}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.tab, activeTab === 'vouchers' && styles.activeTab]}
+                        onPress={() => setActiveTab('vouchers')}
+                    >
+                        <Text style={[styles.tabText, { color: activeTab === 'vouchers' ? Colors.primary : Colors.textSecondary }]}>
+                            Vouchers
+                        </Text>
+                        {activeTab === 'vouchers' && <View style={[styles.tabIndicator, { backgroundColor: Colors.primary }]} />}
                     </TouchableOpacity>
                 </View>
 
@@ -568,6 +501,142 @@ export default function PreviewBusinessScreen({ navigation }: any) {
                             </Text>
                         </View>
                     )
+                )}
+
+                {/* Business Details Tab Content */}
+                {activeTab === 'details' && (
+                    <View style={[styles.section, { backgroundColor: Colors.background }]}>
+                        <View style={[styles.infoGrid, { backgroundColor: Colors.card }]}>
+                            {/* Email */}
+                            {profile.email && (
+                                <TouchableOpacity 
+                                    style={styles.infoItem}
+                                    onPress={() => Linking.openURL(`mailto:${profile.email}`)}
+                                    activeOpacity={0.7}
+                                >
+                                    <View style={[styles.infoIconWrapper, { backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : '#eef2ff' }]}>
+                                        <Ionicons name="mail" size={20} color="#6366f1" />
+                                    </View>
+                                    <View style={styles.infoContent}>
+                                        <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>EMAIL</Text>
+                                        <Text style={[styles.infoValue, { color: Colors.textPrimary }]} numberOfLines={1}>
+                                            {profile.email}
+                                        </Text>
+                                    </View>
+                                    <Ionicons name="arrow-forward" size={16} color={Colors.textTertiary} />
+                                </TouchableOpacity>
+                            )}
+
+                            {/* Address */}
+                            {(profile.address || profile.city || profile.state || profile.pincode) && (
+                                <TouchableOpacity 
+                                    style={styles.infoItem}
+                                    onPress={openLocation}
+                                    activeOpacity={0.7}
+                                >
+                                    <View style={[styles.infoIconWrapper, { backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : '#fef2f2' }]}>
+                                        <Ionicons name="location" size={20} color="#ef4444" />
+                                    </View>
+                                    <View style={styles.infoContent}>
+                                        <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>LOCATION</Text>
+                                        <Text style={[styles.infoValue, { color: Colors.textPrimary }]} numberOfLines={2}>
+                                            {profile.address || [profile.city, profile.state, profile.pincode].filter(Boolean).join(', ')}
+                                        </Text>
+                                    </View>
+                                    <Ionicons name="navigate" size={16} color={Colors.textTertiary} />
+                                </TouchableOpacity>
+                            )}
+
+                            {/* GST Number */}
+                            {profile.gst_number && (
+                                <View style={styles.infoItem}>
+                                    <View style={[styles.infoIconWrapper, { backgroundColor: isDark ? 'rgba(245, 158, 11, 0.15)' : '#fffbeb' }]}>
+                                        <Ionicons name="document-text" size={20} color="#f59e0b" />
+                                    </View>
+                                    <View style={styles.infoContent}>
+                                        <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>GST NUMBER</Text>
+                                        <Text style={[styles.infoValue, { color: Colors.textPrimary, fontFamily: 'monospace' }]}>
+                                            {profile.gst_number}
+                                        </Text>
+                                    </View>
+                                </View>
+                            )}
+
+                            {/* Operating Hours */}
+                            {profile.operating_hours && (
+                                <View style={styles.infoItem}>
+                                    <View style={[styles.infoIconWrapper, { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.15)' : '#f0fdf4' }]}>
+                                        <Ionicons name="time" size={20} color="#10b981" />
+                                    </View>
+                                    <View style={styles.infoContent}>
+                                        <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>HOURS</Text>
+                                        <Text style={[styles.infoValue, { color: Colors.textPrimary }]}>
+                                            {profile.operating_hours}
+                                        </Text>
+                                    </View>
+                                </View>
+                            )}
+
+                            {/* Website */}
+                            {profile.website && (
+                                <TouchableOpacity 
+                                    style={styles.infoItem}
+                                    onPress={() => Linking.openURL(profile.website.startsWith('http') ? profile.website : `https://${profile.website}`)}
+                                    activeOpacity={0.7}
+                                >
+                                    <View style={[styles.infoIconWrapper, { backgroundColor: isDark ? 'rgba(59, 130, 246, 0.15)' : '#eff6ff' }]}>
+                                        <Ionicons name="globe-outline" size={20} color="#3b82f6" />
+                                    </View>
+                                    <View style={styles.infoContent}>
+                                        <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>WEBSITE</Text>
+                                        <Text style={[styles.infoValue, { color: Colors.textPrimary }]} numberOfLines={1}>
+                                            {profile.website}
+                                        </Text>
+                                    </View>
+                                    <Ionicons name="open-outline" size={16} color={Colors.textTertiary} />
+                                </TouchableOpacity>
+                            )}
+
+                            {/* Social Media Links */}
+                            {(profile.instagram || profile.facebook || profile.twitter || profile.linkedin || profile.youtube) && (
+                                <View style={styles.infoItem}>
+                                    <View style={[styles.infoIconWrapper, { backgroundColor: isDark ? 'rgba(236, 72, 153, 0.15)' : '#fdf2f8' }]}>
+                                        <Ionicons name="share-social" size={20} color="#ec4899" />
+                                    </View>
+                                    <View style={[styles.infoContent, { flex: 1 }]}>
+                                        <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>SOCIAL MEDIA</Text>
+                                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 6, gap: 12 }}>
+                                            {profile.instagram && (
+                                                <TouchableOpacity onPress={() => Linking.openURL(profile.instagram.startsWith('http') ? profile.instagram : `https://instagram.com/${profile.instagram.replace('@', '')}`)}>
+                                                    <Ionicons name="logo-instagram" size={24} color="#E4405F" />
+                                                </TouchableOpacity>
+                                            )}
+                                            {profile.facebook && (
+                                                <TouchableOpacity onPress={() => Linking.openURL(profile.facebook.startsWith('http') ? profile.facebook : `https://facebook.com/${profile.facebook}`)}>
+                                                    <Ionicons name="logo-facebook" size={24} color="#1877F2" />
+                                                </TouchableOpacity>
+                                            )}
+                                            {profile.twitter && (
+                                                <TouchableOpacity onPress={() => Linking.openURL(profile.twitter.startsWith('http') ? profile.twitter : `https://twitter.com/${profile.twitter.replace('@', '')}`)}>
+                                                    <Ionicons name="logo-twitter" size={24} color="#1DA1F2" />
+                                                </TouchableOpacity>
+                                            )}
+                                            {profile.linkedin && (
+                                                <TouchableOpacity onPress={() => Linking.openURL(profile.linkedin.startsWith('http') ? profile.linkedin : `https://linkedin.com/company/${profile.linkedin}`)}>
+                                                    <Ionicons name="logo-linkedin" size={24} color="#0A66C2" />
+                                                </TouchableOpacity>
+                                            )}
+                                            {profile.youtube && (
+                                                <TouchableOpacity onPress={() => Linking.openURL(profile.youtube.startsWith('http') ? profile.youtube : `https://youtube.com/@${profile.youtube}`)}>
+                                                    <Ionicons name="logo-youtube" size={24} color="#FF0000" />
+                                                </TouchableOpacity>
+                                            )}
+                                        </View>
+                                    </View>
+                                </View>
+                            )}
+                        </View>
+                    </View>
                 )}
 
                 {/* Preview Note */}

@@ -489,6 +489,17 @@ export default function ProfileScreen({ navigation }: any) {
             </View>
             <Ionicons name="chevron-forward" size={16} color={Colors.textTertiary} />
           </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.settingCard, { backgroundColor: Colors.card }]} onPress={() => navigation.navigate('TeamManagement')}>
+            <View style={[styles.settingIcon, { backgroundColor: isDark ? '#164e63' : 'rgba(6, 182, 212, 0.15)' }]}>
+              <Ionicons name="people" size={17} color={isDark ? '#22d3ee' : '#0891b2'} />
+            </View>
+            <View style={styles.menuContent}>
+              <Text style={[styles.settingText, { color: Colors.textPrimary }]}>Team Management</Text>
+              <Text style={[styles.menuSubtitle, { color: Colors.textSecondary }]}>Add workers & manage access</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={Colors.textTertiary} />
+          </TouchableOpacity>
         </View>
 
         {/* Help & Support Section */}

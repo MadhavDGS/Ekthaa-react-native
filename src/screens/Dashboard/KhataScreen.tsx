@@ -370,9 +370,9 @@ export default function KhataScreen({ navigation }: any) {
             <>
               {filteredCustomers.map((customer, index) => (
                 <TouchableOpacity
-                  key={customer.$id || customer.id || `customer-${customer.phone_number}`}
+                  key={customer.id || customer.$id || `customer-${customer.phone_number}`}
                   style={[styles.customerCard, { borderBottomColor: isDark ? 'rgba(255,255,255,0.05)' : '#f3f4f6' }]}
-                  onPress={() => navigation.navigate('CustomerDetails', { customerId: customer.$id })}
+                  onPress={() => navigation.navigate('CustomerDetails', { customerId: customer.id || customer.$id })}
                   activeOpacity={0.7}
                 >
                   <View style={styles.customerInfo}>

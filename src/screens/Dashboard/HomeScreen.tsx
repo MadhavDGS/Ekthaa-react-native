@@ -94,8 +94,10 @@ const CATEGORY_PLACEHOLDERS: { [key: string]: string } = {
 // Get placeholder image based on product name, category, or type
 const getProductPlaceholder = (product: any): { uri: string } | number => {
   // First check if product has its own image
-  if (product.product_image_url && product.product_image_url.length > 0) {
-    return { uri: product.product_image_url };
+  // Check both field names (catalog uses image_url, inventory uses product_image_url)
+  const imageUrl = product.image_url || product.product_image_url;
+  if (imageUrl && imageUrl.length > 0) {
+    return { uri: imageUrl };
   }
   
   // Try to match product name with category placeholders

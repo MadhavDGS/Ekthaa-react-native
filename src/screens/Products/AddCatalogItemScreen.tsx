@@ -1,7 +1,7 @@
 /**
  * Add Catalog Item Screen
  * Add a new product directly to the customer-facing catalog
- * With image upload to Cloudinary
+ * With image upload to Cloudinary, category dropdown and quality badges
  */
 
 import React, { useState } from 'react';
@@ -17,6 +17,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -28,6 +29,38 @@ import { useTheme } from '../../context/ThemeContext';
 
 // Fallback placeholder
 const PRODUCT_PLACEHOLDER = require('../../../assets/product-placeholder.jpg');
+
+// Product categories
+const PRODUCT_CATEGORIES = [
+  'Groceries',
+  'Vegetables',
+  'Fruits',
+  'Dairy',
+  'Bakery',
+  'Beverages',
+  'Snacks',
+  'Personal Care',
+  'Household',
+  'Electronics',
+  'Clothing',
+  'Stationery',
+  'Medicine',
+  'Others',
+];
+
+// Predefined description badges
+const DESCRIPTION_BADGES = [
+  '⭐ Premium Quality',
+  '✓ 100% Original',
+  '🏆 Best Seller',
+  '🌿 Fresh Stock',
+  '💯 Guaranteed',
+  '🔥 Hot Deal',
+  '📦 Fast Delivery',
+  '🎯 Top Rated',
+  '♻️ Eco Friendly',
+  '🆕 New Arrival',
+];
 
 export default function AddCatalogItemScreen({ navigation }: any) {
   const { isDark } = useTheme();
@@ -41,6 +74,8 @@ export default function AddCatalogItemScreen({ navigation }: any) {
   const [imageUri, setImageUri] = useState('');
   const [loading, setLoading] = useState(false);
   const [hidePrice, setHidePrice] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [showBadgeModal, setShowBadgeModal] = useState(false);
 
   const handlePickImage = async () => {
     try {
@@ -93,6 +128,17 @@ export default function AddCatalogItemScreen({ navigation }: any) {
         { text: 'Cancel', style: 'cancel' },
       ]
     );
+  };
+
+  const addBadgeToDescription = (badge: string) => {
+    const currentDesc = description.trim();
+    if (currentDesc.includes(badge)) {
+      setShowBadgeModal(false);
+      return;
+    }
+    const newDesc = currentDesc ? `${currentDesc}\n${badge}` : badge;
+    setDescription(newDesc);
+    setShowBadgeModal(false);
   };
 
   const handleSave = async () => {
@@ -226,21 +272,33 @@ export default function AddCatalogItemScreen({ navigation }: any) {
             )}
           </View>
 
-          {/* Category */}
+          {/* Category - Now a dropdown */}
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: Colors.textSecondary }]}>Category (optional)</Text>
-            <TextInput
-              style={[styles.input, { backgroundColor: isDark ? '#2a2a2a' : '#f3f4f6', color: Colors.textPrimary }]}
-              value={category}
-              onChangeText={setCategory}
-              placeholder="e.g., Food, Electronics, Clothing"
-              placeholderTextColor={Colors.textTertiary}
-            />
+            <TouchableOpacity
+              style={[styles.input, styles.dropdown, { backgroundColor: isDark ? '#2a2a2a' : '#f3f4f6' }]}
+              onPress={() => setShowCategoryModal(true)}
+              activeOpacity={0.7}
+            >
+              <Text style={[{ fontSize: Typography.fontMd, color: category ? Colors.textPrimary : Colors.textTertiary }]}>
+                {category || 'Select category'}
+              </Text>
+              <Ionicons name="chevron-down" size={20} color={Colors.textTertiary} />
+            </TouchableOpacity>
           </View>
 
-          {/* Description */}
+          {/* Description with badge button */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: Colors.textSecondary }]}>Description (optional)</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <Text style={[styles.label, { color: Colors.textSecondary, marginBottom: 0 }]}>Description (optional)</Text>
+              <TouchableOpacity 
+                style={[styles.addBadgeBtn, { backgroundColor: Colors.primary + '15', borderColor: Colors.primary }]}
+                onPress={() => setShowBadgeModal(true)}
+              >
+                <Ionicons name="ribbon-outline" size={14} color={Colors.primary} />
+                <Text style={[{ fontSize: 11, color: Colors.primary, marginLeft: 4 }]}>Add Badge</Text>
+              </TouchableOpacity>
+            </View>
             <TextInput
               style={[styles.input, styles.textArea, { backgroundColor: isDark ? '#2a2a2a' : '#f3f4f6', color: Colors.textPrimary }]}
               value={description}
@@ -262,6 +320,83 @@ export default function AddCatalogItemScreen({ navigation }: any) {
           </Text>
         </View>
       </ScrollView>
+
+      {/* Category Selection Modal */}
+      <Modal
+        visible={showCategoryModal}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowCategoryModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: Colors.card }]}>
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: Colors.textPrimary }]}>Select Category</Text>
+              <TouchableOpacity onPress={() => setShowCategoryModal(false)}>
+                <Ionicons name="close" size={24} color={Colors.textPrimary} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.modalList}>
+              {PRODUCT_CATEGORIES.map((cat) => (
+                <TouchableOpacity
+                  key={cat}
+                  style={[
+                    styles.modalItem,
+                    { borderBottomColor: Colors.borderLight },
+                    category === cat && { backgroundColor: Colors.primary + '15' }
+                  ]}
+                  onPress={() => {
+                    setCategory(cat);
+                    setShowCategoryModal(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.modalItemText, 
+                    { color: category === cat ? Colors.primary : Colors.textPrimary }
+                  ]}>
+                    {cat}
+                  </Text>
+                  {category === cat && <Ionicons name="checkmark" size={20} color={Colors.primary} />}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Badge Selection Modal */}
+      <Modal
+        visible={showBadgeModal}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowBadgeModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: Colors.card }]}>
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: Colors.textPrimary }]}>Add Quality Badge</Text>
+              <TouchableOpacity onPress={() => setShowBadgeModal(false)}>
+                <Ionicons name="close" size={24} color={Colors.textPrimary} />
+              </TouchableOpacity>
+            </View>
+            <Text style={[styles.modalSubtitle, { color: Colors.textSecondary }]}>
+              Tap to add to description
+            </Text>
+            <ScrollView style={styles.modalList}>
+              {DESCRIPTION_BADGES.map((badge) => (
+                <TouchableOpacity
+                  key={badge}
+                  style={[styles.modalItem, { borderBottomColor: Colors.borderLight }]}
+                  onPress={() => addBadgeToDescription(badge)}
+                >
+                  <Text style={[styles.modalItemText, { color: Colors.textPrimary, fontSize: 16 }]}>{badge}</Text>
+                  <Ionicons name="add-circle-outline" size={22} color={Colors.primary} />
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
 
       {/* Save Button */}
       <View style={[styles.footer, { backgroundColor: Colors.card, paddingBottom: insets.bottom + 16 }]}>
@@ -383,5 +518,59 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: Typography.fontMd,
     fontWeight: Typography.semiBold,
+  },
+  dropdown: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  addBadgeBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '60%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  modalSubtitle: {
+    fontSize: 13,
+    paddingHorizontal: Spacing.md,
+    paddingTop: 8,
+  },
+  modalList: {
+    padding: Spacing.sm,
+  },
+  modalItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+  },
+  modalItemText: {
+    fontSize: 15,
   },
 });

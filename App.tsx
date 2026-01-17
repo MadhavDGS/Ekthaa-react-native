@@ -37,6 +37,7 @@ import CustomerDetailsScreen from './src/screens/Customers/CustomerDetailsScreen
 import AddCustomerScreen from './src/screens/Customers/AddCustomerScreen';
 import ProductsScreen from './src/screens/Products/ProductsScreen';
 import AddCatalogItemScreen from './src/screens/Products/AddCatalogItemScreen';
+import ProductDetailScreen from './src/screens/Products/ProductDetailScreen';
 import InventoryScreen from './src/screens/Inventory/InventoryScreen';
 import AddInventoryItemScreen from './src/screens/Inventory/AddInventoryItemScreen';
 import AddInventoryLiteScreen from './src/screens/Inventory/AddInventoryLiteScreen';
@@ -57,6 +58,7 @@ import PreviewBusinessScreen from './src/screens/profile/PreviewBusinessScreen';
 import PrivacySecurityScreen from './src/screens/profile/PrivacySecurityScreen';
 import PrivacyPolicyScreen from './src/screens/profile/PrivacyPolicyScreen';
 import TermsOfServiceScreen from './src/screens/profile/TermsOfServiceScreen';
+import TeamManagementScreen from './src/screens/Settings/TeamManagementScreen';
 import { TouchableOpacity, Text } from 'react-native';
 import SvgIcon from './src/components/SvgIcon';
 
@@ -497,6 +499,11 @@ function AppContent() {
               options={{ headerTitle: 'Add Product' }}
             />
             <Stack.Screen
+              name="ProductDetail"
+              component={ProductDetailScreen}
+              options={{ headerTitle: 'Product Details' }}
+            />
+            <Stack.Screen
               name="Inventory"
               component={InventoryScreen}
               options={{ headerTitle: 'Inventory' }}
@@ -622,6 +629,14 @@ function AppContent() {
               component={TermsOfServiceScreen}
               options={{
                 headerShown: false,
+                animation: 'slide_from_right',
+              }}
+            />
+            <Stack.Screen
+              name="TeamManagement"
+              component={TeamManagementScreen}
+              options={{
+                headerTitle: 'Team Management',
                 animation: 'slide_from_right',
               }}
             />

@@ -134,6 +134,9 @@ export default function CompleteProfileScreen({ navigation }: any) {
   const [website, setWebsite] = useState('');
   const [facebook, setFacebook] = useState('');
   const [instagram, setInstagram] = useState('');
+  const [twitter, setTwitter] = useState('');
+  const [linkedin, setLinkedin] = useState('');
+  const [youtube, setYoutube] = useState('');
   const [subcategory, setSubcategory] = useState('');
   const [customCategory, setCustomCategory] = useState('');
   const [customSubcategory, setCustomSubcategory] = useState('');
@@ -171,6 +174,9 @@ export default function CompleteProfileScreen({ navigation }: any) {
           if (profile.website) setWebsite(profile.website);
           if (profile.facebook) setFacebook(profile.facebook);
           if (profile.instagram) setInstagram(profile.instagram);
+          if (profile.twitter) setTwitter(profile.twitter);
+          if (profile.linkedin) setLinkedin(profile.linkedin);
+          if (profile.youtube) setYoutube(profile.youtube);
           if (profile.subcategory) setSubcategory(profile.subcategory);
           if (profile.operating_hours) setOperatingHours(profile.operating_hours);
           if (profile.latitude) setLatitude(profile.latitude);
@@ -336,6 +342,17 @@ export default function CompleteProfileScreen({ navigation }: any) {
       value: description,
       setValue: setDescription,
       multiline: true,
+    },
+    // Step 9: Social Media & Website
+    {
+      id: 'social',
+      title: 'Social Media & Website',
+      subtitle: 'Connect with customers online (optional)',
+      icon: 'globe',
+      placeholder: '',
+      value: website,
+      setValue: setWebsite,
+      isSpecial: 'social-media',
     },
   ];
 
@@ -512,6 +529,9 @@ export default function CompleteProfileScreen({ navigation }: any) {
       if (website) profileData.website = website;
       if (facebook) profileData.facebook = facebook;
       if (instagram) profileData.instagram = instagram;
+      if (twitter) profileData.twitter = twitter;
+      if (linkedin) profileData.linkedin = linkedin;
+      if (youtube) profileData.youtube = youtube;
       if (operatingHours && operatingHours !== '9 AM - 9 PM') profileData.operating_hours = operatingHours;
       if (photoUrl) profileData.profile_photo_url = photoUrl;
 
@@ -843,6 +863,116 @@ export default function CompleteProfileScreen({ navigation }: any) {
           </Text>
           <Ionicons name="chevron-forward" size={20} color={Colors.textTertiary} />
         </TouchableOpacity>
+      );
+    }
+
+    if (currentStep.isSpecial === 'social-media') {
+      return (
+        <View style={styles.multiFieldContainer}>
+          {/* Website */}
+          <View style={styles.fieldWrapper}>
+            <Text style={[styles.fieldLabel, { color: Colors.textPrimary }]}>Website</Text>
+            <View style={[styles.inputContainer, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}>
+              <Ionicons name="globe-outline" size={20} color={Colors.textTertiary} style={styles.inputIcon} />
+              <TextInput
+                style={[styles.input, { color: Colors.textPrimary }]}
+                placeholder="https://www.yourbusiness.com"
+                placeholderTextColor={Colors.textTertiary}
+                value={website}
+                onChangeText={setWebsite}
+                keyboardType="url"
+                autoCapitalize="none"
+              />
+            </View>
+          </View>
+
+          {/* Instagram */}
+          <View style={styles.fieldWrapper}>
+            <Text style={[styles.fieldLabel, { color: Colors.textPrimary }]}>Instagram</Text>
+            <View style={[styles.inputContainer, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}>
+              <Ionicons name="logo-instagram" size={20} color="#E4405F" style={styles.inputIcon} />
+              <TextInput
+                style={[styles.input, { color: Colors.textPrimary }]}
+                placeholder="@yourbusiness or full URL"
+                placeholderTextColor={Colors.textTertiary}
+                value={instagram}
+                onChangeText={setInstagram}
+                autoCapitalize="none"
+              />
+            </View>
+          </View>
+
+          {/* Facebook */}
+          <View style={styles.fieldWrapper}>
+            <Text style={[styles.fieldLabel, { color: Colors.textPrimary }]}>Facebook</Text>
+            <View style={[styles.inputContainer, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}>
+              <Ionicons name="logo-facebook" size={20} color="#1877F2" style={styles.inputIcon} />
+              <TextInput
+                style={[styles.input, { color: Colors.textPrimary }]}
+                placeholder="facebook.com/yourbusiness"
+                placeholderTextColor={Colors.textTertiary}
+                value={facebook}
+                onChangeText={setFacebook}
+                autoCapitalize="none"
+              />
+            </View>
+          </View>
+
+          {/* Twitter/X */}
+          <View style={styles.fieldWrapper}>
+            <Text style={[styles.fieldLabel, { color: Colors.textPrimary }]}>Twitter / X</Text>
+            <View style={[styles.inputContainer, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}>
+              <Ionicons name="logo-twitter" size={20} color="#1DA1F2" style={styles.inputIcon} />
+              <TextInput
+                style={[styles.input, { color: Colors.textPrimary }]}
+                placeholder="@yourbusiness"
+                placeholderTextColor={Colors.textTertiary}
+                value={twitter}
+                onChangeText={setTwitter}
+                autoCapitalize="none"
+              />
+            </View>
+          </View>
+
+          {/* LinkedIn */}
+          <View style={styles.fieldWrapper}>
+            <Text style={[styles.fieldLabel, { color: Colors.textPrimary }]}>LinkedIn</Text>
+            <View style={[styles.inputContainer, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}>
+              <Ionicons name="logo-linkedin" size={20} color="#0A66C2" style={styles.inputIcon} />
+              <TextInput
+                style={[styles.input, { color: Colors.textPrimary }]}
+                placeholder="linkedin.com/company/yourbusiness"
+                placeholderTextColor={Colors.textTertiary}
+                value={linkedin}
+                onChangeText={setLinkedin}
+                autoCapitalize="none"
+              />
+            </View>
+          </View>
+
+          {/* YouTube */}
+          <View style={styles.fieldWrapper}>
+            <Text style={[styles.fieldLabel, { color: Colors.textPrimary }]}>YouTube</Text>
+            <View style={[styles.inputContainer, { backgroundColor: Colors.card, borderColor: Colors.borderLight }]}>
+              <Ionicons name="logo-youtube" size={20} color="#FF0000" style={styles.inputIcon} />
+              <TextInput
+                style={[styles.input, { color: Colors.textPrimary }]}
+                placeholder="youtube.com/@yourbusiness"
+                placeholderTextColor={Colors.textTertiary}
+                value={youtube}
+                onChangeText={setYoutube}
+                autoCapitalize="none"
+              />
+            </View>
+          </View>
+
+          <View style={[styles.tipCard, { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.1)' : '#f0fdf4', marginTop: Spacing.space3 }]}>
+            <Ionicons name="bulb" size={16} color="#10b981" />
+            <Text style={[styles.tipText, { color: isDark ? '#6ee7b7' : '#059669' }]}>
+              Social links help customers connect with your business
+            </Text>
+          </View>
+        </View>
       );
     }
 
