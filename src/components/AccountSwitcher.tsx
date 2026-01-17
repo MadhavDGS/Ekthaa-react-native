@@ -16,9 +16,9 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getThemedColors, Spacing, BorderRadius } from '../../constants/theme';
-import { useTheme } from '../../context/ThemeContext';
-import { LinkedAccount, ROLE_INFO } from '../../types/accounts';
+import { getThemedColors, Spacing, BorderRadius } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
+import { LinkedAccount, ROLE_INFO } from '../types/accounts';
 
 interface AccountSwitcherProps {
   visible: boolean;
